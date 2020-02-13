@@ -1,0 +1,32 @@
+\documentclass[10pt,a4paper,twoside]{article}
+%Output Options-----------------------------------------------
+% This line for print
+%\usepackage[top=3cm,bottom=2.7cm,left=4cm,right=2cm]{geometry}
+% This line for web
+\usepackage[top=3cm,bottom=2.7cm,left=3cm,right=3cm]{geometry}
+%Insert Packages ---------------------------------------------
+\input{Settings/preamble}
+%Bibliography ------------------------------------------------
+\usepackage[style=apa,backend=biber]{biblatex}
+\DeclareLanguageMapping{english}{english-apa}
+\addbibresource{References/Zotero_Refs.bib}
+%Begin Document ----------------------------------------------
+\begin{document}
+%MAIN BODY ---------------------------------------------------
+\onehalfspacing
+\cleardoublepage
+%\pagestyle{fancy}
+%\pagenumbering{arabic}
+\title{Predicting near-field peak specific impulse distributions of spherical charges}
+\maketitle
+\import{Sections/}{Abstract}
+\import{Sections/}{Section1}
+\import{Sections/}{Section2}
+\import{Sections/}{Section3}
+\import{Sections/}{Section4}
+\import{Sections/}{Section5}
+\import{Sections/}{Section6}
+\cleardoublepage
+%BIBLIOGRAPHY
+\printbibliography
+\end{document}

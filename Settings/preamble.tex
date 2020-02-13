@@ -1,0 +1,74 @@
+%Packages
+\let\oldchapter\chapter
+\def\chapter{\cleardoublepage\oldchapter}
+\usepackage{fancyhdr}
+\setlength{\headheight}{13.9pt}
+\setlength{\parindent}{0cm}
+\parskip 1.3ex
+%Heading Style
+\fancyhf{}
+\fancyhead[lo]{\small\scshape\nouppercase{\leftmark}}
+\fancyhead[ro]{\thepage}
+\fancyhead[re]{\small\scshape\nouppercase{\rightmark}}
+\fancyhead[le]{\thepage}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{1pt}
+%\renewcommand*{\thefootnote}{(\arabic{footnote})}
+\renewcommand{\thefootnote}{[\roman{footnote}]}
+%Nomenclature
+\usepackage{nomencl}
+%Appendix
+\usepackage[toc,page]{appendix}
+%\usepackage{import}
+\usepackage{import}
+%Float Barrier
+\usepackage{placeins}
+%Landscape thing
+\usepackage{afterpage}
+\usepackage{pdflscape}
+%Matlab Scripts
+\usepackage{listings}
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+%Matlab Script
+\lstset{language=Matlab,%
+	basicstyle=\ttfamily\footnotesize,
+	breaklines=true,%
+	morekeywords={matlab2tikz},
+	keywordstyle=\color{black},%
+	morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
+	identifierstyle=\color{black},%
+	stringstyle=\color{mylilas},
+	commentstyle=\color{mygreen},%
+	showstringspaces=false,%without this there will be a symbol in the places where there is a space
+	numbers=left,%
+	numberstyle={\tiny \color{black}},% size of the numbers
+	numbersep=9pt, % this defines how far the numbers are from the text
+	emph=[1]{for,end,while,if,elseif,else,function},emphstyle=[1]\color{blue}, %some words to emphasise
+	%emph=[2]{word1,word2}, emphstyle=[2]{style},   
+}
+\newcommand{\vect}[1]{\boldsymbol{#1}}
+\usepackage[hang,flushmargin]{footmisc}
+\usepackage{dcolumn}
+\usepackage{array}
+\usepackage{emptypage}
+\usepackage{booktabs}
+\usepackage{threeparttable}
+\usepackage{amsmath,amsfonts,amsthm}
+\usepackage{enumerate}
+\usepackage{longtable}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage{nameref}
+\usepackage{datenumber}
+\usepackage{datetime}
+\usepackage{pdfpages}
+%\usepackage{refcheck} %Use this to see what refs are and what are used
+\usepackage[figuresright]{rotating}
+\captionsetup{font=small,labelfont=small}
+\setstretch{1.2} % for custom spacing
