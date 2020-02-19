@@ -7,10 +7,12 @@ import matplotlib.pyplot as plt #3.0.2
 from matplotlib import cm
 import numpy as np #1.15.4
 import blast as blst
+from scipy.optimize import curve_fit
 from mpl_toolkits.mplot3d import Axes3D
 import scipy.io as sio
 import lmfit as lm
 from sklearn.metrics import r2_score, mean_squared_error
+import lmfit as lm
 
 plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
 
@@ -40,6 +42,9 @@ clear_standoff = np.transpose(np.repeat(clear_standoff, len(theta), axis=1))
 
 
 #Load Data for 80mm and 380mm Apollo Experimental
+fileID_NF_80mm_gtable = r"C:\Users\jorda\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gtable"
+gtable_80mm = pre.FileAddressList(fileID_NF_80mm_gtable,1)
+Irmax_Ii_80mm = np.divide(gtable_80mm[0][:,7], gtable_80mm[0][:,7].max())
 NF_80mm_exp = sio.loadmat(r"C:\Users\jorda\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_80mm") 
 NF_380mm_exp = sio.loadmat(r"C:\Users\jorda\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_380mm")
 coords = np.append(np.arange(-100,101,25), np.arange(-100,-24,25)) 
@@ -77,60 +82,14 @@ def RPB(theta, Ir):
     Ii = 0.1 * Ir
     return Ir * np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) + (Ii/Ir)*(1 + (np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) ) - 2*np.cos(np.deg2rad(theta)))
     
- 
+def RPB_opt(theta, Ii_ratio):
+    return (1) * np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) + (Ii_ratio)*(1 + (np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) ) - 2*np.cos(np.deg2rad(theta)))
 
 
-
-
-#Creating and fitting a gaussian model ----------------------------------------
-def gauss_two_curve(x, *params):
-    y1 = np.zeros_like(x)
-    y2 = np.zeros_like(x)
-    y1 = params[1] * np.exp( -((x - params[0])**2 / (2*(params[2]**2)) ) )
-    y2 = params[4] * np.exp( -((x - params[3])**2 / (2*(params[5]**2)) ) )
-    y = y1 + y2
-    return y
-def pen1(param1, param2):
-    delta = param2 - param1
-    out = max(0,delta)
-    return out**0.5  
-#Objective function to be minimised. Loss function is MSE.
-def lm_residual(params, x, ytrue):
-    cen1 = params['cen1'].value
-    amp1 = params['amp1'].value
-    wid1 = params['wid1'].value
-    cen2 = params['cen2'].value
-    amp2 = params['amp2'].value
-    wid2 = params['wid2'].value
-
-    args = [cen1, amp1, wid1, cen2, amp2, wid2]
-    
-    global current_cost
-    current_cost = ( (mean_squared_error(ytrue, gauss_two_curve(x, *args)))**2 + (reg1 * pen1(amp1, amp2)**2) ) **0.5
-    #current_cost = ( (mean_absolute_error(ytrue, gauss_two_curve(x, *args)))**2 + (reg1 * pen1(amp1, amp2)**2) ) **0.5
-    return current_cost
-#Create a set of parameters
-params = lm.Parameters()
-params['cen1'] = lm.Parameter(name='cen1', value = 0.5, vary = 'false', min = 0.49, max = 0.51)
-params['amp1'] = lm.Parameter(name='amp1', value = 0.5, min=0, max=1)
-params['wid1'] = lm.Parameter(name='wid1', value = 0.5, min=0, max=1)   
-params['cen2'] = lm.Parameter(name='cen2', value = 0.5, vary = 'false', min = 0.49, max = 0.51)
-params['amp2'] = lm.Parameter(name='amp2', value = 0.3, min=0, max=1)
-params['wid2'] = lm.Parameter(name='wid2', value = 0.5, min=0, max=1)
-
-reg1 = 1
-gauss_theta = np.concatenate([-np.flipud(theta[:,0]),theta[:,0]])
-gauss_theta_norm = (gauss_theta - min(gauss_theta)) / (max(gauss_theta) - min(gauss_theta))
-gauss_Icr_Ir = np.concatenate([np.flipud(Icr_Ir[:,0]), Icr_Ir[:,0]])
-result = lm.minimize(lm_residual, params, method = 'least_squares', args = (gauss_theta_norm, gauss_Icr_Ir))
-opt = result.params
-
-gauss_mod = gauss_two_curve(gauss_theta, opt['cen1'].value, opt['amp1'].value, opt['wid1'].value, opt['cen2'].value, opt['amp2'].value, opt['wid2'].value)
-
-
-
-
-
+def RPB_2ndterm(theta, Ii_ratio):
+    return (Ii_ratio)*(1 + (np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) ) - 2*np.cos(np.deg2rad(theta)))
+lol =RPB_2ndterm(np.linspace(0,80,100), np.linspace(0,1,100))
+lol2 = np.cos(np.deg2rad(np.linspace(0,80,100))) * np.cos(np.deg2rad(np.linspace(0,80,100))) 
 
 
 
@@ -170,7 +129,7 @@ ax1.set_xlabel('theta (degrees)')
 ax1.set_ylabel('Ir / Ir Max')
 #Also Plotting model distributions
 choice = 0
-beta = 0.8 
+beta = 0.9 
 ax1.plot(theta[:, choice],  jang(theta[:, choice], 1, beta) , label = 'Jang')
 ax1.plot(theta[:, choice], RPB(theta[:, choice], 1), label = 'RPB')
 ax1.plot(theta[:, choice], dharmasena(theta[:, choice], 1), label = 'Dharmasena')
@@ -179,3 +138,83 @@ ax1.legend(handles, labels, loc='center', bbox_to_anchor=(0.65, 0.90), prop={'si
 plt.tight_layout()
 
 
+
+
+
+
+
+
+
+#Creating and fitting a gaussian model
+def gauss_curve(x, *params):
+    y1 = np.zeros_like(x)
+
+    y1 = params[1] * np.exp( -((x - params[0])**2 / (2*(params[2]**2)) ) )
+
+    y = y1
+    return y
+
+#Objective function to be minimised. Loss function is MSE.
+def lm_residual(params, x, ytrue):
+    cen1 = params['cen1'].value
+    amp1 = params['amp1'].value
+    wid1 = params['wid1'].value
+
+    args = [cen1, amp1, wid1]
+    
+    global current_cost
+    current_cost = mean_squared_error(ytrue, gauss_curve(x, *args))  
+    return current_cost
+
+#Create a set of parameters
+params = lm.Parameters()
+params['cen1'] = lm.Parameter(name='cen1', value = 0.5, vary = 'false', min = 0.4, max = 0.6)
+params['amp1'] = lm.Parameter(name='amp1', value = 0.5, min=0, max=1)
+params['wid1'] = lm.Parameter(name='wid1', value = 0.5, min=0, max=1)   
+
+#
+test = 0
+x = np.concatenate([-np.flipud(theta[:,test]),theta[:,test]])
+x = (x - min(x)) / (max(x) - min(x))
+data = np.concatenate([np.flipud(Icr_Ir[:,test]), Icr_Ir[:,test]])
+#data = np.concatenate([np.flipud(Icr_Ir.max(1)), Icr_Ir.max(1)])
+data = (data - min(data)) / (max(data) - min(data)) 
+
+#Nonlinear regression
+result = lm.minimize(lm_residual, params, method = 'least_squares', args = (x, data))
+gaussmod = gauss_curve(x, result.params['cen1'].value, result.params['amp1'].value, result.params['wid1'].value)
+
+
+
+
+#RPB optimum model
+RPB_opt_params=[]
+RPB_cov=[]
+for i in range(len(Apollo_FileList)):
+    popt, pcov = curve_fit(RPB_opt, theta[i,:], peak_impulse[i,:]/max(peak_impulse[i,:]), bounds = (0,1))
+    RPB_opt_params.append(popt)
+    RPB_cov.append(pcov)
+#RPB Model
+fig, ax0 = plt.subplots(1,1)
+#Plotting Apollo data
+ax0.scatter(theta, Icr_Ir, marker='o', s=0.1, color = 'red' , label = 'CFD')
+#Plotting Experimental data
+ax0.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
+ax0.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax0.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax0.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
+ax0.set_xlabel('theta (degrees)')
+ax0.set_ylabel('Ir / Ir Max')
+#Also Plotting model distributions
+for choice in range(len(Apollo_FileList)):
+    if choice == 0:
+        ax0.plot(theta[:, choice], RPB(theta[:, choice], 1), label = 'Normal RPB')
+        ax0.plot(theta[:, choice], RPB_opt(theta[:, choice], RPB_opt_params[i][0]), label = 'Optimised RPB')
+    else:
+        ax0.plot(theta[:, choice], RPB(theta[:, choice], 1))
+        ax0.plot(theta[:, choice], RPB_opt(theta[:, choice], RPB_opt_params[i][0]))
+#Gaussian
+ax0.plot(theta[:,test], gaussmod[300::], color = 'black', label = 'Gaussian')
+handles, labels = ax0.get_legend_handles_labels()
+ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.65, 0.90), prop={'size':6})
+plt.tight_layout()

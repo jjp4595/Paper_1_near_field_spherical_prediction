@@ -321,12 +321,8 @@ Motion starts for $t = t_0$ and ends at $t_{end}$ or the ultimate stretch ratio 
 In \textit{Apollo} there is the option to split up the overall simulation into stages with cell size restrictions.
 The first of these stages can be run in one dimension (B1D module).
 Each stage is a cut-out of the entire model.
-The user can define termination criteria for each stage which may be a global pressure criterion or the normal restriction of stage radii having been met.
-Successive stages are linked together through remapping of the flow field reached at the end of the prior stage onto the mesh of the successive stage.
+The stage specifications are based on the Hopkinson-scaled wavelengths of the blast wave (based on free field propagation of spherical TNT charge), which depends on the charge mass and the radial distance from the charge. 
 
-Resolution levels can also be defined for each stage.
-For instance if the overall simulation was split into three stages, each successive stage could permit an extra resolution level. 
-This gives the user control over the level of refinement at each stage.
 
 \subsection{Preliminary mesh convergence study}
 A preliminary mesh convergence study was completed to inform the later analyses of suitable mesh resolution levels.
