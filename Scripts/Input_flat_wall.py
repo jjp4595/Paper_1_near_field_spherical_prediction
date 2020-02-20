@@ -26,10 +26,10 @@ z_min = 0
 
 
 #Standoffs/Scaled Distances
-z = np.linspace(0.055, 1, no_exps)
+z = np.linspace(0.055, 0.5, no_exps)
 
 #Output and theta range
-no_gauges = 400
+no_gauges = 200
 
 
             
@@ -37,7 +37,7 @@ no_gauges = 400
 batch_name = "new_batch.bat"
 batch_path = r"D:\PhD projects\Pannell_Jordan\NewFolder"
 template = "PE4_theta_template.txt"
-local_path = r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\NewFolder"
+local_path = r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\NewFolder"
 
 
 def myround(x, base):
@@ -75,10 +75,13 @@ def file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, x
         #Create gauge information and charge position based on z.
         so = np.multiply(z[i], (mass**(1/3))*tnt_eq)
         gauges_xloc = np.round(np.multiply(so, np.tan(np.deg2rad(theta))), 4)
+        stage_limit = np.round(so - zone_length, 4)
+        
         x_max = myround(max(gauges_xloc) * 1.2, zone_length)
+        x_max = round(x_max, 4)
         y_max = x_max
         z_max = x_max
-        stage_limit = np.round(so - zone_length, 4)
+                      
         charge_loc = np.round(np.subtract(y_max, so),4)    
 
         
@@ -116,11 +119,24 @@ def file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, x
             #Output---------------
             str_to_search = "\t\t\t\t\t...number of gauges"
             gauges_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
-            content[int(gauges_index)] = str(no_gauges) + str_to_search 
-            for i in range(no_gauges):       
-                gauge_string = "' " + str(i) + " ' " + str(gauges_xloc[i]) + " " + str(round(max(gauges_xloc) - gauge_tol, 5)) + " " + str(round(z_min + gauge_tol, 5))
-                index = int(gauges_index + i + 1)
-                content.insert(index, gauge_string) 
+            content[int(gauges_index)] = str(no_gauges*2) + str_to_search 
+            
+            for i in range(no_gauges): 
+                incident_gauge_string = "' " + str(i + no_gauges) + " ' " + str(gauges_xloc[i]) + " " + str(round(charge_loc - so, 5)) + " " + str(round(z_min + gauge_tol, 5))
+                incident_index = int(gauges_index + i + 1)
+                content.insert(incident_index, incident_gauge_string)
+            
+            for i in range(no_gauges): 
+                reflected_gauge_string = "' " + str(i) + " ' " + str(gauges_xloc[i]) + " " + str(round(y_max - gauge_tol, 5)) + " " + str(round(z_min + gauge_tol, 5))
+                reflected_index = int(gauges_index + i + 1)
+                content.insert(reflected_index, reflected_gauge_string)
+                
+                
+                
+                
+                #incident_index = reflected_index + 1
+                #content.insert(incident_index, incident_gauge_string)
+                
             
             #Fluids---------------
             
