@@ -17,8 +17,9 @@ import lmfit as lm
 plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
 
 #Import Apollo data
-Apollo_FileList = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\PE4_100g_theta80_z055_16\*.txt")
-Apollo_gtable = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\PE4_100g_theta80_z055_16\*gtable",1)
+Apollo_FileList = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\PE4_100g_theta80_z055_16\*.txt")
+Apollo_gtable = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\PE4_100g_theta80_z055_16\*gtable",1)
+
 
 #Some charge properties
 charge_rad = 0.0246
@@ -26,27 +27,39 @@ charge_mass = 0.1
 
 
 #Finding theta and creating data structures
+incident_index = 200
+
 clear_standoff=np.zeros((len(Apollo_FileList),1))
-peak_impulse=[] 
+peak_impulse=[]
+#incident_impulse = []
+#ref_factor = [] 
 Icr_Ir = []
 theta = []
 for i in range(len(Apollo_FileList)):
     clear_standoff[i] = pre.standoff_func(Apollo_FileList[i]) - charge_rad
-    peak_impulse.append(Apollo_gtable[i][:,7])
+    peak_impulse.append(Apollo_gtable[i][0:incident_index,7])
+    #incident_impulse.append(Apollo_gtable[i][incident_index::,7])
+    #ref_factor.append(peak_impulse[i]/incident_impulse[i])
     Icr_Ir.append(peak_impulse[i] / max(peak_impulse[i]))
-    theta.append(np.rad2deg(np.arctan(np.divide(Apollo_gtable[i][:,2], clear_standoff[i] + charge_rad))))
+    theta.append(np.rad2deg(np.arctan(np.divide(Apollo_gtable[i][0:incident_index,2], clear_standoff[i] + charge_rad))))
+
 theta = np.stack(theta, axis=1)
 peak_impulse = np.stack(peak_impulse, axis = 1)
+#incident_impulse = np.stack(incident_impulse, axis = 1)
+#ref_factor = np.stack(ref_factor, axis = 1)
 Icr_Ir = np.stack(Icr_Ir, axis =1)
 clear_standoff = np.transpose(np.repeat(clear_standoff, len(theta), axis=1))
 
 
+
+
+
 #Load Data for 80mm and 380mm Apollo Experimental
-fileID_NF_80mm_gtable = r"C:\Users\jorda\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gtable"
+fileID_NF_80mm_gtable = r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gtable"
 gtable_80mm = pre.FileAddressList(fileID_NF_80mm_gtable,1)
 Irmax_Ii_80mm = np.divide(gtable_80mm[0][:,7], gtable_80mm[0][:,7].max())
-NF_80mm_exp = sio.loadmat(r"C:\Users\jorda\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_80mm") 
-NF_380mm_exp = sio.loadmat(r"C:\Users\jorda\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_380mm")
+NF_80mm_exp = sio.loadmat(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_80mm") 
+NF_380mm_exp = sio.loadmat(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_380mm")
 coords = np.append(np.arange(-100,101,25), np.arange(-100,-24,25)) 
 coords = np.append(coords, np.arange(25,101,25))
 coords = np.divide(coords,1000)
@@ -82,18 +95,6 @@ def RPB(theta, Ir):
     Ii = 0.1 * Ir
     return Ir * np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) + (Ii/Ir)*(1 + (np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) ) - 2*np.cos(np.deg2rad(theta)))
     
-def RPB_opt(theta, Ii_ratio):
-    return (1) * np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) + (Ii_ratio)*(1 + (np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) ) - 2*np.cos(np.deg2rad(theta)))
-
-
-def RPB_2ndterm(theta, Ii_ratio):
-    return (Ii_ratio)*(1 + (np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) ) - 2*np.cos(np.deg2rad(theta)))
-lol =RPB_2ndterm(np.linspace(0,80,100), np.linspace(0,1,100))
-lol2 = np.cos(np.deg2rad(np.linspace(0,80,100))) * np.cos(np.deg2rad(np.linspace(0,80,100))) 
-
-
-
-
 
 
 
@@ -121,18 +122,14 @@ ax1.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", 
 ax1.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax1.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax1.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
-#ax1.scatter(theta_exp_380mm, np.divide(MxI_1_380mm, max(MxI_1_380mm)), marker="+", s=15., color=[0.5,0.5,0.5], edgecolors='none', label = '380mm Exp')
-#ax1.scatter(theta_exp_380mm, np.divide(MxI_2_380mm, max(MxI_2_380mm)), marker="+", s=15., color=[0.5,0.5,0.5], edgecolors='none')
-#ax1.scatter(theta_exp_380mm, np.divide(MxI_3_380mm, max(MxI_3_380mm)), marker="+", s=15., color=[0.5,0.5,0.5], edgecolors='none')
-#ax1.scatter(theta_exp_380mm_mean, np.divide(Mx_mean_380mm, max(Mx_mean_380mm)), marker="p", s=15., label = '380mm Exp Mean')
 ax1.set_xlabel('theta (degrees)')
 ax1.set_ylabel('Ir / Ir Max')
 #Also Plotting model distributions
 choice = 0
-beta = 0.9 
-ax1.plot(theta[:, choice],  jang(theta[:, choice], 1, beta) , label = 'Jang')
-ax1.plot(theta[:, choice], RPB(theta[:, choice], 1), label = 'RPB')
-ax1.plot(theta[:, choice], dharmasena(theta[:, choice], 1), label = 'Dharmasena')
+beta = 0.7 
+ax1.plot(theta[:, choice],  jang(theta[:, choice], Icr_Ir[:, choice], beta) , label = 'Jang')
+ax1.plot(theta[:, choice], RPB(theta[:, choice], Icr_Ir[:, choice]), label = 'RPB')
+ax1.plot(theta[:, choice], dharmasena(theta[:, choice], Icr_Ir[:, choice]), label = 'Dharmasena')
 handles, labels = ax1.get_legend_handles_labels()
 ax1.legend(handles, labels, loc='center', bbox_to_anchor=(0.65, 0.90), prop={'size':6})
 plt.tight_layout()
@@ -187,16 +184,8 @@ gaussmod = gauss_curve(x, result.params['cen1'].value, result.params['amp1'].val
 
 
 
-#RPB optimum model
-RPB_opt_params=[]
-RPB_cov=[]
-for i in range(len(Apollo_FileList)):
-    popt, pcov = curve_fit(RPB_opt, theta[i,:], peak_impulse[i,:]/max(peak_impulse[i,:]), bounds = (0,1))
-    RPB_opt_params.append(popt)
-    RPB_cov.append(pcov)
-#RPB Model
-fig, ax0 = plt.subplots(1,1)
-#Plotting Apollo data
+
+#Plotting some more model functions
 ax0.scatter(theta, Icr_Ir, marker='o', s=0.1, color = 'red' , label = 'CFD')
 #Plotting Experimental data
 ax0.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
@@ -205,14 +194,6 @@ ax0.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", 
 ax0.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
 ax0.set_xlabel('theta (degrees)')
 ax0.set_ylabel('Ir / Ir Max')
-#Also Plotting model distributions
-for choice in range(len(Apollo_FileList)):
-    if choice == 0:
-        ax0.plot(theta[:, choice], RPB(theta[:, choice], 1), label = 'Normal RPB')
-        ax0.plot(theta[:, choice], RPB_opt(theta[:, choice], RPB_opt_params[i][0]), label = 'Optimised RPB')
-    else:
-        ax0.plot(theta[:, choice], RPB(theta[:, choice], 1))
-        ax0.plot(theta[:, choice], RPB_opt(theta[:, choice], RPB_opt_params[i][0]))
 #Gaussian
 ax0.plot(theta[:,test], gaussmod[300::], color = 'black', label = 'Gaussian')
 handles, labels = ax0.get_legend_handles_labels()

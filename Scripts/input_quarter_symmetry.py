@@ -5,7 +5,7 @@ import os
 
 #------------------------------------------------------------------------------
 #meta variables 
-no_exps = 10
+no_exps = 5
 
 
 #Charge info
@@ -15,18 +15,16 @@ tnt_eq = 1
 shape_ratio = 0 #0 for sphere
 
 #Stages Variables
-term_time = 0.0002
+term_time = 0.003
 
 #Model
-res_level = 5
-zone_length = 0.2
-x_min = 0
-y_min = 0
-z_min = 0
+res_level = 4
+zone_length = 0.02
+
 
 
 #Standoffs/Scaled Distances
-z = np.linspace(0.055, 0.5, no_exps)
+z = np.linspace(0.055, 0.16, no_exps)
 
 #Output and theta range
 no_gauges = 200
@@ -48,10 +46,10 @@ def myround(x, base):
 
 
 #------------------------------------------------------------------------------   
-def file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, x_min, y_min, z_min, z, no_gauges, batch_name, batch_path, template, local_path):
+def file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, z, no_gauges, batch_name, batch_path, template, local_path):
     """
     The function below creates the input files and batch file from a given template file. More paramaters can be added that need to be changed. 
-    """
+    """    
     startfile = 100
     file_list = [str(num)+".txt" for num in list(range(startfile, startfile + no_exps))]
     
@@ -79,8 +77,8 @@ def file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, x
         
         x_max = myround(max(gauges_xloc) * 1.2, zone_length)
         x_max = round(x_max, 4)
-        y_max = x_max
-        z_max = x_max
+        y_max = myround(so + 2*charge_rad, zone_length)
+        z_max = y_max
                       
         charge_loc = np.round(np.subtract(y_max, so),4)    
 
@@ -101,41 +99,29 @@ def file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, x
             str_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
             str_to_search2 = "\t\t\t\t\t...number of stages, add levels, use B1D"
             str_index2 = np.argwhere(np.core.defchararray.find(content, str_to_search2) > 0) 
-            if stage_limit < 0:
-                content[int(str_index2)] = "2 0 F" +str_to_search2
-            elif shape_ratio != 0:
-                content[int(str_index2)] = "2 0 F" +str_to_search2
-            else:
-                content[int(str_index)] = str(stage_limit) + " 1e6" +str_to_search                  
+            
+            content[int(str_index2)] = "2 0 F" +str_to_search2
+            
+                             
             
             #Model----------------
             str_to_search = "\t\t\t\t\t...model resolution level, zone length"
             str_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
             content[int(str_index)] = str(res_level) + " " + str(zone_length) + str_to_search
-            content[int(str_index + 3)] = "Block 'Part1' 0 0 0  " + str(x_max) + " " + str(y_max) + " " + str(z_max) + " " + " 1 1 1  3 1 3"                  
+            content[int(str_index + 3)] = "Block 'Part1' 0 0 0  " + str(x_max) + " " + str(y_max) + " " + str(z_max) + " " + " 1 3 1  3 1 3"                  
             
             #Solids---------------
             
             #Output---------------
             str_to_search = "\t\t\t\t\t...number of gauges"
             gauges_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
-            content[int(gauges_index)] = str(no_gauges*2) + str_to_search 
-            
+            content[int(gauges_index)] = str(no_gauges) + str_to_search 
+                        
             for i in range(no_gauges): 
-                incident_gauge_string = "' " + str(i + no_gauges) + " ' " + str(gauges_xloc[i]) + " " + str(round(charge_loc - so, 5)) + " " + str(round(z_min + gauge_tol, 5))
-                incident_index = int(gauges_index + i + 1)
-                content.insert(incident_index, incident_gauge_string)
-            
-            for i in range(no_gauges): 
-                reflected_gauge_string = "' " + str(i) + " ' " + str(gauges_xloc[i]) + " " + str(round(y_max - gauge_tol, 5)) + " " + str(round(z_min + gauge_tol, 5))
+                reflected_gauge_string = "' " + str(i) + " ' " + str(gauges_xloc[i]) + " " + str(round(y_max - gauge_tol, 5)) + " " + str(round(gauge_tol, 5))
                 reflected_index = int(gauges_index + i + 1)
                 content.insert(reflected_index, reflected_gauge_string)
                 
-                
-                
-                
-                #incident_index = reflected_index + 1
-                #content.insert(incident_index, incident_gauge_string)
                 
             
             #Fluids---------------
@@ -161,7 +147,7 @@ def file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, x
             
         # add lines to delete misc files 
         batch_lines.append("DEL *.mod")
-        batch_lines.append("DEL *.vtk")
+        
         batch_lines.append("DEL *_info")
         batch_lines.append("DEL *_plots")
         batch_lines.append("DEL *_status")
