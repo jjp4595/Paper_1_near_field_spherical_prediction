@@ -15,11 +15,11 @@ tnt_eq = 1
 shape_ratio = 0 #0 for sphere
 
 #Stages Variables
-term_time = 0.003
+term_time = 0.0012
 
 #Model
-res_level = 4
-zone_length = 0.02
+res_level = 5
+zone_length = 0.05
 
 
 
@@ -35,7 +35,7 @@ no_gauges = 200
 batch_name = "new_batch.bat"
 batch_path = r"D:\PhD projects\Pannell_Jordan\NewFolder"
 template = "PE4_theta_template.txt"
-local_path = r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\NewFolder"
+local_path = r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\NewFolder"
 
 
 def myround(x, base):
@@ -46,7 +46,7 @@ def myround(x, base):
 
 
 #------------------------------------------------------------------------------   
-def file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, z, no_gauges, batch_name, batch_path, template, local_path):
+def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, z, no_gauges, batch_name, batch_path, template, local_path):
     """
     The function below creates the input files and batch file from a given template file. More paramaters can be added that need to be changed. 
     """    
@@ -77,7 +77,8 @@ def file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, z
         
         x_max = myround(max(gauges_xloc) * 1.2, zone_length)
         x_max = round(x_max, 4)
-        y_max = myround(so + 2*charge_rad, zone_length)
+        #y_max = myround(so + 3*charge_rad, zone_length)
+        y_max = x_max
         z_max = y_max
                       
         charge_loc = np.round(np.subtract(y_max, so),4)    

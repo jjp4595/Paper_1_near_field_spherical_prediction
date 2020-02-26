@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
 
 #Import Apollo data for ZL 0.2m
-Apollo_FileList_2d = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\meshes\*.txt")
-Apollo_gtable_2d = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\meshes\*gtable",1)
-Apollo_gauges_2d = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\meshes\*gauges",1)
-Apollo_log_2d = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\meshes\*_log")
+Apollo_FileList_2d = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\meshes_reduced_volume_domain\*.txt")
+Apollo_gtable_2d = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\meshes_reduced_volume_domain\*gtable",1)
+Apollo_gauges_2d = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\meshes_reduced_volume_domain\*gauges",1)
+Apollo_log_2d = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\meshes_reduced_volume_domain\*_log")
 ult_cell_sizes_2d=[]
 peak_impulse_2d = []
 CPU_times_2d=[]
