@@ -15,20 +15,21 @@ tnt_eq = 1
 shape_ratio = 0 #0 for sphere
 
 #Stages Variables
-term_time = 0.0012
+term_time = 0.002
 
 #Model
-res_level = 5
-zone_length = 0.05
+res_level = [0,1,2,3,4]
+zone_length = 0.01
 
 
 
 #Standoffs/Scaled Distances
-z = np.linspace(0.055, 0.16, no_exps)
+z = np.repeat(0.055, no_exps)
+
 
 #Output and theta range
 no_gauges = 200
-
+no_plot_files = 20
 
             
 #file location information
@@ -46,7 +47,7 @@ def myround(x, base):
 
 
 #------------------------------------------------------------------------------   
-def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, z, no_gauges, batch_name, batch_path, template, local_path):
+def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, z, no_gauges, no_plot_files, batch_name, batch_path, template, local_path):
     """
     The function below creates the input files and batch file from a given template file. More paramaters can be added that need to be changed. 
     """    
@@ -62,7 +63,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
     #Function Vars
     gauge_tol = 0.0001
     theta = np.linspace(0,80,no_gauges)
-    
+    plot_interval = str(round(term_time / no_plot_files , 4))
 
     
     #Start looping through input files here
@@ -72,12 +73,13 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
         
         #Create gauge information and charge position based on z.
         so = np.multiply(z[i], (mass**(1/3))*tnt_eq)
+        so += charge_rad
         gauges_xloc = np.round(np.multiply(so, np.tan(np.deg2rad(theta))), 4)
         stage_limit = np.round(so - zone_length, 4)
         
         x_max = myround(max(gauges_xloc) * 1.2, zone_length)
         x_max = round(x_max, 4)
-        #y_max = myround(so + 3*charge_rad, zone_length)
+        
         y_max = x_max
         z_max = y_max
                       
@@ -108,7 +110,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
             #Model----------------
             str_to_search = "\t\t\t\t\t...model resolution level, zone length"
             str_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
-            content[int(str_index)] = str(res_level) + " " + str(zone_length) + str_to_search
+            content[int(str_index)] = str(res_level[i]) + " " + str(zone_length) + str_to_search
             content[int(str_index + 3)] = "Block 'Part1' 0 0 0  " + str(x_max) + " " + str(y_max) + " " + str(z_max) + " " + " 1 3 1  3 1 3"                  
             
             #Solids---------------
@@ -122,8 +124,11 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
                 reflected_gauge_string = "' " + str(i) + " ' " + str(gauges_xloc[i]) + " " + str(round(y_max - gauge_tol, 5)) + " " + str(round(gauge_tol, 5))
                 reflected_index = int(gauges_index + i + 1)
                 content.insert(reflected_index, reflected_gauge_string)
-                
-                
+            
+            str_to_search = "\t\t\t\t...plot time:  on/off sequence next end"
+            new_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
+            content[int(new_index)] = "T " + plot_interval + " 0 1.e9" + str_to_search     
+   
             
             #Fluids---------------
             
@@ -166,3 +171,4 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
 #------------------------------------------------------------------------------
 
 
+reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, z, no_gauges, no_plot_files, batch_name, batch_path, template, local_path)

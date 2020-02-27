@@ -1,0 +1,179 @@
+#Some Apollo prep functions and eqs.
+#Importing packages
+import numpy as np
+import os
+
+#------------------------------------------------------------------------------
+#meta variables 
+no_exps = 3
+
+
+#Charge info
+mass = 0.1
+charge_rad = 0.0246
+tnt_eq = 1
+shape_ratio = 0 #0 for sphere
+
+#Stages Variables
+term_time = [0.03, 0.03, 0.03] 
+
+#Model
+res_level = 1
+zone_length = 0.05
+
+
+
+#Standoffs/Scaled Distances
+z = np.linspace(0.055, 0.5, no_exps)
+
+
+#Output and theta range
+no_gauges = 200
+no_plot_files = 20
+
+            
+#file location information
+batch_name = "new_batch.bat"
+batch_path = r"D:\PhD projects\Pannell_Jordan\NewFolder"
+template = "PE4_theta_template.txt"
+local_path = r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\NewFolder"
+
+
+def myround(x, base):
+    """
+    Rounding function
+    """
+    return base * round(x/base)
+
+
+#------------------------------------------------------------------------------   
+def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, z, no_gauges, no_plot_files, batch_name, batch_path, template, local_path):
+    """
+    The function below creates the input files and batch file from a given template file. More paramaters can be added that need to be changed. 
+    """    
+    startfile = 100
+    file_list = [str(num)+".txt" for num in list(range(startfile, startfile + no_exps))]
+    
+    batch_lines = []
+    batch_lines.append("cd " + batch_path)
+   
+    #Sets local path to create files
+    os.chdir(local_path)
+    
+    #Function Vars
+    gauge_tol = 0.0001
+    theta = np.linspace(0,80,no_gauges)
+    
+
+    
+    #Start looping through input files here
+    for i in range(len(z)):
+        #Create batch file lines
+        batch_lines.append("blastsimulator_win.exe " + file_list[i])
+        
+        #Create gauge information and charge position based on z.
+        so = np.multiply(z[i], (mass**(1/3))*tnt_eq)
+        stage_limit = np.round(so - zone_length, 4)
+        so += charge_rad
+        gauges_xloc = np.round(np.multiply(so, np.tan(np.deg2rad(theta))), 4)
+        
+        
+        x_max = myround(max(gauges_xloc) * 1.2, zone_length)
+        x_max = round(x_max, 4)
+        
+        y_max = x_max
+        z_max = y_max
+                      
+        charge_loc = np.round(np.subtract(y_max, so),4)    
+
+        plot_interval = str(round(term_time[i] / no_plot_files , 4)) 
+        #Open template file and strip content
+        with open(template) as f1:
+            content = f1.readlines()
+            content = [x.strip() for x in content]
+        
+        #Create new input file to write to
+        with open(file_list[i], "w") as f2:
+            
+            #Stages---------------
+            str_to_search = "\t\t\t\t\t...termination time"
+            str_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
+            content[int(str_index)] = str(term_time[i]) + str_to_search 
+
+            
+            str_to_search2 = "\t\t\t\t\t...number of stages, add levels, use B1D"
+            str_index2 = np.argwhere(np.core.defchararray.find(content, str_to_search2) > 0) 
+            if stage_limit > zone_length:
+                content[int(str_index2)] = "2 0 T" +str_to_search2
+                str_to_search = "\t\t\t\t\t...stages termination radii"
+                str_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0) 
+                content[int(str_index)] = str(stage_limit) + " 1e+06" +str_to_search
+            else:
+                content[int(str_index2)] = "2 0 F" +str_to_search2
+            
+                             
+            
+            #Model----------------
+            str_to_search = "\t\t\t\t\t...model resolution level, zone length"
+            str_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
+            content[int(str_index)] = str(res_level) + " " + str(zone_length) + str_to_search
+            content[int(str_index + 3)] = "Block 'Part1' 0 0 0  " + str(x_max) + " " + str(y_max) + " " + str(z_max) + " " + " 1 3 1  3 1 3"                  
+            
+            #Solids---------------
+            
+            #Output---------------
+            str_to_search = "\t\t\t\t\t...number of gauges"
+            gauges_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
+            content[int(gauges_index)] = str(no_gauges) + str_to_search 
+                        
+            for i in range(no_gauges): 
+                reflected_gauge_string = "' " + str(i) + " ' " + str(gauges_xloc[i]) + " " + str(round(y_max - gauge_tol, 5)) + " " + str(round(gauge_tol, 5))
+                reflected_index = int(gauges_index + i + 1)
+                content.insert(reflected_index, reflected_gauge_string)
+            
+            str_to_search = "\t\t\t\t...plot time:  on/off sequence next end"
+            new_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
+            content[int(new_index)] = "T " + plot_interval + " 0 1.e9" + str_to_search     
+   
+            
+            #Fluids---------------
+            
+            #Charge --------------
+            str_to_search = "\t\t\t...use charge, main: M, L/D, booster: M, L/D,  pos"
+            term_time_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
+            content[int(term_time_index)] = "T " + str(mass) + " " + str(shape_ratio) + " 0 1 none "  + str_to_search   
+            
+            str_to_search = "\t\t\t...charge center, axis vect, init pos, init time"
+            term_time_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
+            content[int(term_time_index)] = "0 " + str(charge_loc) + " 0" + "  0 1 0 Center 0"  + str_to_search     #x, y, z co-ordinate           
+            
+            #B1D
+            
+            #DMA
+            str_to_search = "\t\t\t\t\t...stability level"
+            term_time_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
+            content[int(term_time_index[1])] = "1"+ str_to_search    #x, y, z co-ordinate                   
+
+            #Final step -- write lines of amended content to new file
+            f2.write('\n'.join(content) + '\n')
+            
+        # add lines to delete misc files 
+        batch_lines.append("DEL *.mod")
+        
+        batch_lines.append("DEL *_info")
+        batch_lines.append("DEL *_plots")
+        batch_lines.append("DEL *_status")
+        batch_lines.append("DEL *_parts")
+        batch_lines.append("DEL *_forces")
+        batch_lines.append("DEL *_map") 
+        batch_lines.append("DEL *_b1d.dat")
+        batch_lines.append("DEL *_effects")
+        #batch_lines.append("DEL *_gauges")
+    
+    #write batch file
+    with open(batch_name, "w") as b:
+        b.write('\n'.join(batch_lines) + '\n')
+
+#------------------------------------------------------------------------------
+reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone_length, z, no_gauges, no_plot_files, batch_name, batch_path, template, local_path)
+

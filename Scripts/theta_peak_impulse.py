@@ -69,23 +69,17 @@ fileID_NF_80mm_gtable = r"C:\Users\jorda\Google Drive\Apollo Sims\Near Field Sim
 gtable_80mm = pre.FileAddressList(fileID_NF_80mm_gtable,1)
 Irmax_Ii_80mm = np.divide(gtable_80mm[0][:,7], gtable_80mm[0][:,7].max())
 NF_80mm_exp = sio.loadmat(r"C:\Users\jorda\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_80mm") 
-NF_380mm_exp = sio.loadmat(r"C:\Users\jorda\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_380mm")
 coords = np.append(np.arange(-100,101,25), np.arange(-100,-24,25)) 
 coords = np.append(coords, np.arange(25,101,25))
 coords = np.divide(coords,1000)
 coords_mean = np.arange(0,0.101,0.025)
 theta_exp_80mm = np.rad2deg(np.arctan(np.abs(coords)/0.08))
 theta_exp_80mm_mean = np.rad2deg(np.arctan(np.abs(coords_mean)/0.08))
-theta_exp_380mm = np.rad2deg(np.arctan(np.abs(coords)/0.38))
-theta_exp_380mm_mean = np.rad2deg(np.arctan(np.abs(coords_mean)/0.38))
 MxI_1_80mm = np.transpose(NF_80mm_exp['MxI'][:,:,0])
 MxI_2_80mm = np.transpose(NF_80mm_exp['MxI'][:,:,1])
 MxI_3_80mm = np.transpose(NF_80mm_exp['MxI'][:,:,2])
 Mx_mean_80mm = np.transpose(NF_80mm_exp['MEANI'])
-MxI_1_380mm = np.transpose(NF_380mm_exp['MxI'][:,:,0])
-MxI_2_380mm = np.transpose(NF_380mm_exp['MxI'][:,:,1])
-MxI_3_380mm = np.transpose(NF_380mm_exp['MxI'][:,:,2])
-Mx_mean_380mm = np.transpose(NF_380mm_exp['MEANI'])
+
 
 
 #Model Functions
