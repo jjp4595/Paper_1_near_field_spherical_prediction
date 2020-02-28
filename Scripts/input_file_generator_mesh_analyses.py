@@ -15,7 +15,7 @@ tnt_eq = 1
 shape_ratio = 0 #0 for sphere
 
 #Stages Variables
-term_time = 0.002
+term_time = 0.005
 
 #Model
 res_level = [0,1,2,3,4]
@@ -24,7 +24,7 @@ zone_length = 0.01
 
 
 #Standoffs/Scaled Distances
-z = np.repeat(0.055, no_exps)
+z = np.repeat(0.5, no_exps)
 
 
 #Output and theta range
@@ -51,7 +51,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
     """
     The function below creates the input files and batch file from a given template file. More paramaters can be added that need to be changed. 
     """    
-    startfile = 100
+    startfile = 400
     file_list = [str(num)+".txt" for num in list(range(startfile, startfile + no_exps))]
     
     batch_lines = []
@@ -100,10 +100,16 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
             content[int(str_index)] = str(term_time) + str_to_search 
             str_to_search = "\t\t\t\t\t...stages termination radii"
             str_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
+            
             str_to_search2 = "\t\t\t\t\t...number of stages, add levels, use B1D"
             str_index2 = np.argwhere(np.core.defchararray.find(content, str_to_search2) > 0) 
-            
-            content[int(str_index2)] = "2 0 F" +str_to_search2
+            if stage_limit > zone_length:
+                content[int(str_index2)] = "2 0 T" +str_to_search2
+                str_to_search = "\t\t\t\t\t...stages termination radii"
+                str_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0) 
+                content[int(str_index)] = str(stage_limit) + " 1e+06" +str_to_search
+            else:
+                content[int(str_index2)] = "2 0 F" +str_to_search2
             
                              
             

@@ -5,7 +5,7 @@ import os
 
 #------------------------------------------------------------------------------
 #meta variables 
-no_exps = 3
+no_exps = 10
 
 
 #Charge info
@@ -15,7 +15,7 @@ tnt_eq = 1
 shape_ratio = 0 #0 for sphere
 
 #Stages Variables
-term_time = [0.03, 0.03, 0.03] 
+term_time = [0.002, 0.002, 0.003, 0.003, 0.003, 0.003, 0.004, 0.004, 0.005, 0.005] 
 
 #Model
 res_level = 1
