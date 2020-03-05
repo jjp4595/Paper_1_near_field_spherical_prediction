@@ -64,6 +64,9 @@
 \usepackage{multirow}
 \usepackage{setspace}
 \usepackage{caption}
+\usepackage{subcaption}
+\usepackage{floatrow}
+\usepackage[framemethod=tikz]{mdframed}
 \usepackage{nameref}
 \usepackage{datenumber}
 \usepackage{datetime}
@@ -71,4 +74,6 @@
 %\usepackage{refcheck} %Use this to see what refs are and what are used
 \usepackage[figuresright]{rotating}
 \captionsetup{font=small,labelfont=small}
+\captionsetup[subfigure]{skip=-10pt}
+\floatsetup[table]{capposition=top}
 \setstretch{1.2} % for custom spacing

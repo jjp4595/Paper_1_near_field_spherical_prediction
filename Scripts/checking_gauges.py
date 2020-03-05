@@ -12,14 +12,20 @@ import matplotlib.pyplot as plt #3.0.2
 # Apollo_FileList = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\RPB\reflected\*.txt")
 # Apollo_gtable = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\RPB\reflected\*gtable",1)
 # Apollo_gauges = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\RPB\reflected\*gauges",1)
-Apollo_gauges = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\NewFolder\*gauges",1)
+Apollo_gauges = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\NewFolder1\*gauges",1)
 
 
 #Quick test to see if enough time in simulation
-fig00, [ax_test1, ax_test2] = plt.subplots(1,2)
-#Check first and last Pre/Imp gauge
-ax_test1.plot(Apollo_gauges[0][:,0],Apollo_gauges[0][:,1])
-ax_test1.plot(Apollo_gauges[0][:,0],Apollo_gauges[0][:,200])
 
-ax_test2.plot(Apollo_gauges[0][:,0],Apollo_gauges[0][:,201])
-ax_test2.plot(Apollo_gauges[0][:,0],Apollo_gauges[0][:,400])
+
+
+for i in range(len(Apollo_gauges)):
+    fig00, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2,2)
+    ax1.set_xlabel(i)
+    #theta = 0
+    ax1.plot(Apollo_gauges[i][:,0],Apollo_gauges[i][:,1]) #OP
+    ax2.plot(Apollo_gauges[i][:,0],Apollo_gauges[i][:,201])#imp
+    
+    #theta = 80
+    ax3.plot(Apollo_gauges[i][:,0],Apollo_gauges[i][:,200])#OP
+    ax4.plot(Apollo_gauges[i][:,0],Apollo_gauges[i][:,400])#imp

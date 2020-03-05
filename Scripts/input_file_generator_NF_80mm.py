@@ -5,7 +5,7 @@ import os
 
 #------------------------------------------------------------------------------
 #meta variables 
-no_exps = 10
+no_exps = 1
 
 
 #Charge info
@@ -15,35 +15,16 @@ tnt_eq = 1
 shape_ratio = 0 #0 for sphere
 
 #Stages Variables
-term_time = [0.002, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.004] 
+term_time = [0.003] 
 
 #Model
-res_level = [4,
-3,
-4,
-4,
-3,
-3,
-3,
-3,
-3,
-4,
-3]
+res_level = 4
+zone_length = 0.05
 
-zone_length = [0.02,
-0.02,
-0.05,
-0.05,
-0.04,
-0.05,
-0.05,
-0.05,
-0.05,
-0.1,
-0.1]
+
 
 #Standoffs/Scaled Distances
-z = np.linspace(0.055, 0.5, no_exps)
+z = [0.11935]
 
 
 #Output and theta range
@@ -92,12 +73,12 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
         
         #Create gauge information and charge position based on z.
         so = np.multiply(z[i], (mass**(1/3))*tnt_eq)
-        stage_limit = np.round(so - zone_length[i], 4)
+        stage_limit = np.round(so - zone_length, 4)
         so += charge_rad
         gauges_xloc = np.round(np.multiply(so, np.tan(np.deg2rad(theta))), 4)
         
         
-        x_max = myround(max(gauges_xloc) * 1.2, zone_length[i])
+        x_max = myround(max(gauges_xloc) * 1.2, zone_length)
         x_max = round(x_max, 4)
         
         y_max = x_max
@@ -122,7 +103,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
             
             str_to_search2 = "\t\t\t\t\t...number of stages, add levels, use B1D"
             str_index2 = np.argwhere(np.core.defchararray.find(content, str_to_search2) > 0) 
-            if stage_limit > zone_length[i]:
+            if stage_limit > zone_length:
                 content[int(str_index2)] = "2 0 T" +str_to_search2
                 str_to_search = "\t\t\t\t\t...stages termination radii"
                 str_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0) 
@@ -135,7 +116,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
             #Model----------------
             str_to_search = "\t\t\t\t\t...model resolution level, zone length"
             str_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
-            content[int(str_index)] = str(res_level[i]) + " " + str(zone_length[i]) + str_to_search
+            content[int(str_index)] = str(res_level) + " " + str(zone_length) + str_to_search
             content[int(str_index + 3)] = "Block 'Part1' 0 0 0  " + str(x_max) + " " + str(y_max) + " " + str(z_max) + " " + " 1 3 1  3 1 3"                  
             
             #Solids---------------
