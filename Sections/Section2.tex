@@ -1,11 +1,17 @@
 \section{Background}
 \subsection{Literature Review - NF Blast loading}
-Work done recently at the University of Sheffield has demonstrated that to understand structural response, the near field needs to be well defined. This near field loading is not constant in theta due to the non-planar shock front, therefore to accurataly analyse structural response we need to understand the loading distribution.
+Work done recently at the University of Sheffield has demonstrated that to understand structural response to near field explosive events, the loading must be well defined.
 \parencite{rigbyNearfieldBlastLoading2019, rigbyExperimentalMeasurementSpecific2019, rigbyResponsePlatesNonuniform9, rigbyPredictingResponsePlates2019}
+The authors conclude that knowledge of both magnitude and position of the impulse experienced by a structure is critical to modelling the deformation to that loading. 
 
+Currently the blast protection community heavily relies on the Kingery and Bulmash (KB) equations \parencite{kingeryAirblastParametersTNT1984}. 
+These are summarised in \textcite{dodUnifiedFacilitiesCriteria2008}, where the incident and normally reflected overpressures and impulses obtained from the KB charts are combined with reflection coefficients that vary as a function of angle of incidence of the incoming blast wave. 
+This allows the calculation of the specific impulse distribution of an explosive event to provide the loading information on a surface. 
 
-\textcite{shinIncidentNormallyReflected2015} have recommended new polynomials for spherical TNT detonations in free-air for incident and normally reflected peak overpressure and impulse and recommend a minimum cell length of R/500 where R is distance from charge center to measuring location. 
+\textcite{shinIncidentNormallyReflected2015} have recommended new polynomials for spherical TNT detonations in free-air for incident and normally reflected peak overpressure and impulse at a scaled distance of $0.0553 \leq Z \leq 40 m/kg^{\frac{1}{3}} $.
+The authors also recommend a minimum cell length of R/500 where R is distance from charge center to measuring location for CFD analyses.
 
-\textcite{shinTNTEquivalencyOverpressure2015} demonstrate that TNT equivalence for differing charges in the near field are not well defined in current methods. Hence this report focuses on PE4 with no TNT equivalence in all scaled calculations (a TNT equivalence of 1).
-
-\FloatBarrier
+A requirement of these predictive approaches is the use of TNT equivalence.
+\textcite{shinTNTEquivalencyOverpressure2015} demonstrate that TNT equivalence for differing charges in the near field are not well defined in current methods. 
+Further, the predictive methods also assume spherical charges detonated centrally. 
+The results presented henceforth focus on PE4 detonations with no TNT equivalence in all scaled calculations (a TNT equivalence of 1).

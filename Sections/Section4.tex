@@ -1,13 +1,28 @@
 \section{Results}
-\subsection{Proposed model overview}
-theta, z, impulse surface overview of dataset
+\subsection{PE4 Dataset}
+\begin{figure}[htpb]
+	\centering
+	\includegraphics{Graphs/theta_peak_impulse_0.pdf}
+	\caption{Contour plot peak impulse distribution overview of PE4 dataset}
+	\label{fig:theta_peak_impulse_0}
+\end{figure}
 
-logI vs logZ - justify the choice of power law for peak impulse
+\subsection{Randers-Pehrson Bannister (RPB) Model}
+The specific impulse acting on a target is dependent on the angle of incidence of the shock front, theta, with respect to the normal of the target surface. 
+From \textcite{randers-pehrsonAirblastLoadingModel1997},
+\begin{equation}
+	i = i_r cos^2\theta + i_{so}(1 + cos^2\theta - 2cos\theta). 
+\end{equation}
 
-i vs theta for different Z - with experimental dataset overlaid
-
-\subsection{Fitting the model}
-Testing out Gaussian, polynomial etc
+Figure \ref{fig:RPB} shows the angle of incidence and slant distance for a point on a target subjected to a spherical air burst, a distance $R$ away from the target centre.
+From trigonometry, we have that $\bar{R}^2 = R^2 + x^2 + y^2$, where $x \text{ and } y$ are horizontal and vertical distance from the centre of the target, and $cos \theta = R / \bar{R}$. 
+ 
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[scale=2, keepaspectratio]{Images/RPB.pdf}
+	\caption{Angle of incidence and slant distance for a specific point on a square target}
+	\label{fig:RPB}
+\end{figure}
 
 \subsection{Model performance test}
 Test the model with unseen data to demonstrate how this would work. 
