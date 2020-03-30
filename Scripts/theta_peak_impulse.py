@@ -6,29 +6,29 @@ import preamble_functions as pre
 import matplotlib.pyplot as plt #3.0.2
 from matplotlib import cm
 import numpy as np #1.15.4
-import blast as blst
-from scipy.optimize import curve_fit
 from mpl_toolkits.mplot3d import Axes3D
 import scipy.io as sio
 import lmfit as lm
-from sklearn.metrics import r2_score, mean_squared_error
-import lmfit as lm
+from sklearn.metrics import mean_squared_error
+from MCEER_curves import MCEER
 
-plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
+#plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
+params = {'font.family':'serif',
+        'axes.labelsize':'small',
+        'xtick.labelsize':'x-small',
+        'ytick.labelsize':'x-small', 
+        'legend.fontsize':'small',
+        'legend.title_fontsize':'small',
+        'grid.linestyle':'--',
+        'grid.linewidth':'0.5',
+        'lines.linewidth':'0.5'}
+plt.rcParams.update(params)
 
 #Import Apollo data
-#Apollo_FileList = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\2cr\*.txt")
-#Apollo_gtable = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\2cr\*gtable",1)
-#Apollo_gauges = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\2cr\*gauges",1)
-Apollo_FileList = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*.txt")
-Apollo_gtable = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gtable",1)
-Apollo_gauges = pre.FileAddressList(r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gauges",1)
+Apollo_FileList = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*.txt")
+Apollo_gtable = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gtable",1)
+Apollo_gauges = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gauges",1)
 
-
-#Quick test to see if enough time in simulation
-#fig00, [ax_test1, ax_test2] = plt.subplots(1,2)
-#ax_test1.plot(Apollo_gauges[4][:,0],Apollo_gauges[4][:,200])
-#ax_test2.plot(Apollo_gauges[4][:,0],Apollo_gauges[4][:,400])
 
 #Some charge properties
 charge_rad = 0.0246
@@ -36,8 +36,6 @@ charge_mass = 0.1
 
 
 #Finding theta and creating data structures
-
-
 clear_standoff=np.zeros((len(Apollo_FileList),1))
 peak_impulse=[]
 #incident_impulse = []
@@ -59,16 +57,18 @@ peak_impulse = np.stack(peak_impulse, axis = 1)
 #ref_factor = np.stack(ref_factor, axis = 1)
 Icr_Ir = np.stack(Icr_Ir, axis =1)
 clear_standoff = np.transpose(np.repeat(clear_standoff, len(theta), axis=1))
+clear_standoff = np.divide(clear_standoff, charge_rad)
 
 
 
 
 
 #Load Data for 80mm and 380mm Apollo Experimental
-fileID_NF_80mm_gtable = r"C:\Users\jorda\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gtable"
+fileID_NF_80mm_gtable = r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gtable"
 gtable_80mm = pre.FileAddressList(fileID_NF_80mm_gtable,1)
 Irmax_Ii_80mm = np.divide(gtable_80mm[0][:,7], gtable_80mm[0][:,7].max())
-NF_80mm_exp = sio.loadmat(r"C:\Users\jorda\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_80mm") 
+NF_80mm_exp = sio.loadmat(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_80mm") 
+theta_80mm_mesh = np.rad2deg(np.arctan(gtable_80mm[0][:,2]/0.08))
 coords = np.append(np.arange(-100,101,25), np.arange(-100,-24,25)) 
 coords = np.append(coords, np.arange(25,101,25))
 coords = np.divide(coords,1000)
@@ -80,9 +80,96 @@ MxI_2_80mm = np.transpose(NF_80mm_exp['MxI'][:,:,1])
 MxI_3_80mm = np.transpose(NF_80mm_exp['MxI'][:,:,2])
 Mx_mean_80mm = np.transpose(NF_80mm_exp['MEANI'])
 
+#Graphs for paper -------------------------------------------------------------
+#Graph 1 ----------------------------------------------------------------------
+fig0, ax = plt.subplots(1,1)
+fig0.set_size_inches(3, 2.5)
+CS = ax.contourf(theta, clear_standoff, peak_impulse/1e3, levels = [0 , 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25], cmap = plt.cm.cubehelix)
+cbar = fig0.colorbar(CS)
+cbar.ax.invert_yaxis()
+cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+ax.set_ylabel('standoff (clear charge radii)')
+ax.set_xlabel('incident wave angle (degrees)')
+plt.tight_layout()
+fig0.savefig(r'C:\Users\cip18jjp\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_0.pdf', format = 'pdf')
 
 
-#Model Functions
+#Graph 2 ----------------------------------------------------------------------
+fig1, [ax0, ax1] = plt.subplots(1,2)
+fig1.set_size_inches(3, 2.5)
+ax0.scatter(clear_standoff[0,:], peak_impulse[0,:]/1e3, c = 'k', marker=".", s=10)
+ax0.set_xlim(0, 2.5)
+ax0.set_ylim(0, 30)
+ax0.set_ylabel('peak specific impulse (MPa.ms)')
+ax0.set_xlabel('standoff (clear charge radii)')
+ax1.scatter(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3), c = 'k', marker=".", s=10)
+ax1.set_ylabel('peak specific impulse (MPa.ms)')
+ax1.set_xlabel('standoff (clear charge radii)')
+ax1.set_xlim(-0.6, 2)
+ax1.set_ylim(-0.6, 2)
+#------------------------------------------------------------------------------
+
+
+#MCEER information-------------------------------------------------------------
+"""
+Generating impulse from MCEER curves and modelling distribution via RPB model.
+"""
+TNTeq = 1
+W = 0.1 * TNTeq
+Wroot = W**(1/3)
+R = 0.08
+A = R * np.tan(np.deg2rad(80))
+B = A
+x = np.linspace(-A/2, A/2, 100)
+y = np.linspace(-B/2, B/2, 100)
+[X,Y] = np.meshgrid(x,y)
+Rs = (np.power(X,2) + np.power(Y,2) + R**2)**0.5
+AOIS = np.arctan( np.divide((np.power(X,2) + np.power(Y,2))**0.5, R) )
+Z = np.divide(Rs, Wroot)
+theta_MCEER = np.rad2deg(np.arccos(np.divide(R, Rs)))
+
+is_max = np.zeros((100,100))
+ir_max = np.zeros((100,100))
+for i in range(len(is_max)):
+    for j in range(len(is_max)):
+            is_max[i,j], ir_max[i,j] = MCEER(Rs[i,j], W)
+imp =( np.multiply(ir_max, np.divide(np.power(R,2), np.power(Rs,2)) ) + 
+       np.multiply(is_max, (1 + np.divide(np.power(R,2), np.power(Rs,2)) - (2 * np.divide(R,Rs)) ))
+      )/1e3
+          
+fig2, ax = plt.subplots(1,1)
+fig2.set_size_inches(3, 2.5)
+CS = ax.contourf(X, Y, imp, cmap = plt.cm.cubehelix)
+cbar = fig2.colorbar(CS)
+cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+ax.set_ylabel('x-position')
+ax.set_xlabel('y-position')
+plt.tight_layout()
+
+fig3, [ax0,ax1] = plt.subplots(1,2)
+fig3.set_size_inches(6,3.1)
+ax0.plot(theta_MCEER[int(len(theta_MCEER)/2), 0:int(len(theta_MCEER)/2)], imp[int(len(theta_MCEER)/2),0:int(len(theta_MCEER)/2)], c = 'k')
+ax0.scatter(theta_exp_80mm, MxI_1_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
+ax0.scatter(theta_exp_80mm, MxI_2_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax0.scatter(theta_exp_80mm, MxI_3_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax0.scatter(theta_exp_80mm_mean, Mx_mean_80mm/1e3, marker="o", s=15., label = '80mm Exp Mean')
+ax0.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/1e3, dashes=[12,6,12,6,3,6], c='k', label = '1.25mm')
+ax0.set_xlabel('theta (degrees)')
+ax1.plot(theta_MCEER[int(len(theta_MCEER)/2), 0:int(len(theta_MCEER)/2)], imp[int(len(theta_MCEER)/2), 0:int(len(theta_MCEER)/2)]/ max(imp[int(len(theta_MCEER)/2), 0:int(len(theta_MCEER)/2)]), c = 'k')
+ax1.set_xlabel('theta (degrees)')
+ax1.set_ylabel('peak impulse ratio of theta = 0')
+ax1.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
+ax1.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax1.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax1.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
+ax1.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/max(gtable_80mm[0][:,7]), dashes=[12,6,12,6,3,6], c='k', label = '1.25mm')
+plt.tight_layout()  
+#------------------------------------------------------------------------------
+
+
+
+
+#Model Functions --------------------------------------------------------------
 def jang(theta, Ir, beta):
     """
     Beta is a function of Z, Ir is maximum reflected impulse at theta = 0. Theta inputted in degrees.
@@ -101,20 +188,6 @@ def RPB(theta, Ir):
     
 
 
-
-#Data Visualisations
-#surface
-fig = plt.figure()
-ax = Axes3D(fig)
-#ax.scatter(standoff, theta, all_impulses);
-ax.plot_surface(clear_standoff, theta, peak_impulse, cmap=cm.coolwarm);
-ax.set_title('peak specific impulse surface for theta')
-ax.set_xlabel('standoff (m)')
-ax.set_ylabel('incident wave angle')
-ax.set_zlabel('peak specific impulse')
-plt.show()
-
-#
 fig, [ax0,ax1] = plt.subplots(1,2)
 ax0.plot(theta, peak_impulse)
 ax0.set_xlabel('theta (degrees)')
@@ -140,14 +213,6 @@ plt.tight_layout()
 
 
 
-
-
-
-
-
-
-
-#---------------------Current playing around!!!!!----------------------------------------------
 
 choice = 0
 
@@ -189,27 +254,6 @@ plt.tight_layout()
 
 
 #--------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #Creating and fitting a gaussian model
 def gauss_curve(x, *params):
     y1 = np.zeros_like(x)
