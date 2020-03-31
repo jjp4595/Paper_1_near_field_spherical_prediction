@@ -45,6 +45,9 @@ if __name__ == "__main__":
 
 
 def MCEER(R, W):
+    """
+    Requires clear standoff, R and charge mass, W.
+    """
     Wroot = W ** (1/3)
     Z = R / Wroot
     U_i = 0.05671 + (0.8363*np.log10(Z))

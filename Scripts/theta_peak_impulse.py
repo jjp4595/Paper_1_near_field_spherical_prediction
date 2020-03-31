@@ -19,6 +19,10 @@ params = {'font.family':'serif',
         'ytick.labelsize':'x-small', 
         'legend.fontsize':'small',
         'legend.title_fontsize':'small',
+        'legend.fancybox': True,
+        'legend.framealpha': 0.5,
+        'legend.shadow': False,
+        'legend.frameon': True,
         'grid.linestyle':'--',
         'grid.linewidth':'0.5',
         'lines.linewidth':'0.5'}
@@ -28,6 +32,9 @@ plt.rcParams.update(params)
 Apollo_FileList = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*.txt")
 Apollo_gtable = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gtable",1)
 Apollo_gauges = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gauges",1)
+#Apollo_FileList = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_dataset\*.txt")
+#Apollo_gtable = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_dataset\*gtable",1)
+#Apollo_gauges = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_dataset\*gauges",1)
 
 
 #Some charge properties
@@ -38,8 +45,6 @@ charge_mass = 0.1
 #Finding theta and creating data structures
 clear_standoff=np.zeros((len(Apollo_FileList),1))
 peak_impulse=[]
-#incident_impulse = []
-#ref_factor = [] 
 Icr_Ir = []
 
 theta = []
@@ -53,8 +58,6 @@ for i in range(len(Apollo_FileList)):
 
 theta = np.stack(theta, axis=1)
 peak_impulse = np.stack(peak_impulse, axis = 1)
-#incident_impulse = np.stack(incident_impulse, axis = 1)
-#ref_factor = np.stack(ref_factor, axis = 1)
 Icr_Ir = np.stack(Icr_Ir, axis =1)
 clear_standoff = np.transpose(np.repeat(clear_standoff, len(theta), axis=1))
 clear_standoff = np.divide(clear_standoff, charge_rad)
@@ -79,6 +82,9 @@ MxI_1_80mm = np.transpose(NF_80mm_exp['MxI'][:,:,0])
 MxI_2_80mm = np.transpose(NF_80mm_exp['MxI'][:,:,1])
 MxI_3_80mm = np.transpose(NF_80mm_exp['MxI'][:,:,2])
 Mx_mean_80mm = np.transpose(NF_80mm_exp['MEANI'])
+
+
+
 
 #Graphs for paper -------------------------------------------------------------
 #Graph 1 ----------------------------------------------------------------------
@@ -109,6 +115,16 @@ ax1.set_xlim(-0.6, 2)
 ax1.set_ylim(-0.6, 2)
 #------------------------------------------------------------------------------
 
+#Henrych Model-- --------------------------------------------------------------
+Qw = 4.79e6/4184 #Specific energy of PE4, 4.79 assumed from EOS.dat
+Ux = (2 * Qw)**0.5
+A0 = (Ux * 1.8) / (4*np.pi)
+def Henrych(A0, W, a, theta):
+    i = ((A0 * W) / (a**2)) * np.cos(np.deg2rad(theta))**4
+    return i
+def Henrych_I(A0, W, theta):
+    return np.pi * A0 * W * np.sin(np.deg2rad(theta))**2
+
 
 #MCEER information-------------------------------------------------------------
 """
@@ -116,30 +132,44 @@ Generating impulse from MCEER curves and modelling distribution via RPB model.
 """
 TNTeq = 1
 W = 0.1 * TNTeq
-Wroot = W**(1/3)
 R = 0.08
-A = R * np.tan(np.deg2rad(80))
-B = A
-x = np.linspace(-A/2, A/2, 100)
-y = np.linspace(-B/2, B/2, 100)
-[X,Y] = np.meshgrid(x,y)
-Rs = (np.power(X,2) + np.power(Y,2) + R**2)**0.5
-AOIS = np.arctan( np.divide((np.power(X,2) + np.power(Y,2))**0.5, R) )
-Z = np.divide(Rs, Wroot)
-theta_MCEER = np.rad2deg(np.arccos(np.divide(R, Rs)))
 
-is_max = np.zeros((100,100))
-ir_max = np.zeros((100,100))
-for i in range(len(is_max)):
-    for j in range(len(is_max)):
-            is_max[i,j], ir_max[i,j] = MCEER(Rs[i,j], W)
-imp =( np.multiply(ir_max, np.divide(np.power(R,2), np.power(Rs,2)) ) + 
-       np.multiply(is_max, (1 + np.divide(np.power(R,2), np.power(Rs,2)) - (2 * np.divide(R,Rs)) ))
-      )/1e3
-          
+def RPB_MCEER_i(W, R):
+    #Wroot = W**(1/3)
+    A = R * np.tan(np.deg2rad(80))
+    B = A
+    res = 100
+    x = np.linspace(-A/2, A/2, res)
+    y = np.linspace(-B/2, B/2, res)
+    [X,Y] = np.meshgrid(x,y)
+    Rs = (np.power(X,2) + np.power(Y,2) + R**2)**0.5
+    #AOIS = np.arctan( np.divide((np.power(X,2) + np.power(Y,2))**0.5, R) )
+    #Z = np.divide(Rs, Wroot)
+    theta_MCEER = np.rad2deg(np.arccos(np.divide(R, Rs)))
+    
+    is_max = np.zeros((res,res))
+    ir_max = np.zeros((res,res))
+    for i in range(len(is_max)):
+        for j in range(len(is_max)):
+                is_max[i,j], ir_max[i,j] = MCEER(Rs[i,j], W)
+    imp =( np.multiply(ir_max, np.divide(np.power(R,2), np.power(Rs,2)) ) + 
+           np.multiply(is_max, (1 + np.divide(np.power(R,2), np.power(Rs,2)) - (2 * np.divide(R,Rs)) ))
+          )/1e3
+    Area = np.ones_like(imp)
+    Area = Area * (x[1]-x[0]) * (y[1]-y[0])
+    Area[:,0]  *= 0.5
+    Area[0,:]  *= 0.5
+    Area[:,-1] *= 0.5
+    Area[-1,:] *= 0.5
+    Imp = np.multiply(imp, Area)
+    I = np.sum(Imp)
+    return [X,Y, theta_MCEER, imp, I]
+  
+RPB_MCEER_exp = RPB_MCEER_i(0.1, 0.08)
+      
 fig2, ax = plt.subplots(1,1)
 fig2.set_size_inches(3, 2.5)
-CS = ax.contourf(X, Y, imp, cmap = plt.cm.cubehelix)
+CS = ax.contourf(RPB_MCEER_exp[0], RPB_MCEER_exp[1], RPB_MCEER_exp[3], cmap = plt.cm.cubehelix)
 cbar = fig2.colorbar(CS)
 cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax.set_ylabel('x-position')
@@ -147,29 +177,50 @@ ax.set_xlabel('y-position')
 plt.tight_layout()
 
 fig3, [ax0,ax1] = plt.subplots(1,2)
-fig3.set_size_inches(6,3.1)
-ax0.plot(theta_MCEER[int(len(theta_MCEER)/2), 0:int(len(theta_MCEER)/2)], imp[int(len(theta_MCEER)/2),0:int(len(theta_MCEER)/2)], c = 'k')
-ax0.scatter(theta_exp_80mm, MxI_1_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
+fig3.set_size_inches(5,2.5)
+ax0.scatter(theta_exp_80mm, MxI_1_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = 'Exp')
 ax0.scatter(theta_exp_80mm, MxI_2_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax0.scatter(theta_exp_80mm, MxI_3_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax0.scatter(theta_exp_80mm_mean, Mx_mean_80mm/1e3, marker="o", s=15., label = '80mm Exp Mean')
-ax0.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/1e3, dashes=[12,6,12,6,3,6], c='k', label = '1.25mm')
+ax0.scatter(theta_exp_80mm_mean, Mx_mean_80mm/1e3, marker="o", s=15., label = 'Exp - mean')
+ax0.plot(RPB_MCEER_exp[2][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)], RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2),0:int(len(RPB_MCEER_exp[2])/2)], 'k', label = 'MCEER/RPB')
+ax0.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/1e3, 'k-.', dashes=[12,6,12,6,3,6], label = 'CFD - 1.25mm')
+ax0.plot(np.linspace(0,80, num=80), Henrych(255,0.1,0.08, np.linspace(0,80, num=80))/1e3, 'k:', label = 'Henrych')
 ax0.set_xlabel('theta (degrees)')
-ax1.plot(theta_MCEER[int(len(theta_MCEER)/2), 0:int(len(theta_MCEER)/2)], imp[int(len(theta_MCEER)/2), 0:int(len(theta_MCEER)/2)]/ max(imp[int(len(theta_MCEER)/2), 0:int(len(theta_MCEER)/2)]), c = 'k')
+ax0.set_ylabel('peak specific impulse (MPa.ms)')
+handles, labels = ax0.get_legend_handles_labels()
+ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.72, 0.78), prop={'size':6})
+
 ax1.set_xlabel('theta (degrees)')
-ax1.set_ylabel('peak impulse ratio of theta = 0')
+ax1.set_ylabel('peak specific impulse ratio')
 ax1.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
 ax1.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax1.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax1.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
-ax1.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/max(gtable_80mm[0][:,7]), dashes=[12,6,12,6,3,6], c='k', label = '1.25mm')
+ax1.plot(RPB_MCEER_exp[2][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)], RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]/ max(RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]), 'k')
+ax1.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/max(gtable_80mm[0][:,7]), 'k-.', dashes=[12,6,12,6,3,6])
+ax1.plot(np.linspace(0,80, num=80), Henrych(255,0.1,0.08, np.linspace(0,80, num=80)) / max(Henrych(255,0.1,0.08, np.linspace(0,80, num=80))), 'k:')
+ax1.plot(theta[:,1], Icr_Ir[:,1])
 plt.tight_layout()  
 #------------------------------------------------------------------------------
 
 
 
 
-#Model Functions --------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def jang(theta, Ir, beta):
     """
     Beta is a function of Z, Ir is maximum reflected impulse at theta = 0. Theta inputted in degrees.
