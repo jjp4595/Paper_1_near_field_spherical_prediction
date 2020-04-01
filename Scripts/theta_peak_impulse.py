@@ -11,7 +11,7 @@ import scipy.io as sio
 import lmfit as lm
 from sklearn.metrics import mean_squared_error
 from MCEER_curves import MCEER
-
+from scipy import ndimage
 #plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
 params = {'font.family':'serif',
         'axes.labelsize':'small',
@@ -44,23 +44,25 @@ charge_mass = 0.1
 
 #Finding theta and creating data structures
 clear_standoff=np.zeros((len(Apollo_FileList),1))
-peak_impulse=[]
+peak_impulses=[]
 Icr_Ir = []
+z_dataset = []
 
 theta = []
 for i in range(len(Apollo_FileList)):
     clear_standoff[i] = pre.standoff_func(Apollo_FileList[i]) - charge_rad
-    peak_impulse.append(Apollo_gtable[i][:,7])
+    peak_impulses.append(Apollo_gtable[i][:,7])
     #incident_impulse.append(Apollo_gtable[i][incident_index::,7])
     #ref_factor.append(peak_impulse[i]/incident_impulse[i])
-    Icr_Ir.append(peak_impulse[i] / max(peak_impulse[i]))
+    Icr_Ir.append(peak_impulses[i] / max(peak_impulses[i]))
     theta.append(np.rad2deg(np.arctan(np.divide(Apollo_gtable[i][:,2], clear_standoff[i] + charge_rad))))
 
 theta = np.stack(theta, axis=1)
-peak_impulse = np.stack(peak_impulse, axis = 1)
+peak_impulse = np.stack(peak_impulses, axis = 1)
 Icr_Ir = np.stack(Icr_Ir, axis =1)
 clear_standoff = np.transpose(np.repeat(clear_standoff, len(theta), axis=1))
 clear_standoff = np.divide(clear_standoff, charge_rad)
+z_dataset = np.divide(clear_standoff, charge_mass**(1/3))
 
 
 
@@ -122,23 +124,24 @@ A0 = (Ux * 1.8) / (4*np.pi)
 def Henrych(A0, W, a, theta):
     i = ((A0 * W) / (a**2)) * np.cos(np.deg2rad(theta))**4
     return i
-def Henrych_I(A0, W, theta):
-    return np.pi * A0 * W * np.sin(np.deg2rad(theta))**2
+def Henrych_I(A0, W, theta_lim):
+    return np.pi * A0 * W * np.sin(np.deg2rad(theta_lim))**2
 
 
-#MCEER information-------------------------------------------------------------
+
+#RPB_MCEER information-------------------------------------------------------------
 """
 Generating impulse from MCEER curves and modelling distribution via RPB model.
 """
 TNTeq = 1
 W = 0.1 * TNTeq
 R = 0.08
-
-def RPB_MCEER_i(W, R):
+theta_lim = 80
+def RPB_MCEER_i(W, R, theta_lim):
     #Wroot = W**(1/3)
-    A = R * np.tan(np.deg2rad(80))
+    A = R * np.tan(np.deg2rad(theta_lim)) * 2
     B = A
-    res = 100
+    res = 200
     x = np.linspace(-A/2, A/2, res)
     y = np.linspace(-B/2, B/2, res)
     [X,Y] = np.meshgrid(x,y)
@@ -155,17 +158,88 @@ def RPB_MCEER_i(W, R):
     imp =( np.multiply(ir_max, np.divide(np.power(R,2), np.power(Rs,2)) ) + 
            np.multiply(is_max, (1 + np.divide(np.power(R,2), np.power(Rs,2)) - (2 * np.divide(R,Rs)) ))
           )/1e3
+    #Rectangular area
     Area = np.ones_like(imp)
     Area = Area * (x[1]-x[0]) * (y[1]-y[0])
-    Area[:,0]  *= 0.5
-    Area[0,:]  *= 0.5
-    Area[:,-1] *= 0.5
-    Area[-1,:] *= 0.5
+    #Boundary conds for rectangular target
+    ##Area[:,0]  *= 0.5
+    ##Area[0,:]  *= 0.5
+    ##Area[:,-1] *= 0.5
+    ##Area[-1,:] *= 0.5
+    
+    #Circular mask over area for circular target 
+    r = int(res/2)
+    cen_x, cen_y = r, r
+    y1, x1 = np.ogrid[-cen_x:res-cen_x, -cen_y:res-cen_y]
+    mask = x1 * x1 + y1 * y1 <= r*r
+    
+    array = np.zeros((res, res))
+    array[mask] = 1
+    struct = ndimage.generate_binary_structure(2, 2)
+    erode = ndimage.binary_erosion(mask, struct)
+    edges = mask ^ erode
+    array[edges] = 0.5
+    
+    Area = np.multiply(array, Area)
+    
     Imp = np.multiply(imp, Area)
     I = np.sum(Imp)
     return [X,Y, theta_MCEER, imp, I]
+
+
+#CFD Impulse generation for circular target -----------------------------------
+def Impulse_CFD(specific_impulse, R, theta_lim, theta):
+    """
+    i is impulse distribution
+    R is clear standoff
+    theta_lim is the upper limit of theta for size of the circle (from bomb POV)
+    theta is the theta coords for interpolation
+    """
+	#Plate dimensions
+    A = R * np.tan(np.deg2rad(theta_lim)) * 2
+    B = A
+    res = 200
+    x = np.linspace(-A/2, A/2, res)
+    y = np.linspace(-B/2, B/2, res)
+    [X,Y] = np.meshgrid(x,y)
+    theta_array = np.rad2deg(np.arctan(np.divide(np.power(np.add(np.power(X,2), np.power(Y,2)), 0.5), R))) 
+	
+    ir = np.zeros((res,res))
+
+    for i in range(len(ir)):
+        for j in range(len(ir)):
+            ir[i,j] = np.interp(theta_array[i,j], theta, specific_impulse) 
+				
+	#Rectangular area
+    Area = np.ones_like(ir)
+    Area = Area * (x[1]-x[0]) * (y[1]-y[0])
+
+    
+    #Circular mask over area for circular target 
+    r = int(res/2)
+    cen_x, cen_y = r, r
+    y1, x1 = np.ogrid[-cen_x:res-cen_x, -cen_y:res-cen_y]
+    mask = x1 * x1 + y1 * y1 <= r*r
+    
+    array = np.zeros((res, res))
+    array[mask] = 1
+    struct = ndimage.generate_binary_structure(2, 2)
+    erode = ndimage.binary_erosion(mask, struct)
+    edges = mask ^ erode
+    array[edges] = 0.5
+    
+    Area = np.multiply(array, Area)
+    
+    Imp = np.multiply(ir, Area)
+    I = np.sum(Imp)
+    return I
+
+Impulse_CFD(peak_impulses[0], 0.08, 80, theta[:,0])
+
+
+
   
-RPB_MCEER_exp = RPB_MCEER_i(0.1, 0.08)
+RPB_MCEER_exp = RPB_MCEER_i(0.1, 0.08, 80)
       
 fig2, ax = plt.subplots(1,1)
 fig2.set_size_inches(3, 2.5)
@@ -204,8 +278,16 @@ plt.tight_layout()
 #------------------------------------------------------------------------------
 
 
+#Generating %Difference surfaces
+Imp_Henrych = np.zeros_like(z_dataset)
+Imp_RPB_MCEER = np.zeros_like(z_dataset)
+Imp_CFD = np.zeros_like(z_dataset)
 
-
+for i in range(np.size(z_dataset,0)):
+    for j in range(np.size(z_dataset,1)):
+        Imp_RPB_MCEER[i,j] = RPB_MCEER_i(charge_mass, z_dataset[i,j]*(charge_mass**(1/3)), theta[i,j])[4]
+        Imp_Henrych[i,j] = Henrych_I(A0, charge_mass, theta[i,j])
+        Imp_CFD[i,j] = Impulse_CFD(peak_impulses[j], z_dataset[i,j]*(charge_mass**(1/3)), theta[i,j], theta[:,j])
 
 
 
