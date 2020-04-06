@@ -6,7 +6,7 @@
 	\caption{Contour plot peak impulse distribution overview of PE4 dataset}
 	\label{fig:theta_peak_impulse_0}
 \end{figure}
-The CFD dataset obtained consists of 
+The CFD dataset features a cell size of 6.25mm, 100g of PE4 at clear scaled distance of $0.014m/kg^{1/3} \leq z \leq 0.107 m/kg^{1/3}$.
 \subsection{Randers-Pehrson Bannister (RPB) Model}
 The specific impulse acting on a target is dependent on the angle of incidence of the shock front, theta, with respect to the normal of the target surface. 
 From \textcite{randers-pehrsonAirblastLoadingModel1997},
@@ -25,6 +25,23 @@ From trigonometry, we have that $\bar{R}^2 = R^2 + x^2 + y^2$, where $x \text{ a
 	\label{fig:RPB}
 \end{figure}
 
+The RPB model provides the distribution of impulse as a function of incident angle, theta. 
+By inputting into the model the peak reflected specific impulse and the peak reflected specific impulse of the slant distance, $\bar{R}$, we can calculate the specific impulse at any given point on a target.
+The specific impulse that is fed into the RPB model is obtained from the MCEER-14-0006 curves (Figure \ref{fig:theta_peak_impulse_MCEER_curves}) by \textcite{shinAirBlastEffectsCivil2014}, which are themselves updated versions of the UFC 3-340-02 blast load curves \parencite{dodUnifiedFacilitiesCriteria2008}. 
+\begin{figure}
+	\centering
+	\includegraphics{Graphs/theta_peak_impulse_MCEER_curves.pdf}
+	\caption{MCEER curves for specific impulse}
+	\label{fig:theta_peak_impulse_MCEER_curves}
+\end{figure}
+
+\begin{figure}[htpb]
+	\centering
+	\includegraphics{Graphs/theta_peak_impulse_RPB_MCEER_plate.pdf}
+	\caption{Contour plot peak impulse distribution of 100g PE4 according to the RPB model with MCEER values. TNT equivalence of PE4 assumed as 1.}
+	\label{fig:theta_peak_impulse_RPB_MCEER_plate}
+\end{figure}
+
 \subsection{Henrych Model}
 From \textcite{henrychDynamicsExplosionIts1979}, we have a theoretical basis to calculate specific impulse distributions. 
 The hypothesis of a constant velocity for out flowing particles is introduced:
@@ -38,9 +55,26 @@ For a spherical charge, it is provided that
 \end{equation}
 where $R$ is the distance from charge centre to centre of target (shown also in Figure \ref{fig:RPB}) and given
 \begin{equation}
-	A_0 = \frac{N_{xW} + U_x}{4\pi}, 
+	A_0 = \frac{N_{xW} + u_x}{4\pi}, 
 \end{equation}
 and $N_{xW}$ is the displacement velocity of the outburst surface.
 
-\subsection{Model performance test}
-Test the model with unseen data to demonstrate how this would work. 
+\subsection{Jang and Dharmasena model}
+Two alternative modelling procedures have been compared: \cite{jangBlastLoadModel2018} and \cite{dharmasenaMechanicalResponseMetallic2008}.
+Both models are derivatives of the RPB model. 
+Dharmasena ignored the perpendicular incident impulse and only considered the initial term from Equation \ref{eq:RPB}.
+\begin{equation}
+i_{cr}(\theta) = i_rexp(-tan^2\theta),
+\label{eq:Dharmasena}
+\end{equation}
+Building from this, \cite{jangBlastLoadModel2018} introduced a weighting function $\beta(z)$ that is a function of scaled distance.
+Resulting in the model:
+\begin{equation}
+i_{cr}(\theta, z) = i_rexp(-\beta(z)tan^2\theta),
+\label{eq:Jang}
+\end{equation}
+where
+\begin{equation}
+\beta = a(1 + b(z-c))exp(-b(z-c)) + d.
+\end{equation}
+The coefficients $a$, $b$ and $c$ are determined from finite element simulations of a steel plate blast test whilst $d$ is chosen as 20\% of $\beta$.

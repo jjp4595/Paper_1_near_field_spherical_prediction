@@ -1,19 +1,19 @@
 """
 Conwep Eq's
-
 """
 import scipy.io as sio #1.1.0
 import numpy as np
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt #3.0.2
+import os
 
-conwep_import = sio.loadmat(r"C:\Users\cip18jjp\Google Drive\Generic Matlab Scripts\Blast.m\ConWepValues")
+conwep_import = sio.loadmat(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Generic Matlab Scripts\Blast.m\ConWepValues"))
 air = conwep_import['air']
 surface = conwep_import['surface']
 
 
 def positive_parameters(R,W,bursttype,air,surface):
-    conwep_import = sio.loadmat(r"C:\Users\cip18jjp\Google Drive\Generic Matlab Scripts\Blast.m\ConWepValues")
+    conwep_import = sio.loadmat(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Generic Matlab Scripts\Blast.m\ConWepValues"))
     air = conwep_import['air']
     surface = conwep_import['surface']
     """

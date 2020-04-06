@@ -1,12 +1,43 @@
 \section{Discussion}
-Compare the proposed model with previous models:
-Jang, Dharmasena, RPB to show that this model is the best!
-Also compare with Shin et al and their adjusted UFC values
-Also compare with original UFC values. 
-Henrych model?
+\subsection{Comparison of near-field predictive methods for specific impulse}
+A comparison of the near-field predictive methods is shown below in Figure \ref{fig:theta_peak_impulsei_theta_comparisons}. 
+The Jang model uses a $\beta$ of 0.8 as proposed by the authors however this coefficient is derived properly by performing finite element analysis. 
+The proposed coefficient is used here to demonstrate the overall distribution. 
+
+\begin{figure}[htpb]
+	\centering
+	\includegraphics{Graphs/theta_peak_impulse_i_theta_comparisons.pdf}
+	\caption{Contour plot peak impulse distribution of 100g PE4 according to the RPB model with MCEER values. TNT equivalence of PE4 assumed as 1. }
+	\label{fig:theta_peak_impulsei_theta_comparisons}
+\end{figure}
+
+Due to TNT equivalence issues, the left plot displaying absolute values should be considered cautiously. 
+A more useful interpretation is given in the plot on the right hand side, that shows the impulse as a ratio of the maximum (at $\theta=0$). 
+From this plot, it is shown that the Henrych model and the RPB models mimic the shape of the CFD output and experimental results in a more accurate way than the Jang and Dharmasena model. 
+However, the RPB and Henrych models do display a faster rate of decrease between 20 and 60 degrees, when integrated around 360 degrees this will have a profound effect on the overall impulse and hence are not extremely accurate representations of the impulse distributions.   
+The Henrych and RPB models are taken forward for further analysis. 
+
 
 \subsection{Area integrated impulse comparison}
-Integrate over an area to get the area-integrated impulse from CFD analyses. 
-Perform the same thing with my model (and Jang, RPB etc) and see percentage difference. This will give physical meaning to the values. 
-Plot surface: of impulse percentage difference (z) vs theta (x) and scaled distance/charge radii standoff (y). 
-This gives an insight into how accurate the models are 
+\begin{figure}[htpb]
+	\begin{subfigure}{\linewidth}
+		\centering
+		\includegraphics{Graphs/theta_peak_impulse_i_percent_a.pdf}
+		\caption{RPB-MCEER}
+		\label{fig:theta_peak_impulse_i_percent_a}
+	\end{subfigure}
+	\begin{subfigure}{\linewidth}
+		\centering
+		\includegraphics{Graphs/theta_peak_impulse_i_percent_b.pdf}
+		\caption{Henrych}
+		\label{fig:theta_peak_impulse_i_percent_b}
+	\end{subfigure}
+	\begin{subfigure}{\linewidth}
+		\centering
+		\includegraphics{Graphs/theta_peak_impulse_i_percent_c.pdf}
+		\caption{CFD}
+		\label{fig:theta_peak_impulse_i_percent_c}
+	\end{subfigure}
+	\caption{}
+	\label{fig:theta_peak_impulse_i_percent_}
+\end{figure}

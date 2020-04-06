@@ -12,11 +12,13 @@ import lmfit as lm
 from sklearn.metrics import mean_squared_error
 from MCEER_curves import MCEER
 from scipy import ndimage
+import os
 #plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
 params = {'font.family':'serif',
         'axes.labelsize':'small',
         'xtick.labelsize':'x-small',
         'ytick.labelsize':'x-small', 
+        'lines.markersize': 2.5,
         'legend.fontsize':'small',
         'legend.title_fontsize':'small',
         'legend.fancybox': True,
@@ -29,9 +31,9 @@ params = {'font.family':'serif',
 plt.rcParams.update(params)
 
 #Import Apollo data
-Apollo_FileList = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*.txt")
-Apollo_gtable = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gtable",1)
-Apollo_gauges = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gauges",1)
+Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*.txt"))
+Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gtable"),1)
+Apollo_gauges = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gauges"),1)
 #Apollo_FileList = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_dataset\*.txt")
 #Apollo_gtable = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_dataset\*gtable",1)
 #Apollo_gauges = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_dataset\*gauges",1)
@@ -69,10 +71,9 @@ z_dataset = np.divide(clear_standoff, charge_mass**(1/3))
 
 
 #Load Data for 80mm and 380mm Apollo Experimental
-fileID_NF_80mm_gtable = r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gtable"
-gtable_80mm = pre.FileAddressList(fileID_NF_80mm_gtable,1)
+gtable_80mm = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gtable"),1)
 Irmax_Ii_80mm = np.divide(gtable_80mm[0][:,7], gtable_80mm[0][:,7].max())
-NF_80mm_exp = sio.loadmat(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_80mm") 
+NF_80mm_exp = sio.loadmat(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Near Field Sims\100gPE4Sphere_80mm") )
 theta_80mm_mesh = np.rad2deg(np.arctan(gtable_80mm[0][:,2]/0.08))
 coords = np.append(np.arange(-100,101,25), np.arange(-100,-24,25)) 
 coords = np.append(coords, np.arange(25,101,25))
@@ -99,7 +100,7 @@ cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax.set_ylabel('standoff (clear charge radii)')
 ax.set_xlabel('incident wave angle (degrees)')
 plt.tight_layout()
-fig0.savefig(r'C:\Users\cip18jjp\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_0.pdf', format = 'pdf')
+fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_0.pdf"), format = 'pdf')
 
 
 #Graph 2 ----------------------------------------------------------------------
@@ -122,9 +123,15 @@ Qw = 4.79e6/4184 #Specific energy of PE4, 4.79 assumed from EOS.dat
 Ux = (2 * Qw)**0.5
 A0 = (Ux * 1.8) / (4*np.pi)
 def Henrych(A0, W, a, theta):
+    """
+    Calculating specific impulse
+    """
     i = ((A0 * W) / (a**2)) * np.cos(np.deg2rad(theta))**4
     return i
 def Henrych_I(A0, W, theta_lim):
+    """
+    Calculating total impulse across a circle
+    """
     return np.pi * A0 * W * np.sin(np.deg2rad(theta_lim))**2
 
 
@@ -138,6 +145,9 @@ W = 0.1 * TNTeq
 R = 0.08
 theta_lim = 80
 def RPB_MCEER_i(W, R, theta_lim):
+    """
+    imp and I output are in MPa.ms
+    """
     #Wroot = W**(1/3)
     A = R * np.tan(np.deg2rad(theta_lim)) * 2
     B = A
@@ -190,10 +200,11 @@ def RPB_MCEER_i(W, R, theta_lim):
 #CFD Impulse generation for circular target -----------------------------------
 def Impulse_CFD(specific_impulse, R, theta_lim, theta):
     """
-    i is impulse distribution
+    i is impulse distribution to be interpolated
     R is clear standoff
     theta_lim is the upper limit of theta for size of the circle (from bomb POV)
     theta is the theta coords for interpolation
+    output is in Pa.s
     """
 	#Plate dimensions
     A = R * np.tan(np.deg2rad(theta_lim)) * 2
@@ -234,12 +245,27 @@ def Impulse_CFD(specific_impulse, R, theta_lim, theta):
     I = np.sum(Imp)
     return I
 
-Impulse_CFD(peak_impulses[0], 0.08, 80, theta[:,0])
+#Jang Model for Icr
+def jang(theta, Ir, beta):
+    """
+    Beta is a function of Z, Ir is maximum reflected impulse at theta = 0. Theta inputted in degrees.
+    """
+    return Ir * np.exp( (-beta) * np.tan(np.deg2rad(theta)) * np.tan(np.deg2rad(theta)))
+
+#Dharmasena model for Icr
+def dharmasena(theta, Ir):
+    """
+    Beta is 1
+    """
+    return Ir * np.exp( (-1) * np.tan(np.deg2rad(theta)) * np.tan(np.deg2rad(theta)))
 
 
 
-  
+
+Impulse_CFD(peak_impulses[0], 0.08, 80, theta[:,0])  
 RPB_MCEER_exp = RPB_MCEER_i(0.1, 0.08, 80)
+i_jang = jang(np.linspace(0,80, num=80), 1, 0.8)
+i_dharmasena = dharmasena(np.linspace(0,80,num=80), 1)
       
 fig2, ax = plt.subplots(1,1)
 fig2.set_size_inches(3, 2.5)
@@ -249,6 +275,7 @@ cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax.set_ylabel('x-position')
 ax.set_xlabel('y-position')
 plt.tight_layout()
+fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_RPB_MCEER_plate.pdf"), format = 'pdf')
 
 fig3, [ax0,ax1] = plt.subplots(1,2)
 fig3.set_size_inches(5,2.5)
@@ -256,9 +283,9 @@ ax0.scatter(theta_exp_80mm, MxI_1_80mm/1e3, marker="x", s=15., color=[0.75,0.75,
 ax0.scatter(theta_exp_80mm, MxI_2_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax0.scatter(theta_exp_80mm, MxI_3_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax0.scatter(theta_exp_80mm_mean, Mx_mean_80mm/1e3, marker="o", s=15., label = 'Exp - mean')
-ax0.plot(RPB_MCEER_exp[2][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)], RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2),0:int(len(RPB_MCEER_exp[2])/2)], 'k', label = 'MCEER/RPB')
+ax0.plot(RPB_MCEER_exp[2][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)], RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2),0:int(len(RPB_MCEER_exp[2])/2)], 'k', label = 'MCEER-RPB')
 ax0.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/1e3, 'k-.', dashes=[12,6,12,6,3,6], label = 'CFD - 1.25mm')
-ax0.plot(np.linspace(0,80, num=80), Henrych(255,0.1,0.08, np.linspace(0,80, num=80))/1e3, 'k:', label = 'Henrych')
+ax0.plot(np.linspace(0,80, num=80), Henrych(A0,0.1,0.08, np.linspace(0,80, num=80))/1e3, 'k:', label = 'Henrych')
 ax0.set_xlabel('theta (degrees)')
 ax0.set_ylabel('peak specific impulse (MPa.ms)')
 handles, labels = ax0.get_legend_handles_labels()
@@ -266,55 +293,71 @@ ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.72, 0.78), prop={'si
 
 ax1.set_xlabel('theta (degrees)')
 ax1.set_ylabel('peak specific impulse ratio')
-ax1.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
+ax1.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax1.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax1.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax1.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
+ax1.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15.)
 ax1.plot(RPB_MCEER_exp[2][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)], RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]/ max(RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]), 'k')
 ax1.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/max(gtable_80mm[0][:,7]), 'k-.', dashes=[12,6,12,6,3,6])
 ax1.plot(np.linspace(0,80, num=80), Henrych(255,0.1,0.08, np.linspace(0,80, num=80)) / max(Henrych(255,0.1,0.08, np.linspace(0,80, num=80))), 'k:')
-ax1.plot(theta[:,1], Icr_Ir[:,1])
+ax1.plot(np.linspace(0,80, num=80), i_jang, 'k', marker='o', markevery=16,  label = 'Jang')
+ax1.plot(np.linspace(0,80, num=80), i_dharmasena, 'k-.', marker='D', markevery=16,  label = 'Dharmasena')
+handles, labels = ax1.get_legend_handles_labels()
+ax1.legend(handles, labels, loc='center', bbox_to_anchor=(0.72, 0.78), prop={'size':6})
 plt.tight_layout()  
+fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_theta_comparisons.pdf"), format = 'pdf')
 #------------------------------------------------------------------------------
 
 
-#Generating %Difference surfaces
-Imp_Henrych = np.zeros_like(z_dataset)
-Imp_RPB_MCEER = np.zeros_like(z_dataset)
-Imp_CFD = np.zeros_like(z_dataset)
+#Generating %Difference for where z_dataset is greater than lower limit of MCEER
 
-for i in range(np.size(z_dataset,0)):
-    for j in range(np.size(z_dataset,1)):
-        Imp_RPB_MCEER[i,j] = RPB_MCEER_i(charge_mass, z_dataset[i,j]*(charge_mass**(1/3)), theta[i,j])[4]
-        Imp_Henrych[i,j] = Henrych_I(A0, charge_mass, theta[i,j])
-        Imp_CFD[i,j] = Impulse_CFD(peak_impulses[j], z_dataset[i,j]*(charge_mass**(1/3)), theta[i,j], theta[:,j])
+z_I_percent = z_dataset[0,4::]
+theta_I_percent = np.linspace(0,80,num=40)
 
+Imp_Henrych = np.zeros((len(theta_I_percent), len(z_I_percent)))
+Imp_RPB_MCEER = np.zeros_like(Imp_Henrych)
+Imp_CFD = np.zeros_like(Imp_Henrych)
 
-
-
-
-
-
+for j in range(np.size(Imp_Henrych,1)):
+    for i in range(np.size(Imp_Henrych,0)):       
+        Imp_RPB_MCEER[i,j] = RPB_MCEER_i(charge_mass, z_I_percent[j]*(charge_mass**(1/3)), theta_I_percent[i])[4]
+        Imp_Henrych[i,j] = Henrych_I(A0, charge_mass, theta_I_percent[i])
+        Imp_CFD[i,j] = Impulse_CFD(peak_impulses[j+4], z_I_percent[j]*(charge_mass**(1/3)), theta_I_percent[i], theta[:,j+4])
+    print(j/np.size(Imp_Henrych,1))
 
 
+fig4a, ax0 = plt.subplots(1,1)
+fig4a.set_size_inches(3, 2.5)
+CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_RPB_MCEER), cmap = plt.cm.cubehelix)
+cbar = fig4a.colorbar(CS0, ax=ax0)
+cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
+ax0.set_xlabel('$Theta_{lim}$')
+plt.tight_layout()
+fig4a.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_a.pdf"), format = 'pdf')
 
+fig4b, ax0 = plt.subplots(1,1)
+fig4b.set_size_inches(3, 2.5)
+CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_Henrych), cmap = plt.cm.cubehelix)
+cbar = fig4b.colorbar(CS0, ax=ax0)
+cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
+ax0.set_xlabel('$Theta_{lim}$')
+plt.tight_layout()
+fig4b.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_b.pdf"), format = 'pdf')
 
-
-
-
-
-def jang(theta, Ir, beta):
-    """
-    Beta is a function of Z, Ir is maximum reflected impulse at theta = 0. Theta inputted in degrees.
-    """
-    return Ir * np.exp( (-beta) * np.tan(np.deg2rad(theta)) * np.tan(np.deg2rad(theta)))
-
-def dharmasena(theta, Ir):
-    """
-    Beta is a function of Z, Ir is maximum reflected impulse at theta = 0. Theta inputted in degrees.
-    """
-    return Ir * np.exp( (-1) * np.tan(np.deg2rad(theta)) * np.tan(np.deg2rad(theta)))
-
+fig4c, ax0 = plt.subplots(1,1)
+fig4c.set_size_inches(3, 2.5)
+CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_CFD)/1e3, cmap = plt.cm.cubehelix)
+cbar = fig4c.colorbar(CS0, ax=ax0)
+cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
+ax0.set_xlabel('$Theta_{lim}$')
+plt.tight_layout()
+fig4c.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_c.pdf"), format = 'pdf')
+#------------------------------------------------------------------------------
+#Model fitting Stuff that needs refinement ------------------------------------
+#------------------------------------------------------------------------------
 def RPB(theta, Ir):
     Ii = 0.1 * Ir
     return Ir * np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) + (Ii/Ir)*(1 + (np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) ) - 2*np.cos(np.deg2rad(theta)))
