@@ -1,17 +1,21 @@
 \section{Background}
-\subsection{Literature Review - NF Blast loading}
-Work done recently at the University of Sheffield has demonstrated that to understand structural response to near field explosive events, the loading must be well defined.
-\parencite{rigbyNearfieldBlastLoading2019, rigbyExperimentalMeasurementSpecific2019, rigbyResponsePlatesNonuniform9, rigbyPredictingResponsePlates2019}
-The authors conclude that knowledge of both magnitude and position of the impulse experienced by a structure is critical to modelling the deformation to that loading. 
+\subsection{Literature Review}
+\textbf{Historical Context}\\
+A thorough history of early air-blast experimental work can be found in Esparza \cite{esparzaBlastMeasurementsEquivalency1986}.
+This work focuses on developments made from the second world war onwards and the data from these early studies would be compiled into the well established Kingery and Bulmash (KB) semi-empirical predictive methods \cite{kingeryAirblastParametersTNT1984}.
+Direct measurements of the blast wave parameters in close proximity to the charge were either \textit{``non-existent or very few''} \cite{esparzaBlastMeasurementsEquivalency1986}, and near-field semi-empirical predictive data were inferred from non direct measurements such as smoke trails \cite{deweyAirVelocityBlast1964} or rudimentary numerical analyses \cite{brodeNumericalSolutionsSpherical1955}.
 
-Currently the blast protection community heavily relies on the Kingery and Bulmash (KB) equations \parencite{kingeryAirblastParametersTNT1984}. 
-These are summarised in \textcite{dodUnifiedFacilitiesCriteria2008}, where the incident and normally reflected overpressures and impulses obtained from the KB charts are combined with reflection coefficients that vary as a function of angle of incidence of the incoming blast wave. 
-This allows the calculation of the specific impulse distribution of an explosive event to provide the loading information on a surface. 
+\textbf{KB Predictive Method}\\
+The KB charts are presented in UFC 3-340-02 \cite{dodUnifiedFacilitiesCriteria2008} which are widely used in protective design. 
+The utility of the KB charts have been evaluated to provider simpler polynomials, within 1\% of the original values \cite{swisdakSimplifiedKingeryAirblast1994} but did not include a re-evaluation of the data used to establish the original Polynomials.
+Later review sought to compare results of widely used airblast codes, provide experimental comparison and quantify uncertainty in test data \cite{bogosianMeasuringUncertaintyConservatism2002}. 
+Results from these experiments suggest that the KB curves ``\textit{substantially underpredicted the recorded data for $Z<2.4m/kg^{1/3}$}''.
+Comprehensive reviews of the KB charts and meta-analyses of research reviewing these can be found in \cite{shinAirBlastEffectsCivil2014, karlosAnalysisBlastParameters2016} where updated polynomials to the KB curves are provided.
+Reflection coefficients to transform incident to reflected overpressures are reported in \cite{dodUnifiedFacilitiesCriteria2008}, refined further in \cite{shinAirBlastEffectsCivil2014} and validated in \cite{rigbyAngleIncidenceEffects2015}.
 
-\textcite{shinIncidentNormallyReflected2015} have recommended new polynomials for spherical TNT detonations in free-air for incident and normally reflected peak overpressure and impulse at a scaled distance of $0.0553 \leq Z \leq 40 m/kg^{\frac{1}{3}} $.
-The authors also recommend a minimum cell length of R/500 where R is distance from charge center to measuring location for CFD analyses.
+Considering medium to large scaled distances specifically, the KB charts have proven to be accurate \cite{rigbyValidationSemiempiricalBlast2014, karlosAnalysisBlastParameters2016}. Equations to calculate the blast wave decay coefficient from the KB data are proposed in \cite{karlosAnalysisBlastWave2016}.
 
-A requirement of these predictive approaches is the use of TNT equivalence.
-\textcite{shinTNTEquivalencyOverpressure2015} demonstrate that TNT equivalence for differing charges in the near field are not well defined in current methods. 
-Further, the predictive methods also assume spherical charges detonated centrally. 
-The results presented henceforth focus on PE4 detonations with no TNT equivalence in all scaled calculations (a TNT equivalence of 1).
+\textbf{Near-field experimental measurements }
+
+\textbf{Final}\\
+``\textit{under predict incident and normally reflected peak overpressures and incident impulse near the face of the charge}''
