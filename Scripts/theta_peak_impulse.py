@@ -13,6 +13,8 @@ from sklearn.metrics import mean_squared_error
 from MCEER_curves import MCEER
 from scipy import ndimage
 import os
+from scipy import stats
+
 #plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
 params = {'font.family':'serif',
         'axes.labelsize':'small',
@@ -31,12 +33,9 @@ params = {'font.family':'serif',
 plt.rcParams.update(params)
 
 #Import Apollo data
-Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*.txt"))
-Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gtable"),1)
-Apollo_gauges = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gauges"),1)
-#Apollo_FileList = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_dataset\*.txt")
-#Apollo_gtable = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_dataset\*gtable",1)
-#Apollo_gauges = pre.FileAddressList(r"C:\Users\cip18jjp\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_dataset\*gauges",1)
+Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16\*.txt"))
+Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16\*gtable"),1)
+Apollo_gauges = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16\*gauges"),1)
 
 
 #Some charge properties
@@ -90,32 +89,62 @@ Mx_mean_80mm = np.transpose(NF_80mm_exp['MEANI'])
 
 
 #Graphs for paper -------------------------------------------------------------
-#Graph 1 ----------------------------------------------------------------------
+#Graph 1 - Dataset overview----------------------------------------------------
 fig0, ax = plt.subplots(1,1)
 fig0.set_size_inches(3, 2.5)
-CS = ax.contourf(theta, clear_standoff, peak_impulse/1e3, levels = [0 , 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25], cmap = plt.cm.cubehelix)
+CS = ax.contourf(theta, clear_standoff, peak_impulse/1e3, levels = [0 , 2.5, 5, 7.5, 10, 12.5, 15], cmap = plt.cm.cubehelix)
 cbar = fig0.colorbar(CS)
 cbar.ax.invert_yaxis()
 cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax.set_ylabel('standoff (clear charge radii)')
 ax.set_xlabel('incident wave angle (degrees)')
 plt.tight_layout()
-fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_0.pdf"), format = 'pdf')
+#fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_0.pdf"), format = 'pdf')
 
 
-#Graph 2 ----------------------------------------------------------------------
-fig1, [ax0, ax1] = plt.subplots(1,2)
+#Graph 2 Power law-------------------------------------------------------------
+slope, intercept, r_value, p_value, std_err = stats.linregress(np.log10(clear_standoff[0,:]),np.log10(peak_impulse[0,:]/1e3))
+
+fig1, [ax0, ax1, ax2] = plt.subplots(1,3)
 fig1.set_size_inches(3, 2.5)
 ax0.scatter(clear_standoff[0,:], peak_impulse[0,:]/1e3, c = 'k', marker=".", s=10)
-ax0.set_xlim(0, 2.5)
-ax0.set_ylim(0, 30)
+# ax0.set_xlim(0, 2.5)
+# ax0.set_ylim(0, 30)
 ax0.set_ylabel('peak specific impulse (MPa.ms)')
 ax0.set_xlabel('standoff (clear charge radii)')
+
+ax1.scatter(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3), c = 'k', marker=".", s=10)
 ax1.scatter(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3), c = 'k', marker=".", s=10)
 ax1.set_ylabel('peak specific impulse (MPa.ms)')
 ax1.set_xlabel('standoff (clear charge radii)')
-ax1.set_xlim(-0.6, 2)
-ax1.set_ylim(-0.6, 2)
+
+x = np.log10(clear_standoff[0,:])
+y = np.log10(peak_impulse[0,:]/1e3)
+y_g = intercept + slope*x
+slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+const = np.divide(peak_impulse[0,:]/1e3, clear_standoff[0,:]**slope)
+const = const.sum()/len(const)
+
+plt.plot(x, y, 'o', label='original data')
+plt.plot(x, y_g, 'r', label='fitted line')
+plt.legend()
+
+x = clear_standoff[0,:]
+y = peak_impulse[0,:]/1e3
+plt.plot(x, y, 'o', label='original data')
+plt.plot(x, 10**y_g, 'r', label='fitted line')
+plt.plot(x, const * x**slope)
+plt.legend()
+
+
+
+
+ax2.scatter(clear_standoff[0,:], peak_impulse[0,:]/1e3, c = 'k', marker=".", s=10)
+ax2.scatter(clear_standoff[0,:], 10**intercept + slope*clear_standoff[0,:])
+
+
+#ax1.set_xlim(-0.6, 2)
+#ax1.set_ylim(-0.6, 2)
 #------------------------------------------------------------------------------
 
 #Henrych Model-- --------------------------------------------------------------
@@ -275,7 +304,7 @@ cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax.set_ylabel('x-position')
 ax.set_xlabel('y-position')
 plt.tight_layout()
-fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_RPB_MCEER_plate.pdf"), format = 'pdf')
+#fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_RPB_MCEER_plate.pdf"), format = 'pdf')
 
 fig3, [ax0,ax1] = plt.subplots(1,2)
 fig3.set_size_inches(5,2.5)
@@ -305,7 +334,7 @@ ax1.plot(np.linspace(0,80, num=80), i_dharmasena, 'k-.', marker='D', markevery=1
 handles, labels = ax1.get_legend_handles_labels()
 ax1.legend(handles, labels, loc='center', bbox_to_anchor=(0.72, 0.78), prop={'size':6})
 plt.tight_layout()  
-fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_theta_comparisons.pdf"), format = 'pdf')
+#fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_theta_comparisons.pdf"), format = 'pdf')
 #------------------------------------------------------------------------------
 
 
@@ -328,33 +357,33 @@ for j in range(np.size(Imp_Henrych,1)):
 
 fig4a, ax0 = plt.subplots(1,1)
 fig4a.set_size_inches(3, 2.5)
-CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_RPB_MCEER), cmap = plt.cm.cubehelix)
-cbar = fig4a.colorbar(CS0, ax=ax0)
+#CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_RPB_MCEER), cmap = plt.cm.cubehelix)
+#cbar = fig4a.colorbar(CS0, ax=ax0)
 cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
 ax0.set_xlabel('$Theta_{lim}$')
 plt.tight_layout()
-fig4a.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_a.pdf"), format = 'pdf')
+#fig4a.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_a.pdf"), format = 'pdf')
 
 fig4b, ax0 = plt.subplots(1,1)
 fig4b.set_size_inches(3, 2.5)
-CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_Henrych), cmap = plt.cm.cubehelix)
-cbar = fig4b.colorbar(CS0, ax=ax0)
+#CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_Henrych), cmap = plt.cm.cubehelix)
+#cbar = fig4b.colorbar(CS0, ax=ax0)
 cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
 ax0.set_xlabel('$Theta_{lim}$')
 plt.tight_layout()
-fig4b.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_b.pdf"), format = 'pdf')
+#fig4b.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_b.pdf"), format = 'pdf')
 
 fig4c, ax0 = plt.subplots(1,1)
 fig4c.set_size_inches(3, 2.5)
-CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_CFD)/1e3, cmap = plt.cm.cubehelix)
-cbar = fig4c.colorbar(CS0, ax=ax0)
+#CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_CFD)/1e3, cmap = plt.cm.cubehelix)
+#cbar = fig4c.colorbar(CS0, ax=ax0)
 cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
 ax0.set_xlabel('$Theta_{lim}$')
 plt.tight_layout()
-fig4c.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_c.pdf"), format = 'pdf')
+#fig4c.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_c.pdf"), format = 'pdf')
 #------------------------------------------------------------------------------
 #Model fitting Stuff that needs refinement ------------------------------------
 #------------------------------------------------------------------------------
@@ -364,7 +393,7 @@ def RPB(theta, Ir):
     
 
 
-fig, [ax0,ax1] = plt.subplots(1,2)
+fig5, [ax0,ax1] = plt.subplots(1,2)
 ax0.plot(theta, peak_impulse)
 ax0.set_xlabel('theta (degrees)')
 ax0.set_ylabel('peak specific impulse')
@@ -404,7 +433,7 @@ loss = np.subtract(Icr_Ir[:, choice], RPB2(theta[:,choice], max(Icr_Ir[:, choice
 Cr = np.divide(RPB2nd_part(theta[:,choice]), loss)
 
 
-fig, [ax0, ax1] = plt.subplots(1,2)
+fig6, [ax0, ax1] = plt.subplots(1,2)
 ax1.set_xlabel('theta (degrees)')
 ax1.set_ylabel('peak specific impulse')
 #Plotting Experimental data
@@ -426,8 +455,6 @@ ax1.plot(theta[:, choice], dharmasena(theta[:, choice], Icr_Ir[:, choice]), labe
 handles, labels = ax1.get_legend_handles_labels()
 ax1.legend(handles, labels, loc='center', bbox_to_anchor=(0.65, 0.90), prop={'size':6})
 plt.tight_layout()
-
-
 
 #--------------------------------------------
 #Creating and fitting a gaussian model
@@ -472,7 +499,7 @@ gaussmod = gauss_curve(x, result.params['cen1'].value, result.params['amp1'].val
 
 
 
-
+fig, ax0 = plt.subplots(1,1)
 #Plotting some more model functions
 ax0.scatter(theta, Icr_Ir, marker='o', s=0.1, color = 'red' , label = 'CFD')
 #Plotting Experimental data
@@ -483,7 +510,37 @@ ax0.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), mar
 ax0.set_xlabel('theta (degrees)')
 ax0.set_ylabel('Ir / Ir Max')
 #Gaussian
-ax0.plot(theta[:,test], gaussmod[300::], color = 'black', label = 'Gaussian')
+ax0.plot(theta[:,test], gaussmod[200::], color = 'black', label = 'Gaussian')
 handles, labels = ax0.get_legend_handles_labels()
 ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.65, 0.90), prop={'size':6})
+plt.tight_layout()
+
+
+
+
+
+
+
+
+#--TESTING---
+#Build surface from Guassian Eq and power law.
+crs = np.linspace(clear_standoff.min(), clear_standoff.max(), num = 10)
+
+peak_I_test = np.multiply(np.power(crs, slope), 10**intercept)
+y_gauss = gaussmod[200::]
+y_gauss = np.tile(y_gauss, len(y_gauss))
+theta_test = np.linspace(0,80, num=len(y_gauss))
+
+test_impulses = y_gauss * peak_I_test
+
+
+
+fig_test, ax = plt.subplots(1,1)
+fig_test.set_size_inches(3, 2.5)
+CS = ax.contourf(theta_test, crs, test_impulses, levels = [0 , 2.5, 5, 7.5, 10, 12.5, 15], cmap = plt.cm.cubehelix)
+cbar = fig0.colorbar(CS)
+cbar.ax.invert_yaxis()
+cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+ax.set_ylabel('standoff (clear charge radii)')
+ax.set_xlabel('incident wave angle (degrees)')
 plt.tight_layout()

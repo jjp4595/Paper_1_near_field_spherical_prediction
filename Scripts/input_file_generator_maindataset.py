@@ -5,7 +5,7 @@ import os
 
 #------------------------------------------------------------------------------
 #meta variables 
-no_exps = 10
+no_exps = 5
 
 
 #Charge info
@@ -15,35 +15,23 @@ tnt_eq = 1
 shape_ratio = 0 #0 for sphere
 
 #Stages Variables
-term_time = [0.002, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.004] 
+term_time = [0.003, 0.003, 0.003, 0.003, 0.003] 
 
 #Model
 res_level = [4,
-3,
 4,
 4,
-3,
-3,
-3,
-3,
-3,
 4,
-3]
+4]
 
-zone_length = [0.02,
-0.02,
-0.05,
-0.05,
+zone_length = [0.04,
 0.04,
-0.05,
-0.05,
-0.05,
-0.05,
-0.1,
-0.1]
+0.04,
+0.04,
+0.04]
 
 #Standoffs/Scaled Distances
-z = np.linspace(0.055, 0.5, no_exps)
+z = np.linspace(0.055, 0.16, no_exps)
 
 
 #Output and theta range
@@ -55,7 +43,7 @@ no_plot_files = 20
 batch_name = "new_batch.bat"
 batch_path = r"D:\PhD projects\Pannell_Jordan\NewFolder"
 template = "PE4_theta_template.txt"
-local_path = r"C:\Users\jorda\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\NewFolder"
+local_path = os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\NewFolder"
 
 
 def myround(x, base):

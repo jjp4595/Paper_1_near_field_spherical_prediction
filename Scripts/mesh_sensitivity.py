@@ -65,7 +65,7 @@ for i in enumerate(Apollo_FileList_z0_055):
     
 
 ult_cell_sizes_z0_055 = np.asarray(ult_cell_sizes_z0_055)
-R_z0_055 = np.divide(0.0255+cr, ult_cell_sizes_z0_055)
+R_z0_055 = np.divide(0.0255+cr, ult_cell_sizes_z0_055) #No of cells from gauge to centre of charge.
 CPU_times_z0_055 = np.asarray(CPU_times_z0_055)    
 peak_impulse_z0_055 = np.asarray(peak_impulse_z0_055)
 no_cells = np.divide(total_mesh_vol, ult_cell_sizes_z0_055**3)
