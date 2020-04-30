@@ -9,11 +9,12 @@ import numpy as np #1.15.4
 from mpl_toolkits.mplot3d import Axes3D
 import scipy.io as sio
 import lmfit as lm
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 from MCEER_curves import MCEER
 from scipy import ndimage
 import os
 from scipy import stats
+
 
 #plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
 params = {'font.family':'serif',
@@ -33,9 +34,13 @@ params = {'font.family':'serif',
 plt.rcParams.update(params)
 
 #Import Apollo data
-Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16\*.txt"))
-Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16\*gtable"),1)
-Apollo_gauges = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16\*gauges"),1)
+# Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16\*.txt"))
+# Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16\*gtable"),1)
+
+Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*.txt"))
+Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gtable"),1)
+Apollo_FileList = Apollo_FileList[4::]
+Apollo_gtable = Apollo_gtable[4::]
 
 
 #Some charge properties
@@ -44,13 +49,13 @@ charge_mass = 0.1
 
 
 #Finding theta and creating data structures
-clear_standoff=np.zeros((len(Apollo_FileList),1))
+clear_standoff=np.zeros((len(Apollo_gtable),1))
 peak_impulses=[]
 Icr_Ir = []
 z_dataset = []
 
 theta = []
-for i in range(len(Apollo_FileList)):
+for i in range(len(Apollo_gtable)):
     clear_standoff[i] = pre.standoff_func(Apollo_FileList[i]) - charge_rad
     peak_impulses.append(Apollo_gtable[i][:,7])
     #incident_impulse.append(Apollo_gtable[i][incident_index::,7])
@@ -62,8 +67,9 @@ theta = np.stack(theta, axis=1)
 peak_impulse = np.stack(peak_impulses, axis = 1)
 Icr_Ir = np.stack(Icr_Ir, axis =1)
 clear_standoff = np.transpose(np.repeat(clear_standoff, len(theta), axis=1))
-clear_standoff = np.divide(clear_standoff, charge_rad)
-z_dataset = np.divide(clear_standoff, charge_mass**(1/3))
+z_dataset = np.divide(clear_standoff, charge_mass**(1/3)) 
+clear_standoff = np.divide(clear_standoff, charge_rad) #multiples of clear charge radii
+
 
 
 
@@ -103,48 +109,59 @@ plt.tight_layout()
 
 
 #Graph 2 Power law-------------------------------------------------------------
-slope, intercept, r_value, p_value, std_err = stats.linregress(np.log10(clear_standoff[0,:]),np.log10(peak_impulse[0,:]/1e3))
-
-fig1, [ax0, ax1, ax2] = plt.subplots(1,3)
-fig1.set_size_inches(3, 2.5)
-ax0.scatter(clear_standoff[0,:], peak_impulse[0,:]/1e3, c = 'k', marker=".", s=10)
-# ax0.set_xlim(0, 2.5)
-# ax0.set_ylim(0, 30)
-ax0.set_ylabel('peak specific impulse (MPa.ms)')
-ax0.set_xlabel('standoff (clear charge radii)')
-
-ax1.scatter(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3), c = 'k', marker=".", s=10)
-ax1.scatter(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3), c = 'k', marker=".", s=10)
-ax1.set_ylabel('peak specific impulse (MPa.ms)')
-ax1.set_xlabel('standoff (clear charge radii)')
-
-x = np.log10(clear_standoff[0,:])
-y = np.log10(peak_impulse[0,:]/1e3)
-y_g = intercept + slope*x
-slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+slope, intercept, r_value, p_value, std_err = stats.linregress(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3))
+linear_model = intercept + slope*np.log10(clear_standoff[0,:])
 const = np.divide(peak_impulse[0,:]/1e3, clear_standoff[0,:]**slope)
 const = const.sum()/len(const)
+residuals_power = np.log10(peak_impulse[0,:]/1e3) - linear_model
+RSS_power = np.power(residuals_power,2).sum()
+RSE_power = ( (1/(len(residuals_power)-2)) * RSS_power   )
+text_ax1 = "$R^2 =$" + str(round(r2_score(np.log10(peak_impulse[0,:]/1e3), linear_model), 3))
 
-plt.plot(x, y, 'o', label='original data')
-plt.plot(x, y_g, 'r', label='fitted line')
-plt.legend()
+if p_value < 0.0001:
+    text_ax3_p = "$p < 0.0001$"
+else:
+    text_ax3_p = "$p = {:.3f}$".format(p_value)
 
-x = clear_standoff[0,:]
-y = peak_impulse[0,:]/1e3
-plt.plot(x, y, 'o', label='original data')
-plt.plot(x, 10**y_g, 'r', label='fitted line')
-plt.plot(x, const * x**slope)
-plt.legend()
-
-
-
-
-ax2.scatter(clear_standoff[0,:], peak_impulse[0,:]/1e3, c = 'k', marker=".", s=10)
-ax2.scatter(clear_standoff[0,:], 10**intercept + slope*clear_standoff[0,:])
+if RSE_power < 0.0001:
+    text_ax3_se = "$RSE < 0.0001$"
+else:
+    text_ax3_se = "$RSE = {:.3f}$".format(RSE_power)
 
 
-#ax1.set_xlim(-0.6, 2)
-#ax1.set_ylim(-0.6, 2)
+text_ax2 = "$f(x) = {%.3f}.x^{%.3f}$" % (intercept, slope)
+
+fig1, [ax1, ax3, ax2] = plt.subplots(1,3)
+fig1.set_size_inches(7.5, 2.5)
+ax1.scatter(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3), c = 'k', marker=".", s=10, label = 'CFD data')
+ax1.plot(np.log10(clear_standoff[0,:]), linear_model, 'r', label='fitted model')
+ax1.plot(np.log10(clear_standoff[0,:]), linear_model + (2 * RSE_power), '--k', alpha = 0.2, label='95% PI')
+ax1.plot(np.log10(clear_standoff[0,:]), linear_model - (2 * RSE_power), '--k', alpha = 0.2,)
+ax1.text(0.1, 0.4, text_ax1, fontsize = 'x-small', transform=ax1.transAxes)
+ax1.text(0.1, 0.3, text_ax3_p, fontsize = 'x-small', transform=ax1.transAxes)
+ax1.text(0.1, 0.2, text_ax3_se, fontsize = 'x-small', transform=ax1.transAxes)
+ax1.set_ylabel('log(peak specific impulse (MPa.ms))')
+ax1.set_xlabel('log(standoff (clear charge radii))')
+
+
+ax2.scatter(clear_standoff[0,:], peak_impulse[0,:]/1e3, c = 'k', marker=".", s=10, label = 'CFD data')
+ax2.plot(clear_standoff[0,:], const * clear_standoff[0,:]**slope, 'r', label='fitted model')
+ax2.text(0.35, 0.7, text_ax2, fontsize = 'small', transform=ax2.transAxes)
+ax2.set_ylabel('peak specific impulse (MPa.ms)')
+ax2.set_xlabel('standoff (clear charge radii)')
+
+ax3.scatter(np.log10(clear_standoff[0,:]), residuals_power  , c = 'k', marker=".", s=10, label = 'Residuals')
+ax3.set_ylim(-0.1,0.1)
+ax3.set_ylabel('Residual')
+ax3.set_xlabel('log(standoff (clear charge radii))')
+
+handles, labels = ax1.get_legend_handles_labels()
+ax1.legend(handles, labels, loc='upper right', prop={'size':6})
+ax1.locator_params(axis = 'both',tight=True, nbins=6)
+ax2.locator_params(axis = 'both',tight=True, nbins=6)
+ax3.locator_params(axis = 'both',tight=True, nbins=6)
+plt.tight_layout()
+fig1.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\power_fit.pdf"), format = 'pdf')
 #------------------------------------------------------------------------------
 
 #Henrych Model-- --------------------------------------------------------------
@@ -338,126 +355,93 @@ plt.tight_layout()
 #------------------------------------------------------------------------------
 
 
+#------------------------------------------------------------------------------
 #Generating %Difference for where z_dataset is greater than lower limit of MCEER
+# z_I_percent = z_dataset[0,4::]
+# theta_I_percent = np.linspace(0,80,num=40)
 
-z_I_percent = z_dataset[0,4::]
-theta_I_percent = np.linspace(0,80,num=40)
+# Imp_Henrych = np.zeros((len(theta_I_percent), len(z_I_percent)))
+# Imp_RPB_MCEER = np.zeros_like(Imp_Henrych)
+# Imp_CFD = np.zeros_like(Imp_Henrych)
 
-Imp_Henrych = np.zeros((len(theta_I_percent), len(z_I_percent)))
-Imp_RPB_MCEER = np.zeros_like(Imp_Henrych)
-Imp_CFD = np.zeros_like(Imp_Henrych)
-
-for j in range(np.size(Imp_Henrych,1)):
-    for i in range(np.size(Imp_Henrych,0)):       
-        Imp_RPB_MCEER[i,j] = RPB_MCEER_i(charge_mass, z_I_percent[j]*(charge_mass**(1/3)), theta_I_percent[i])[4]
-        Imp_Henrych[i,j] = Henrych_I(A0, charge_mass, theta_I_percent[i])
-        Imp_CFD[i,j] = Impulse_CFD(peak_impulses[j+4], z_I_percent[j]*(charge_mass**(1/3)), theta_I_percent[i], theta[:,j+4])
-    print(j/np.size(Imp_Henrych,1))
+# for j in range(np.size(Imp_Henrych,1)):
+#     for i in range(np.size(Imp_Henrych,0)):       
+#         Imp_RPB_MCEER[i,j] = RPB_MCEER_i(charge_mass, z_I_percent[j]*(charge_mass**(1/3)), theta_I_percent[i])[4]
+#         Imp_Henrych[i,j] = Henrych_I(A0, charge_mass, theta_I_percent[i])
+#         Imp_CFD[i,j] = Impulse_CFD(peak_impulses[j+4], z_I_percent[j]*(charge_mass**(1/3)), theta_I_percent[i], theta[:,j+4])
+#     print(j/np.size(Imp_Henrych,1))
 
 
-fig4a, ax0 = plt.subplots(1,1)
-fig4a.set_size_inches(3, 2.5)
-#CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_RPB_MCEER), cmap = plt.cm.cubehelix)
-#cbar = fig4a.colorbar(CS0, ax=ax0)
-cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
-ax0.set_xlabel('$Theta_{lim}$')
-plt.tight_layout()
-#fig4a.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_a.pdf"), format = 'pdf')
+# fig4a, ax0 = plt.subplots(1,1)
+# fig4a.set_size_inches(3, 2.5)
+# #CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_RPB_MCEER), cmap = plt.cm.cubehelix)
+# #cbar = fig4a.colorbar(CS0, ax=ax0)
+# cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+# ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
+# ax0.set_xlabel('$Theta_{lim}$')
+# plt.tight_layout()
+# #fig4a.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_a.pdf"), format = 'pdf')
 
-fig4b, ax0 = plt.subplots(1,1)
-fig4b.set_size_inches(3, 2.5)
-#CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_Henrych), cmap = plt.cm.cubehelix)
-#cbar = fig4b.colorbar(CS0, ax=ax0)
-cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
-ax0.set_xlabel('$Theta_{lim}$')
-plt.tight_layout()
-#fig4b.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_b.pdf"), format = 'pdf')
+# fig4b, ax0 = plt.subplots(1,1)
+# fig4b.set_size_inches(3, 2.5)
+# #CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_Henrych), cmap = plt.cm.cubehelix)
+# #cbar = fig4b.colorbar(CS0, ax=ax0)
+# cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+# ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
+# ax0.set_xlabel('$Theta_{lim}$')
+# plt.tight_layout()
+# #fig4b.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_b.pdf"), format = 'pdf')
 
-fig4c, ax0 = plt.subplots(1,1)
-fig4c.set_size_inches(3, 2.5)
-#CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_CFD)/1e3, cmap = plt.cm.cubehelix)
-#cbar = fig4c.colorbar(CS0, ax=ax0)
-cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
-ax0.set_xlabel('$Theta_{lim}$')
-plt.tight_layout()
-#fig4c.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_c.pdf"), format = 'pdf')
+# fig4c, ax0 = plt.subplots(1,1)
+# fig4c.set_size_inches(3, 2.5)
+# #CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_CFD)/1e3, cmap = plt.cm.cubehelix)
+# #cbar = fig4c.colorbar(CS0, ax=ax0)
+# cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+# ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
+# ax0.set_xlabel('$Theta_{lim}$')
+# plt.tight_layout()
+# #fig4c.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_c.pdf"), format = 'pdf')
+#------------------------------------------------------------------------------
+
+
+
+
 #------------------------------------------------------------------------------
 #Model fitting Stuff that needs refinement ------------------------------------
 #------------------------------------------------------------------------------
-def RPB(theta, Ir):
-    Ii = 0.1 * Ir
+#--------------------------------------------------------------------
+#-
+#-
+#-
+#-
+#-
+#-
+#-
+#-
+#-
+#-
+#-
+#-
+#-
+
+def RPB(theta, Ir, frac):
+    """
+    Parameters
+    ----------
+    theta : TYPE
+        DESCRIPTION.
+    Ir : TYPE
+        DESCRIPTION.
+    frac : Ii = frac * Ir.
+
+
+    """
+    Ii = frac * Ir
     return Ir * np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) + (Ii/Ir)*(1 + (np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) ) - 2*np.cos(np.deg2rad(theta)))
-    
+  
 
 
-fig5, [ax0,ax1] = plt.subplots(1,2)
-ax0.plot(theta, peak_impulse)
-ax0.set_xlabel('theta (degrees)')
-ax0.set_ylabel('peak specific impulse')
-#Plotting Apollo data
-ax1.plot(theta, Icr_Ir)
-#Plotting Experimental data
-ax1.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
-ax1.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax1.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax1.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
-ax1.set_xlabel('theta (degrees)')
-ax1.set_ylabel('Ir / Ir Max')
-#Also Plotting model distributions
-choice = 0
-beta = 0.7 
-ax1.plot(theta[:, choice],  jang(theta[:, choice], Icr_Ir[:, choice], beta) , label = 'Jang')
-ax1.plot(theta[:, choice], RPB(theta[:, choice], Icr_Ir[:, choice]), label = 'RPB')
-ax1.plot(theta[:, choice], dharmasena(theta[:, choice], Icr_Ir[:, choice]), label = 'Dharmasena')
-handles, labels = ax1.get_legend_handles_labels()
-ax1.legend(handles, labels, loc='center', bbox_to_anchor=(0.65, 0.90), prop={'size':6})
-plt.tight_layout()
-
-
-
-
-choice = 0
-
-
-def RPB2(theta, Ir):
-    Ii = 0 * Ir
-    return Ir * np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) + (Ii/Ir)*(1 + (np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) ) - 2*np.cos(np.deg2rad(theta)))
-def RPB2nd_part(theta): 
-    return (1 + (np.cos(np.deg2rad(theta)) * np.cos(np.deg2rad(theta)) ) - 2*np.cos(np.deg2rad(theta)))
-
-    
-loss = np.subtract(Icr_Ir[:, choice], RPB2(theta[:,choice], max(Icr_Ir[:, choice])))
-Cr = np.divide(RPB2nd_part(theta[:,choice]), loss)
-
-
-fig6, [ax0, ax1] = plt.subplots(1,2)
-ax1.set_xlabel('theta (degrees)')
-ax1.set_ylabel('peak specific impulse')
-#Plotting Experimental data
-ax1.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
-ax1.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax1.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax1.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
-ax1.set_xlabel('theta (degrees)')
-ax1.set_ylabel('Ir / Ir Max')
-#Also Plotting model distributions
-
-beta = 0.7 
-ax0.plot(theta[:,choice], loss)
-ax1.plot(theta[:, choice], Icr_Ir[:, choice], label = 'Apollo')
-ax1.plot(theta[:, choice],  jang(theta[:, choice], Icr_Ir[:, choice], beta) , label = 'Jang')
-ax1.plot(theta[:, choice], RPB(theta[:, choice], Icr_Ir[:, choice]), label = 'RPB')
-ax1.plot(theta[:, choice], RPB2(theta[:, choice], Icr_Ir[:, choice]), label = 'RPB2')
-ax1.plot(theta[:, choice], dharmasena(theta[:, choice], Icr_Ir[:, choice]), label = 'Dharmasena')
-handles, labels = ax1.get_legend_handles_labels()
-ax1.legend(handles, labels, loc='center', bbox_to_anchor=(0.65, 0.90), prop={'size':6})
-plt.tight_layout()
-
-#--------------------------------------------
-#Creating and fitting a gaussian model
+#Creating and fitting a single gaussian model
 def gauss_curve(x, *params):
     y1 = np.zeros_like(x)
 
@@ -484,24 +468,96 @@ params['cen1'] = lm.Parameter(name='cen1', value = 0.5, vary = 'false', min = 0.
 params['amp1'] = lm.Parameter(name='amp1', value = 0.5, min=0, max=1)
 params['wid1'] = lm.Parameter(name='wid1', value = 0.5, min=0, max=1)   
 
-#
-test = 0
-x = np.concatenate([-np.flipud(theta[:,test]),theta[:,test]])
-x = (x - min(x)) / (max(x) - min(x))
-data = np.concatenate([np.flipud(Icr_Ir[:,test]), Icr_Ir[:,test]])
-#data = np.concatenate([np.flipud(Icr_Ir.max(1)), Icr_Ir.max(1)])
-data = (data - min(data)) / (max(data) - min(data)) 
 
-#Nonlinear regression
+
+#2 Gaussian ------------------------------------------------------------------
+#Model Function - This is the approximation to the physical behaviour. 
+params2 = lm.Parameters()
+params2['cen1'] = lm.Parameter(name='cen1', value = 0.5, vary = 'false', min = 0.4, max = 0.6)
+params2['amp1'] = lm.Parameter(name='amp1', value = 0.5, min=0, max=1)
+params2['wid1'] = lm.Parameter(name='wid1', value = 0.5, min=0, max=1)  
+params2['cen2'] = lm.Parameter(name='cen2', value = 0.5, vary = 'false', min = 0.4, max = 0.6)
+params2['amp2'] = lm.Parameter(name='amp2', value = 0.5, min=0, max=1)
+params2['wid2'] = lm.Parameter(name='wid2', value = 0.5, min=0, max=1)  
+def gauss_two_curve(x, *params):
+    y1 = np.zeros_like(x)
+    y2 = np.zeros_like(x)
+    y1 = params[1] * np.exp( -((x - params[0])**2 / (2*(params[2]**2)) ) )
+    y2 = params[4] * np.exp( -((x - params[3])**2 / (2*(params[5]**2)) ) )
+    y = y1 + y2
+    return y
+
+#Amplitude penalty function
+def pen1(param1, param2):
+    delta = param2 - param1
+    out = max(0,delta)
+    return out**0.5  
+
+#Objective function to be minimised. Loss function is MSE.
+def lm_residual2(params, x, ytrue):
+    cen1 = params['cen1'].value
+    amp1 = params['amp1'].value
+    wid1 = params['wid1'].value
+    cen2 = params['cen2'].value
+    amp2 = params['amp2'].value
+    wid2 = params['wid2'].value
+
+
+    args = [cen1, amp1, wid1, cen2, amp2, wid2]
+    
+    current_cost = ( (mean_squared_error(ytrue, gauss_two_curve(x, *args)))**2 + (reg1 * pen1(amp1, amp2)**2) ) **0.5
+    return current_cost
+reg1 = 5
+
+
+
+
+
+#gauss model current fitted to the closest test
+test = 0
+
+
+#data_o = np.concatenate([np.flipud(Icr_Ir[:,test]), Icr_Ir[:,test]]) #Fit data to closest sample
+#data_o = np.concatenate([np.flipud(Icr_Ir.max(1)), Icr_Ir.max(1)]) #Fit data to max Icr_Ir
+data_o = np.concatenate([np.flipud(Icr_Ir.mean(1)), Icr_Ir.mean(1)]) #Fit data to mean
+data = (data_o - min(data_o)) / (max(data_o) - min(data_o))
+
+
+x = np.linspace(0,80,len(data))
+x = (x - min(x)) / (max(x) - min(x))
+
+
+#Nonlinear regression -gaussians
 result = lm.minimize(lm_residual, params, method = 'least_squares', args = (x, data))
 gaussmod = gauss_curve(x, result.params['cen1'].value, result.params['amp1'].value, result.params['wid1'].value)
 
+result2 = lm.minimize(lm_residual2, params2, method = 'least_squares', args = (x, data))
+gaussmod2 = gauss_two_curve(x, result2.params['cen1'].value, result2.params['amp1'].value, result2.params['wid1'].value, result2.params['cen2'].value, result2.params['amp2'].value, result2.params['wid2'].value)
+
+#Linearregressions
+poly6 = np.polynomial.polynomial.Polynomial.fit(x, data, 6)
 
 
+#FIGURE OUT WHAT IS GOING ON HERE
+y = peak_impulse.mean(1)
+recipr_1 = np.polynomial.polynomial.Polynomial.fit(x, 1/y, 1)
+recipr_1 = recipr_1.__call__(1/x)
 
-fig, ax0 = plt.subplots(1,1)
+fig, [ax, ax2, ax3] = plt.subplots(1,3)
+ax.plot(1/x, recipr_1)
+ax2.plot(x, 1/recipr_1)
+ax3.plot(theta.mean(1), 1/recipr_1)
+#recipr_1 = recipr_1[int(len(gaussmod)/2)::]
+recipr_1 = 1/recipr_1
+recipr_1 = (recipr_1 - min(recipr_1)) / (max(recipr_1) - min(recipr_1))
+
+#impulse distribution in theta -----------------------------------------------
+fig, [ax0, ax1] = plt.subplots(1,2)
+fig.set_size_inches(6,2.5)
 #Plotting some more model functions
-ax0.scatter(theta, Icr_Ir, marker='o', s=0.1, color = 'red' , label = 'CFD')
+#ax0.scatter(theta, Icr_Ir, marker='o', s=0.1, color = 'red' , label = 'CFD')
+ax0.plot(theta.mean(1), Icr_Ir.mean(1), 'k-.', marker='D', markersize=2, markevery=10, label = 'CFD - mean')
+ax0.fill_between(theta.mean(1), Icr_Ir.min(1), Icr_Ir.max(1), color='gray', alpha=0.2, label = 'CFD - range')
 #Plotting Experimental data
 ax0.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
 ax0.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
@@ -510,37 +566,73 @@ ax0.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), mar
 ax0.set_xlabel('theta (degrees)')
 ax0.set_ylabel('Ir / Ir Max')
 #Gaussian
-ax0.plot(theta[:,test], gaussmod[200::], color = 'black', label = 'Gaussian')
+ax0.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], color = 'black', label = 'One gaussian')
+ax0.plot(theta.mean(1), gaussmod2[int(len(gaussmod)/2)::], '--', label = 'Two gaussian')
+text_gaussian = "$f(x) = {%.2f}.x^{%.2f}$" % (intercept, slope)
+#poly
+ax0.plot(theta.mean(1), poly6.__call__(x)[int(len(gaussmod)/2)::])
+ax0.text(0.2, 0.7, text_gaussian, fontsize = 'small', transform=ax0.transAxes)
+ax0.text(0.4, 0.7, "standard error of regression", fontsize = 'small', transform=ax0.transAxes)
+#recip
+ax0.plot(theta.mean(1), recipr_1.__call__(1/x)[int(len(gaussmod)/2)::])
+#RPB
+ax0.plot(np.linspace(0,80,num=80), RPB(np.linspace(0,80,num=80), 1, 0.0001))
 handles, labels = ax0.get_legend_handles_labels()
-ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.65, 0.90), prop={'size':6})
+ax0.legend(handles, labels, loc='upper right',  prop={'size':6})
+
+#residual plots
+#https://statisticsbyjim.com/regression/curve-fitting-linear-nonlinear-regression/
+ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - poly6.__call__(x)[int(len(gaussmod)/2)::], c = 'k', marker=".", s=10, label = 'Poly')
+ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod[int(len(gaussmod)/2)::], c = 'r', marker=".", s=10, label = 'One gauss')
+ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod2[int(len(gaussmod)/2)::], c = 'b', marker=".", s=10, label = 'Two gauss')
+ax1.set_ylim(-0.1, 0.1)
+handles, labels = ax1.get_legend_handles_labels()
+ax1.legend(handles, labels, loc='upper left',  prop={'size':6})
+ax1.set_xlabel('theta (degrees)')
+ax1.set_ylabel('Residual')
+ax0.locator_params(axis = 'both',tight=True, nbins=6)
+ax1.locator_params(axis = 'both',tight=True, nbins=6)
 plt.tight_layout()
-
-
-
-
-
+#fig.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Temp\CFD_coarser_mesh.pdf"), format = 'pdf')
+#------------------------------------------------------------------------------
 
 
 
 #--TESTING---
 #Build surface from Guassian Eq and power law.
-crs = np.linspace(clear_standoff.min(), clear_standoff.max(), num = 10)
+crs = np.linspace(clear_standoff.min(), clear_standoff.max(), num = len(Apollo_gtable))
 
 peak_I_test = np.multiply(np.power(crs, slope), 10**intercept)
-y_gauss = gaussmod[200::]
-y_gauss = np.tile(y_gauss, len(y_gauss))
+
+y_gauss = np.repeat(gaussmod[int(len(gaussmod)/2)::][:,np.newaxis], len(crs), 1) #use numpy broadcasting rules
+
 theta_test = np.linspace(0,80, num=len(y_gauss))
+theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)
 
-test_impulses = y_gauss * peak_I_test
-
-
+test_impulses = np.multiply( y_gauss , peak_I_test )
+crs = np.repeat(crs[:,np.newaxis], len(y_gauss), 1)
+crs = crs.transpose()
 
 fig_test, ax = plt.subplots(1,1)
 fig_test.set_size_inches(3, 2.5)
 CS = ax.contourf(theta_test, crs, test_impulses, levels = [0 , 2.5, 5, 7.5, 10, 12.5, 15], cmap = plt.cm.cubehelix)
-cbar = fig0.colorbar(CS)
+cbar = fig_test.colorbar(CS)
 cbar.ax.invert_yaxis()
 cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax.set_ylabel('standoff (clear charge radii)')
 ax.set_xlabel('incident wave angle (degrees)')
 plt.tight_layout()
+
+
+#Percentage change from CFD
+model_diff = abs(np.divide(np.subtract(test_impulses, peak_impulse/1e3), test_impulses)*100)
+fig_change, ax = plt.subplots(1,1)
+fig_change.set_size_inches(3, 2.5)
+CS = ax.contourf(theta_test, crs, model_diff, levels = [0,5,10,15,20,30,40,50,100], cmap = plt.cm.cubehelix)
+cbar = fig_change.colorbar(CS)
+cbar.ax.invert_yaxis()
+cbar.ax.set_ylabel('Relative change from CFD (%)')
+ax.set_ylabel('standoff (clear charge radii)')
+ax.set_xlabel('incident wave angle (degrees)')
+plt.tight_layout()
+
