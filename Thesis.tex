@@ -7,9 +7,9 @@
 %Insert Packages ---------------------------------------------
 \input{Settings/preamble}
 %Bibliography ------------------------------------------------
-\usepackage[style=apa,backend=biber]{biblatex}
-\DeclareLanguageMapping{english}{english-apa}
+\usepackage[backend=biber, style=numeric-comp, sorting=none]{biblatex}
 \addbibresource{References/Paper1_near_field_spherical_prediction.bib}
+
 %Begin Document ----------------------------------------------
 \begin{document}
 %MAIN BODY ---------------------------------------------------
@@ -17,15 +17,15 @@
 \cleardoublepage
 %\pagestyle{fancy}
 %\pagenumbering{arabic}
-\title{A review of methods for predicting near-field peak specific impulse distributions of spherical PE4 charges}
+\title{Predicting near-field peak specific impulse distributions of spherical PE4 charges in the extreme near-field}
 \maketitle
 \import{Sections/}{Abstract}
 \import{Sections/}{Section1}
 \import{Sections/}{Section2}
-\import{Sections/}{Section3}
-\import{Sections/}{Section4}
-\import{Sections/}{Section5}
-\import{Sections/}{Section6}
+%\import{Sections/}{Section3}
+%\import{Sections/}{Section4}
+%\import{Sections/}{Section5}
+%\import{Sections/}{Section6}
 \cleardoublepage
 %BIBLIOGRAPHY
 \printbibliography
