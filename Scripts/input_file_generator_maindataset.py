@@ -18,17 +18,17 @@ shape_ratio = 0 #0 for sphere
 term_time = [0.003, 0.003, 0.003, 0.003, 0.003] 
 
 #Model
-res_level = [4,
-4,
-4,
-4,
-4]
+res_level = [5,
+5,
+5,
+5,
+5]
 
-zone_length = [0.04,
-0.04,
-0.04,
-0.04,
-0.04]
+zone_length = [0.1,
+0.1,
+0.1,
+0.1,
+0.1]
 
 #Standoffs/Scaled Distances
 z = np.linspace(0.055, 0.16, no_exps)
@@ -85,9 +85,10 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
         gauges_xloc = np.round(np.multiply(so, np.tan(np.deg2rad(theta))), 4)
         
         
-        x_max = myround(max(gauges_xloc) * 1.2, zone_length[i])
-        x_max = round(x_max, 4)
+        #x_max = myround(max(gauges_xloc) * 2, zone_length[i])
+        #x_max = round(x_max, 4)
         
+        x_max = 1.5
         y_max = x_max
         z_max = y_max
                       
