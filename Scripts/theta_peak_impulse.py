@@ -4,9 +4,9 @@ Peak impulse predictor for theta.
 
 import preamble_functions as pre
 import matplotlib.pyplot as plt #3.0.2
-from matplotlib import cm
+
 import numpy as np #1.15.4
-from mpl_toolkits.mplot3d import Axes3D
+
 import scipy.io as sio
 import lmfit as lm
 from sklearn.metrics import mean_squared_error, r2_score
@@ -21,7 +21,7 @@ params = {'font.family':'serif',
         'ytick.labelsize':'x-small',
 #        
         'lines.markersize': 10,
-        'scatter.marker': 'o',
+        'scatter.marker': 's',
 #        
         'legend.fontsize':'small',
         'legend.title_fontsize':'small',
@@ -36,7 +36,7 @@ params = {'font.family':'serif',
         'lines.linewidth':'0.5'}
 
 plt.rcParams.update(params)
-#plt.style.use('paper_stylesheet.mpltstyle')
+
 
 #Import Apollo data
 # Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16\*.txt"))
@@ -152,32 +152,32 @@ def graph_powerlaw():
     text_ax2 = "$f(x) = {%.3f}.x^{%.3f}$" % (intercept, slope)
     
     fig1, [ax1, ax3, ax2] = plt.subplots(1,3)
-    fig1.set_size_inches(7.5, 2.5)
+    fig1.set_size_inches(7, 2.5)
     
-    ax1.scatter(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3), label = 'CFD data')
-    ax1.plot(np.log10(clear_standoff[0,:]), linear_model, label='fitted model')
+    ax1.scatter(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3), c = 'b', alpha = 0.5, s = 10., label = 'CFD data')
+    ax1.plot(np.log10(clear_standoff[0,:]), linear_model, 'k', label='fitted model')
     ax1.plot(np.log10(clear_standoff[0,:]), linear_model + (2 * RSE_power), '--k', alpha = 0.2, label='95% PI')
     ax1.plot(np.log10(clear_standoff[0,:]), linear_model - (2 * RSE_power), '--k', alpha = 0.2)
-    ax1.text(0.1, 0.4, text_ax1, transform=ax1.transAxes)
-    ax1.text(0.1, 0.3, text_ax3_p, transform=ax1.transAxes)
-    ax1.text(0.1, 0.2, text_ax3_se, transform=ax1.transAxes)
+    ax1.text(0.1, 0.25, text_ax1, fontsize = 'x-small', transform=ax1.transAxes)
+    ax1.text(0.1, 0.15, text_ax3_p, fontsize = 'x-small', transform=ax1.transAxes)
+    ax1.text(0.1, 0.05, text_ax3_se, fontsize = 'x-small', transform=ax1.transAxes)
     ax1.set_ylabel('log(peak specific impulse (MPa.ms))')
     ax1.set_xlabel('log(standoff (clear charge radii))')
     
-    #marker="o", s=10, edgecolors = (0,0,0,0.4), facecolor=(0,0,0,0.4),
-    ax2.scatter(clear_standoff[0,:], peak_impulse[0,:]/1e3,  label = 'CFD data')
-    ax2.plot(clear_standoff[0,:], const * clear_standoff[0,:]**slope, 'r', label='fitted model')
-    ax2.text(0.35, 0.7, text_ax2, fontsize = 'small', transform=ax2.transAxes)
+
+    ax2.scatter(clear_standoff[0,:], peak_impulse[0,:]/1e3, c = 'b', alpha = 0.5, s = 10., label = 'CFD data')
+    ax2.plot(clear_standoff[0,:], const * clear_standoff[0,:]**slope, 'k', label='fitted model')
+    ax2.text(0.25, 0.9, text_ax2, fontsize = 'small', transform=ax2.transAxes)
     ax2.set_ylabel('peak specific impulse (MPa.ms)')
     ax2.set_xlabel('standoff (clear charge radii)')
     
-    ax3.scatter(np.log10(clear_standoff[0,:]), residuals_power, label = 'Residuals')
+    ax3.scatter(np.log10(clear_standoff[0,:]), residuals_power,c = 'b', alpha = 0.5,  s = 10., label = 'Residuals')
     ax3.set_ylim(-0.1,0.1)
     ax3.set_ylabel('Residual')
     ax3.set_xlabel('log(standoff (clear charge radii))')
     
     handles, labels = ax1.get_legend_handles_labels()
-    ax1.legend(handles, labels)
+    ax1.legend(handles, labels, loc='upper right', prop={'size':6})
     ax1.locator_params(axis = 'both',tight=True, nbins=6)
     ax2.locator_params(axis = 'both',tight=True, nbins=6)
     ax3.locator_params(axis = 'both',tight=True, nbins=6)

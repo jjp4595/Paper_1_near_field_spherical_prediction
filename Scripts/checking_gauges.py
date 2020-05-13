@@ -89,7 +89,6 @@ main_dataset = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\A
 Apollo_gauges = [main_dataset[i] for i in [0,1,4,5]]
 
 #Quick test to see if enough time in simulation
-
 for i in range(len(Apollo_gauges)):
     fig00, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2,2)
     ax1.set_xlabel(i)
@@ -101,18 +100,44 @@ for i in range(len(Apollo_gauges)):
     ax3.plot(Apollo_gauges[i][:,0],Apollo_gauges[i][:,200])#OP
     ax4.plot(Apollo_gauges[i][:,0],Apollo_gauges[i][:,400])#imp
 
-# lim = 0.6
-# fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2,2)
-# ax1.plot(Apollo_gauges[0][:,0]*1000,Apollo_gauges[0][:,1]) #OP
-# ax2.plot(Apollo_gauges[0][:,0]*1000,Apollo_gauges[0][:,201])#imp
-# ax1.set_xlim(0,lim)
-# ax2.set_xlim(0,lim)   
-# #theta = 80
-# ax3.plot(Apollo_gauges[0][:,0]*1000,Apollo_gauges[0][:,200])#OP
-# ax4.plot(Apollo_gauges[0][:,0]*1000,Apollo_gauges[0][:,385])#imp
-# ax3.set_xlim(0,lim)
-# ax4.set_xlim(0,lim)
 
 
+#-----------------------
+val_80mm_chosenmesh_gauges = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\80mm_validation\*_gauges",1)
+val_80mm_chosenmesh = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\80mm_validation\*_gtable",1)
+Apollo_gauges = val_80mm_chosenmesh_gauges
+
+Apollo_gtable_z80mm_first = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gtable",1)
+z80mm_first_theta = np.rad2deg(np.arctan2(Apollo_gtable_z80mm_first[0][:,2], 0.08))
+
+#Quick test to see if enough time in simulation
+for i in range(len(Apollo_gauges)):
+    fig00, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2,2)
+    ax1.set_xlabel(i)
+    #theta = 0
+    ax1.plot(Apollo_gauges[i][:,0],Apollo_gauges[i][:,1]) #OP
+    ax2.plot(Apollo_gauges[i][:,0],Apollo_gauges[i][:,201])#imp
+    
+    #theta = 80
+    ax3.plot(Apollo_gauges[i][:,0],Apollo_gauges[i][:,200])#OP
+    ax4.plot(Apollo_gauges[i][:,0],Apollo_gauges[i][:,400])#imp
+    
+    
+#peak impulse distribution for first 0.3ms
+term = 0.3e-3
+z80mm_chosenmesh_fin = int(np.argwhere(Apollo_gauges[0][:,0]>term)[0][0])
+fig8, [ax, ax0] = plt.subplots(1,2)
+fig8.set_size_inches(5, 3)
+ax.set_xlabel('theta (degrees)')
+ax.set_ylabel('peak specific scaled impulse')
+ax.plot(np.linspace(0,80,200), np.max(Apollo_gauges[0][0:z80mm_chosenmesh_fin,201:], axis = 0), 'k', label = '3.125mm')
+
+# ax0.set_xlabel('theta (degrees)')
+# ax0.set_ylabel('peak impulse ratio of maximum')
+# ax0.plot(theta, Apollo_gtable_z80mm_chosenmesh[0][:,7]/max(Apollo_gtable_z80mm_chosenmesh[0][:,7]), 'k', label = '3.125mm')
+# ax0.plot(z80mm_first_theta, Apollo_gtable_z80mm_first[0][:,7]/max(Apollo_gtable_z80mm_first[0][:,7]), 'k', label = '3.125mm')
 
 
+# handles, labels = ax0.get_legend_handles_labels()
+# ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.7, 0.80), prop={'size':6})
+# plt.tight_layout()

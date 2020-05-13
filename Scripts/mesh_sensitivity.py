@@ -16,8 +16,14 @@ params = {'font.family':'serif',
         'axes.labelsize':'small',
         'xtick.labelsize':'x-small',
         'ytick.labelsize':'x-small', 
+        
         'legend.fontsize':'small',
         'legend.title_fontsize':'small',
+        'legend.fancybox': True,
+        'legend.framealpha': 0.5,
+        'legend.shadow': False,
+        'legend.frameon': True,
+        
         'grid.linestyle':'--',
         'grid.linewidth':'0.5',
         'lines.linewidth':'0.5'}
@@ -79,43 +85,52 @@ final_200s = 8 + 1
 #Graph 1 ---------------------------------------------------------------------
 #No of cells vs impulse & comp time
 fig, [ax0, ax0a, ax1] = plt.subplots(1,3)
-fig.set_size_inches(7.5, 2.5)
-ax0.scatter(R_z0_055[start_100s:final_100s], peak_impulse_z0_055[start_100s:final_100s]/1e3, c = 'k', marker=".", s=10, label = 'Zone Length 0.05m')
-ax0.scatter(R_z0_055[final_100s:final_200s], peak_impulse_z0_055[final_100s:final_200s]/1e3, c = 'r', marker="^", s=10, label = 'Zone Length 0.02m')
-ax0.scatter(R_z0_055[final_200s::], peak_impulse_z0_055[final_200s::]/1e3, c = 'g', marker="D", s=10, label = 'Zone Length 0.01m')
+fig.set_size_inches(7, 2.5)
+
+
+ax0.scatter(R_z0_055[start_100s:final_100s], peak_impulse_z0_055[start_100s:final_100s]/1e3, c = 'b', alpha = 0.5, marker="s", s=10, label = 'Zone Length 0.05m')
+ax0.scatter(R_z0_055[final_100s:final_200s], peak_impulse_z0_055[final_100s:final_200s]/1e3, c = 'k', alpha = 0.5, marker="s", s=10, label = 'Zone Length 0.02m')
+ax0.scatter(R_z0_055[final_200s::], peak_impulse_z0_055[final_200s::]/1e3, c = 'g', marker="s", alpha = 0.5, s=10, label = 'Zone Length 0.01m')
+
 temp = max(peak_impulse_z0_055[final_200s::]/1e3)
 ax0.plot([0,50], [temp, temp], linewidth = 0.5, c = 'k')
 ax0.plot([0,50], [temp*0.9, temp*0.9], linewidth = 0.5, linestyle = '--', c = 'k',label = '$10\%$ convergence')
+
 ax0.set_xlabel('R / cell length')
 ax0.set_ylabel('peak specific impulse (MPa.ms)')
-ax0.set_ylim(0,15)
+ax0.set_ylim(0,12.5)
+ax0.minorticks_on()
 ax0.grid(which='minor', alpha=0.2)
 ax0.grid(which='major', alpha=0.5)
+
 handles, labels = ax0.get_legend_handles_labels()
-ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.60, 0.40), prop={'size':6})
+#ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.60, 0.30), prop={'size':6})
+ax0.legend(handles, labels, loc='lower right', prop={'size':6})
 
 
-ax0a.scatter(R_z0_055[0:start_100s], mesh_sensitivity_I[0:start_100s]/1e3, c = 'b', marker=".", s=10, label = 'Zone Length 0.10m')
-ax0a.scatter(R_z0_055[start_100s:final_100s], mesh_sensitivity_I[start_100s:final_100s]/1e3, c = 'k', marker=".", s=10, label = 'Zone Length 0.05m')
-ax0a.scatter(R_z0_055[final_100s:final_200s], mesh_sensitivity_I[final_100s:final_200s]/1e3, c = 'r', marker="^", s=10, label = 'Zone Length 0.02m')
-ax0a.scatter(R_z0_055[final_200s::], mesh_sensitivity_I[final_200s::]/1e3, c = 'g', marker="D", s=10, label = 'Zone Length 0.01m')
+
+ax0a.scatter(R_z0_055[start_100s:final_100s], mesh_sensitivity_I[start_100s:final_100s]/1e3, c = 'b', alpha = 0.5, marker="s", s=10, label = 'Zone Length 0.05m')
+ax0a.scatter(R_z0_055[final_100s:final_200s], mesh_sensitivity_I[final_100s:final_200s]/1e3, c = 'k', alpha = 0.5, marker="s", s=10, label = 'Zone Length 0.02m')
+ax0a.scatter(R_z0_055[final_200s::], mesh_sensitivity_I[final_200s::]/1e3, c = 'g', marker="s", alpha = 0.5, s=10, label = 'Zone Length 0.01m')
 temp = max(mesh_sensitivity_I[final_200s::]/1e3)
 ax0a.plot([0,50], [temp, temp], linewidth = 0.5, c = 'k')
 ax0a.plot([0,50], [temp*0.9, temp*0.9], linewidth = 0.5, linestyle = '--', c = 'k',label = '$10\%$ convergence')
 ax0a.set_xlabel('R / cell length')
 ax0a.set_ylabel(r'$1m^2$ total impulse (MPa.ms)')
 ax0a.set_ylim(0,450/1e3)
+ax0a.minorticks_on()
 ax0a.grid(which='minor', alpha=0.2)
 ax0a.grid(which='major', alpha=0.5)
 
-ax1.scatter(R_z0_055[start_100s:final_100s], CPU_times_z0_055[start_100s:final_100s], c = 'k', marker=".", s=10, label = 'Zone Length 0.05m')
-ax1.scatter(R_z0_055[final_100s:final_200s], CPU_times_z0_055[final_100s:final_200s], c = 'r', marker="^", s=10, label = 'Zone Length 0.02m')
-ax1.scatter(R_z0_055[final_200s::], CPU_times_z0_055[final_200s::], c = 'g', marker="D", s=10, label = 'Zone Length 0.01m')
+
+ax1.scatter(R_z0_055[start_100s:final_100s], CPU_times_z0_055[start_100s:final_100s], c = 'b', alpha = 0.5, marker="s", s=10, label = 'Zone Length 0.05m')
+ax1.scatter(R_z0_055[final_100s:final_200s], CPU_times_z0_055[final_100s:final_200s], c = 'k', alpha = 0.5, marker="s", s=10, label = 'Zone Length 0.02m')
+ax1.scatter(R_z0_055[final_200s::], CPU_times_z0_055[final_200s::], c = 'g', marker="s", alpha = 0.5, s=10, label = 'Zone Length 0.01m')
 ax1.set_xlabel('R / cell length')
 ax1.set_ylabel('Wall time (s)')
+ax1.minorticks_on()
 ax1.grid(which='minor', alpha=0.2)
 ax1.grid(which='major', alpha=0.5)
-
 
 plt.tight_layout()
 ax0.locator_params(axis = 'both',tight=True, nbins=6)
@@ -125,7 +140,7 @@ fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_sph
 
 
 
-# Graph 2 --------------------------------------------------------------------
+# Figure 2 mesh sensitivity gauge analysis------------------------------------
 #Impulse & OP analysis  @ 0 degrees
 fig1, [ax0,ax1] = plt.subplots(1,2)
 fig1.set_size_inches(5, 1.8)
@@ -138,7 +153,7 @@ ax0.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,1]
 ax0.plot(Apollo_gauges_z0_055[ind+8][:,0]*1000, Apollo_gauges_z0_055[ind+8][:,1]/1e6, 'k-.', label = '1.25mm')
 ax0.set_xlim(0,0.12)
 handles, labels = ax0.get_legend_handles_labels()
-ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.7, 0.7), prop={'size':6})
+ax0.legend(handles, labels, loc = 'upper right', prop={'size':6})
 ax0.set_xlabel('Time (ms)')
 ax0.set_ylabel('Overpressure (MPa)')
 ax1.plot(Apollo_gauges_z0_055[ind][:,0]*1000, Apollo_gauges_z0_055[ind][:,201]/1e3, c = 'k')
@@ -244,11 +259,21 @@ fig1d.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_s
 
 #-----------------------------------------------------------------------------
 
+#NF validation graph
+# #theta vs scaled I plots 
+Apollo_gtable_z80mm_chosenmesh = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\80mm_validation\*gtable",1)
+Apollo_gtable_z80mm_first = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gtable",1)
+z80mm_first_theta = np.rad2deg(np.arctan2(Apollo_gtable_z80mm_first[0][:,2], 0.08))
+Apollo_gauges_z80mm_chosenmesh = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\80mm_validation\*gauges",1)
+Apollo_gauges_z80mm_first = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gauges",1)
+
+
+
 #Graph 3 ---------------------------------------------------------------------
 #theta vs scaled I plots 
 theta = np.linspace(0,80,200)
 fig2, [ax, ax0] = plt.subplots(1,2)
-fig2.set_size_inches(6,3.1)
+fig2.set_size_inches(5,2.5)
 ax.set_xlabel('theta (degrees)')
 ax.set_ylabel('peak specific impulse (MPa.ms)')
 l1, = ax.plot(theta, Apollo_gtable_z0_055[ind][:,7]/1e3, 'k', label = '3.125mm')
@@ -259,15 +284,23 @@ l4, = ax.plot(theta, Apollo_gtable_z0_055[ind+8][:,7]/1e3, 'k-.', label = '1.25m
 l5 = ax.scatter(theta_exp_80mm, MxI_1_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = 'Exp.')
 ax.scatter(theta_exp_80mm, MxI_2_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax.scatter(theta_exp_80mm, MxI_3_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-l6 = ax.scatter(theta_exp_80mm_mean, Mx_mean_80mm/1e3, marker="o", s=15., label = 'Exp.')
+l6 = ax.scatter(theta_exp_80mm_mean, Mx_mean_80mm/1e3, marker="o", s=15., label = 'Exp.- mean')
 l7, = ax.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/1e3, dashes=[12,6,12,6,3,6], c='k', label = '1.25mm')
+#adjust chosen mesh based on termination time
+term = 0.15e-3
+z80mm_chosenmesh_fin = int(np.argwhere(Apollo_gauges_z80mm_chosenmesh[0][:,0]>term)[0][0])
+z80mm_chosenmesh_adjustedi = np.max(Apollo_gauges_z80mm_chosenmesh[0][0:z80mm_chosenmesh_fin,201:], axis = 0)
+l8, = ax.plot(theta, z80mm_chosenmesh_adjustedi/1e3, 'k', label = '3.125mm')
+#l8, = ax.plot(theta, Apollo_gtable_z80mm_chosenmesh[0][:,7]/1e3, 'k', label = '3.125mm')
 
-leg1 = ax.legend(handles = [l1, l2, l3, l4], loc = 'upper right', title = '$Z=0.055m/kg^{1/3}$', title_fontsize = 6, prop={'size':6})
-ax.add_artist(leg1)
-leg2 = ax.legend(handles=[l5,l6,l7], loc = 'lower left', title = '$Z=0.12m/kg^{1/3}$', title_fontsize = 6, prop={'size':6})
+leg1 = ax0.legend(handles = [l1, l2, l3, l4], loc = 'upper right', title = '$Z=0.055m/kg^{1/3}$', title_fontsize = 6, prop={'size':6})
+ax0.add_artist(leg1)
+leg2 = ax0.legend(handles=[l5,l6,l7,l8], loc = 'lower left', title = '$Z=0.12m/kg^{1/3}$', title_fontsize = 6, prop={'size':6})
+
+
 
 ax0.set_xlabel('theta (degrees)')
-ax0.set_ylabel('peak impulse ratio of theta = 0')
+ax0.set_ylabel('peak specific impulse ratio')
 ax0.plot(theta, Apollo_gtable_z0_055[ind][:,7]/max(Apollo_gtable_z0_055[ind][:,7]), 'k', label = '3.125mm')
 ax0.plot(theta, Apollo_gtable_z0_055[ind+4][:,7]/max(Apollo_gtable_z0_055[ind+4][:,7]), 'k--', label = '2.5mm')
 ax0.plot(theta, Apollo_gtable_z0_055[ind+7][:,7]/max(Apollo_gtable_z0_055[ind+7][:,7]), 'k:', label = '2.5mm')
@@ -277,6 +310,7 @@ ax0.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", 
 ax0.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax0.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
 ax0.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/max(gtable_80mm[0][:,7]), dashes=[12,6,12,6,3,6], c='k', label = '1.25mm')
+ax0.plot(theta, z80mm_chosenmesh_adjustedi/max(z80mm_chosenmesh_adjustedi), 'k', label = '3.125mm')
 plt.tight_layout()
 fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_z0_055_3.pdf', format = 'pdf')
 #-----------------------------------------------------------------------------
@@ -285,14 +319,6 @@ fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_sp
 
 # #-----------------------------------------------------------------------------
 
-
-#NF validation graph
-# #theta vs scaled I plots 
-Apollo_gtable_z80mm_chosenmesh = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\80mm_validation\*gtable",1)
-Apollo_gtable_z80mm_first = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gtable",1)
-z80mm_first_theta = np.rad2deg(np.arctan2(Apollo_gtable_z80mm_first[0][:,2], 0.08))
-Apollo_gauges_z80mm_chosenmesh = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\80mm_validation\*gauges",1)
-Apollo_gauges_z80mm_first = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gauges",1)
 
 
 #specific impulse validation plots
@@ -438,31 +464,32 @@ ax.locator_params(axis = 'both',tight=True, nbins=4)
 ax1.locator_params(axis = 'both',tight=True, nbins=4)
 fig7d.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation_d.pdf', format = 'pdf')
 
-# #peak impulse distribution for first 0.3ms
-# term = 0.3e-3
-# z80mm_chosenmesh_fin = int(np.argwhere(Apollo_gauges_z80mm_chosenmesh[0][:,0]>term)[0][0])
-# fig8, [ax, ax0] = plt.subplots(1,2)
-# fig8.set_size_inches(5, 3)
-# ax.set_xlabel('theta (degrees)')
-# ax.set_ylabel('peak specific scaled impulse')
-# ax.plot(theta, np.max(Apollo_gauges_z80mm_chosenmesh[0][0:z80mm_chosenmesh_fin,201:], axis = 0), 'k', label = '3.125mm')
-# ax.plot(z80mm_first_theta, Apollo_gtable_z80mm_first[0][:,7], 'k', label = '1.25mm')
-# ax.scatter(theta_exp_80mm, MxI_1_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
-# ax.scatter(theta_exp_80mm, MxI_2_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-# ax.scatter(theta_exp_80mm, MxI_3_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-# ax.scatter(theta_exp_80mm_mean, Mx_mean_80mm, marker="o", s=15., label = '80mm Exp Mean')
+#peak impulse distribution for first 0.3ms
+term = 0.15e-3
+z80mm_chosenmesh_fin = int(np.argwhere(Apollo_gauges_z80mm_chosenmesh[0][:,0]>term)[0][0])
 
-# ax0.set_xlabel('theta (degrees)')
-# ax0.set_ylabel('peak impulse ratio of maximum')
-# ax0.plot(theta, Apollo_gtable_z80mm_chosenmesh[0][:,7]/max(Apollo_gtable_z80mm_chosenmesh[0][:,7]), 'k', label = '3.125mm')
-# ax0.plot(z80mm_first_theta, Apollo_gtable_z80mm_first[0][:,7]/max(Apollo_gtable_z80mm_first[0][:,7]), 'k', label = '3.125mm')
-# ax0.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
-# ax0.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-# ax0.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-# ax0.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
+fig8, [ax, ax0] = plt.subplots(1,2)
+fig8.set_size_inches(5, 3)
+ax.set_xlabel('theta (degrees)')
+ax.set_ylabel('peak specific scaled impulse')
+ax.plot(theta, np.max(Apollo_gauges_z80mm_chosenmesh[0][0:z80mm_chosenmesh_fin,201:], axis = 0), 'k', label = '3.125mm')
+ax.plot(z80mm_first_theta, Apollo_gtable_z80mm_first[0][:,7], 'k', label = '1.25mm')
+ax.scatter(theta_exp_80mm, MxI_1_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
+ax.scatter(theta_exp_80mm, MxI_2_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax.scatter(theta_exp_80mm, MxI_3_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax.scatter(theta_exp_80mm_mean, Mx_mean_80mm, marker="o", s=15., label = '80mm Exp Mean')
 
-# handles, labels = ax0.get_legend_handles_labels()
-# ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.7, 0.80), prop={'size':6})
-# plt.tight_layout()
+ax0.set_xlabel('theta (degrees)')
+ax0.set_ylabel('peak impulse ratio of maximum')
+ax0.plot(theta, Apollo_gtable_z80mm_chosenmesh[0][:,7]/max(Apollo_gtable_z80mm_chosenmesh[0][:,7]), 'k', label = '3.125mm')
+ax0.plot(z80mm_first_theta, Apollo_gtable_z80mm_first[0][:,7]/max(Apollo_gtable_z80mm_first[0][:,7]), 'k', label = '3.125mm')
+ax0.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
+ax0.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax0.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax0.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
+
+handles, labels = ax0.get_legend_handles_labels()
+ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.7, 0.80), prop={'size':6})
+plt.tight_layout()
 
 #------------------------------------------------------------------------------
