@@ -18,11 +18,11 @@ shape_ratio = 0 #0 for sphere
 term_time = [0.003, 0.003, 0.003, 0.003, 0.003] 
 
 #Model
-res_level = [5,
-5,
-5,
-5,
-5]
+res_level = [4,
+4,
+4,
+4,
+4]
 
 zone_length = [0.1,
 0.1,

@@ -39,13 +39,13 @@ plt.rcParams.update(params)
 
 
 #Import Apollo data
-# Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16\*.txt"))
-# Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16\*gtable"),1)
+Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res5\*.txt"))
+Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res5\*gtable"),1)
 
-Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*.txt"))
-Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gtable"),1)
-Apollo_FileList = Apollo_FileList[4::]
-Apollo_gtable = Apollo_gtable[4::]
+# Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*.txt"))
+# Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gtable"),1)
+# Apollo_FileList = Apollo_FileList[4::]
+# Apollo_gtable = Apollo_gtable[4::]
 
 
 #Some charge properties
@@ -163,6 +163,9 @@ def graph_powerlaw():
     ax1.text(0.1, 0.05, text_ax3_se, fontsize = 'x-small', transform=ax1.transAxes)
     ax1.set_ylabel('log(peak specific impulse (MPa.ms))')
     ax1.set_xlabel('log(standoff (clear charge radii))')
+    ax1.minorticks_on()
+    ax1.grid(which='minor', alpha=0.2)
+    ax1.grid(which='major', alpha=0.5)
     
 
     ax2.scatter(clear_standoff[0,:], peak_impulse[0,:]/1e3, c = 'b', alpha = 0.5, s = 10., label = 'CFD data')
@@ -170,11 +173,17 @@ def graph_powerlaw():
     ax2.text(0.25, 0.9, text_ax2, fontsize = 'small', transform=ax2.transAxes)
     ax2.set_ylabel('peak specific impulse (MPa.ms)')
     ax2.set_xlabel('standoff (clear charge radii)')
+    ax2.minorticks_on()
+    ax2.grid(which='minor', alpha=0.2)
+    ax2.grid(which='major', alpha=0.5)
     
     ax3.scatter(np.log10(clear_standoff[0,:]), residuals_power,c = 'b', alpha = 0.5,  s = 10., label = 'Residuals')
     ax3.set_ylim(-0.1,0.1)
     ax3.set_ylabel('Residual')
     ax3.set_xlabel('log(standoff (clear charge radii))')
+    ax3.minorticks_on()
+    ax3.grid(which='minor', alpha=0.2)
+    ax3.grid(which='major', alpha=0.5)
     
     handles, labels = ax1.get_legend_handles_labels()
     ax1.legend(handles, labels, loc='upper right', prop={'size':6})
@@ -387,20 +396,20 @@ gaussmod2 = gauss_two_curve(x, result2.params['cen1'].value, result2.params['amp
 poly6 = np.polynomial.polynomial.Polynomial.fit(x, data, 6)
 
 
-# #FIGURE OUT WHAT IS GOING ON HERE
-x = np.linspace(0,80,int(len(data)/2))
-x = (x - min(x)) / (max(x) - min(x))
-y = peak_impulse.mean(1)
-recipr_1 = np.polynomial.polynomial.Polynomial.fit(1/x, y, 1)
-recipr_1 = recipr_1.__call__(1/x)
+# # #FIGURE OUT WHAT IS GOING ON HERE
+# x = np.linspace(0,80,int(len(data)/2))
+# x = (x - min(x)) / (max(x) - min(x))
+# y = peak_impulse.mean(1)
+# recipr_1 = np.polynomial.polynomial.Polynomial.fit(1/x, y, 1)
+# recipr_1 = recipr_1.__call__(1/x)
 
-fig, [ax, ax2, ax3] = plt.subplots(1,3)
-ax.plot(1/x, recipr_1)
-ax2.plot(x, 1/recipr_1)
-ax3.plot(theta.mean(1), 1/recipr_1)
-#recipr_1 = recipr_1[int(len(gaussmod)/2)::]
-recipr_1 = 1/recipr_1
-recipr_1 = (recipr_1 - min(recipr_1)) / (max(recipr_1) - min(recipr_1))
+# fig, [ax, ax2, ax3] = plt.subplots(1,3)
+# ax.plot(1/x, recipr_1)
+# ax2.plot(x, 1/recipr_1)
+# ax3.plot(theta.mean(1), 1/recipr_1)
+# #recipr_1 = recipr_1[int(len(gaussmod)/2)::]
+# recipr_1 = 1/recipr_1
+# recipr_1 = (recipr_1 - min(recipr_1)) / (max(recipr_1) - min(recipr_1))
 
 
 
@@ -408,7 +417,7 @@ recipr_1 = (recipr_1 - min(recipr_1)) / (max(recipr_1) - min(recipr_1))
 #impulse distribution in theta -----------------------------------------------
 def my_model_graphs():
     fig, [ax0, ax1] = plt.subplots(1,2)
-    fig.set_size_inches(10,6)
+    fig.set_size_inches(5,2.5)
     
     #Plotting some more model functions
     
@@ -431,24 +440,24 @@ def my_model_graphs():
     #ax0.plot(theta.mean(1), recipr_1.__call__(1/x)[int(len(gaussmod)/2)::])
     #https://statisticsbyjim.com/regression/curve-fitting-linear-nonlinear-regression/
     #residual plots
-    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - poly6.__call__(x)[int(len(gaussmod)/2)::], label = 'Poly')
-    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod[int(len(gaussmod)/2)::],  label = 'One gauss')
-    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod2[int(len(gaussmod)/2)::], label = 'Two gauss')
+    #ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - poly6.__call__(x)[int(len(gaussmod)/2)::], s=10., label = 'Poly')
+    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod[int(len(gaussmod)/2)::],  s=5., label = '')
+    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod2[int(len(gaussmod)/2)::], s=5., label = 'Two gauss')
     ax1.set_ylim(-0.1, 0.1)
     
     #axis settings
-    ax0.set_xlabel('theta (degrees)')
+    ax0.set_xlabel('angle of incidence (degrees)')
     ax0.set_ylabel('Ir / Ir Max')
     handles, labels = ax0.get_legend_handles_labels()
     ax0.legend(handles, labels)
     handles, labels = ax1.get_legend_handles_labels()
     ax1.legend(handles, labels)
-    ax1.set_xlabel('theta (degrees)')
+    ax1.set_xlabel('angle of incidence (degrees)')
     ax1.set_ylabel('Residual')
     ax0.locator_params(axis = 'both',tight=True, nbins=6)
     ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
-    fig.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Temp\theta_predictor.pdf"), format = 'pdf')
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_predictor.pdf', format = 'pdf')
 my_model_graphs()
 
 

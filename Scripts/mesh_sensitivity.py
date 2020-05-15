@@ -5,12 +5,13 @@ Mesh Sensitivity Analysis
 import numpy as np
 import preamble_functions as pre
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import scipy.io as sio
 import os 
 from impulse_models import *
 
 cr = 0.0246
-
+charge_mass = 0.1
 #plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
 params = {'font.family':'serif',
         'axes.labelsize':'small',
@@ -23,6 +24,8 @@ params = {'font.family':'serif',
         'legend.framealpha': 0.5,
         'legend.shadow': False,
         'legend.frameon': True,
+        
+        'scatter.marker': 's',
         
         'grid.linestyle':'--',
         'grid.linewidth':'0.5',
@@ -146,16 +149,17 @@ fig1, [ax0,ax1] = plt.subplots(1,2)
 fig1.set_size_inches(5, 1.8)
 
 ind = 4 #Starting indices
-
+ax0.plot(Apollo_gauges_z0_055[ind-1][:,0]*1000, Apollo_gauges_z0_055[ind-1][:,1]/1e6, c = 'k', linestyle=(0, (5, 10)), label = '6.250mm')
 ax0.plot(Apollo_gauges_z0_055[ind][:,0]*1000, Apollo_gauges_z0_055[ind][:,1]/1e6, c = 'k', label = '3.125mm')
-ax0.plot(Apollo_gauges_z0_055[ind+4][:,0]*1000, Apollo_gauges_z0_055[ind+4][:,1]/1e6, 'k--' , label = '2.5mm')
-ax0.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,1]/1e6, 'k:', label = '2.5mm')
-ax0.plot(Apollo_gauges_z0_055[ind+8][:,0]*1000, Apollo_gauges_z0_055[ind+8][:,1]/1e6, 'k-.', label = '1.25mm')
+ax0.plot(Apollo_gauges_z0_055[ind+4][:,0]*1000, Apollo_gauges_z0_055[ind+4][:,1]/1e6, 'k--' , label = '2.500mm')
+ax0.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,1]/1e6, 'k:', label = '2.500mm')
+ax0.plot(Apollo_gauges_z0_055[ind+8][:,0]*1000, Apollo_gauges_z0_055[ind+8][:,1]/1e6, 'k-.', label = '1.250mm')
 ax0.set_xlim(0,0.12)
 handles, labels = ax0.get_legend_handles_labels()
 ax0.legend(handles, labels, loc = 'upper right', prop={'size':6})
 ax0.set_xlabel('Time (ms)')
 ax0.set_ylabel('Overpressure (MPa)')
+ax1.plot(Apollo_gauges_z0_055[ind-1][:,0]*1000, Apollo_gauges_z0_055[ind-1][:,201]/1e3, c = 'k', linestyle=(0, (5, 10)), label = '6.250mm')
 ax1.plot(Apollo_gauges_z0_055[ind][:,0]*1000, Apollo_gauges_z0_055[ind][:,201]/1e3, c = 'k')
 ax1.plot(Apollo_gauges_z0_055[ind+4][:,0]*1000, Apollo_gauges_z0_055[ind+4][:,201]/1e3, 'k--')
 ax1.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,201]/1e3, 'k:')
@@ -171,6 +175,7 @@ fig1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_sp
 #Impulse & OP analysis  @ 20 degrees
 fig1a, [ax0,ax1] = plt.subplots(1,2)
 fig1a.set_size_inches(5, 1.8)
+ax0.plot(Apollo_gauges_z0_055[ind-1][:,0]*1000, Apollo_gauges_z0_055[ind-1][:,51]/1e6, c = 'k', linestyle=(0, (5, 10)), label = '6.250mm')
 ax0.plot(Apollo_gauges_z0_055[ind][:,0]*1000, Apollo_gauges_z0_055[ind][:,51]/1e6, c = 'k')
 ax0.plot(Apollo_gauges_z0_055[ind+4][:,0]*1000, Apollo_gauges_z0_055[ind+4][:,51]/1e6, 'k--')
 ax0.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,51]/1e6, 'k:')
@@ -178,6 +183,7 @@ ax0.plot(Apollo_gauges_z0_055[ind+8][:,0]*1000, Apollo_gauges_z0_055[ind+8][:,51
 ax0.set_xlim(0,0.12)
 ax0.set_xlabel('Time (ms)')
 ax0.set_ylabel('Overpressure (MPa)')
+ax1.plot(Apollo_gauges_z0_055[ind-1][:,0]*1000, Apollo_gauges_z0_055[ind-1][:,251]/1e3, c = 'k', linestyle=(0, (5, 10)), label = '6.250mm')
 ax1.plot(Apollo_gauges_z0_055[ind][:,0]*1000, Apollo_gauges_z0_055[ind][:,251]/1e3, c = 'k')
 ax1.plot(Apollo_gauges_z0_055[ind+4][:,0]*1000, Apollo_gauges_z0_055[ind+4][:,251]/1e3, 'k--')
 ax1.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,251]/1e3, 'k:')
@@ -193,6 +199,7 @@ fig1a.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_s
 #Impulse & OP analysis  @ 40 degrees
 fig1b, [ax0,ax1] = plt.subplots(1,2)
 fig1b.set_size_inches(5, 1.8)
+ax0.plot(Apollo_gauges_z0_055[ind-1][:,0]*1000, Apollo_gauges_z0_055[ind-1][:,101]/1e6, c = 'k',linestyle=(0, (5, 10)))
 ax0.plot(Apollo_gauges_z0_055[ind][:,0]*1000, Apollo_gauges_z0_055[ind][:,101]/1e6, c = 'k')
 ax0.plot(Apollo_gauges_z0_055[ind+4][:,0]*1000, Apollo_gauges_z0_055[ind+4][:,101]/1e6, 'k--')
 ax0.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,101]/1e6, 'k:')
@@ -201,6 +208,7 @@ ax0.set_xlim(0,0.12)
 ax0.set_xlabel('Time (ms)')
 ax0.set_ylabel('Overpressure (MPa)')
 plt.tight_layout()
+ax1.plot(Apollo_gauges_z0_055[ind-1][:,0]*1000, Apollo_gauges_z0_055[ind-1][:,301]/1e3, c = 'k', linestyle=(0, (5, 10)))
 ax1.plot(Apollo_gauges_z0_055[ind][:,0]*1000, Apollo_gauges_z0_055[ind][:,301]/1e3, c = 'k')
 ax1.plot(Apollo_gauges_z0_055[ind+4][:,0]*1000, Apollo_gauges_z0_055[ind+4][:,301]/1e3, 'k--')
 ax1.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,301]/1e3, 'k:')
@@ -216,6 +224,7 @@ fig1b.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_s
 #Impulse & OP analysis  @ 60 degrees
 fig1c, [ax0,ax1] = plt.subplots(1,2)
 fig1c.set_size_inches(5, 1.8)
+ax0.plot(Apollo_gauges_z0_055[ind-1][:,0]*1000, Apollo_gauges_z0_055[ind-1][:,151]/1e6, c = 'k', linestyle=(0, (5, 10)))
 ax0.plot(Apollo_gauges_z0_055[ind][:,0]*1000, Apollo_gauges_z0_055[ind][:,151]/1e6, c = 'k')
 ax0.plot(Apollo_gauges_z0_055[ind+4][:,0]*1000, Apollo_gauges_z0_055[ind+4][:,151]/1e6, 'k--')
 ax0.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,151]/1e6, 'k:')
@@ -223,6 +232,7 @@ ax0.plot(Apollo_gauges_z0_055[ind+8][:,0]*1000, Apollo_gauges_z0_055[ind+8][:,15
 ax0.set_xlim(0,0.12)
 ax0.set_xlabel('Time (ms)')
 ax0.set_ylabel('Overpressure (MPa)')
+ax1.plot(Apollo_gauges_z0_055[ind-1][:,0]*1000, Apollo_gauges_z0_055[ind-1][:,351]/1e3, c = 'k', linestyle=(0, (5, 10)))
 ax1.plot(Apollo_gauges_z0_055[ind][:,0]*1000, Apollo_gauges_z0_055[ind][:,351]/1e3, c = 'k')
 ax1.plot(Apollo_gauges_z0_055[ind+4][:,0]*1000, Apollo_gauges_z0_055[ind+4][:,351]/1e3, 'k--')
 ax1.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,351]/1e3, 'k:')
@@ -238,6 +248,7 @@ fig1c.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_s
 #Impulse & OP analysis  @ 80 degrees
 fig1d, [ax0,ax1] = plt.subplots(1,2)
 fig1d.set_size_inches(5, 1.8)
+ax0.plot(Apollo_gauges_z0_055[ind-1][:,0]*1000, Apollo_gauges_z0_055[ind-1][:,200]/1e6, c = 'k', linestyle=(0, (5, 10)))
 ax0.plot(Apollo_gauges_z0_055[ind][:,0]*1000, Apollo_gauges_z0_055[ind][:,200]/1e6, c = 'k')
 ax0.plot(Apollo_gauges_z0_055[ind+4][:,0]*1000, Apollo_gauges_z0_055[ind+4][:,200]/1e6, 'k--')
 ax0.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,200]/1e6, 'k:')
@@ -245,6 +256,7 @@ ax0.plot(Apollo_gauges_z0_055[ind+8][:,0]*1000, Apollo_gauges_z0_055[ind+8][:,20
 ax0.set_xlim(0,0.12)
 ax0.set_xlabel('Time (ms)')
 ax0.set_ylabel('Overpressure (MPa)')
+ax1.plot(Apollo_gauges_z0_055[ind-1][:,0]*1000, Apollo_gauges_z0_055[ind-1][:,400]/1e3, c = 'k', linestyle=(0, (5, 10)))
 ax1.plot(Apollo_gauges_z0_055[ind][:,0]*1000, Apollo_gauges_z0_055[ind][:,400]/1e3, c = 'k')
 ax1.plot(Apollo_gauges_z0_055[ind+4][:,0]*1000, Apollo_gauges_z0_055[ind+4][:,400]/1e3, 'k--')
 ax1.plot(Apollo_gauges_z0_055[ind+7][:,0]*1000, Apollo_gauges_z0_055[ind+7][:,400]/1e3, 'k:')
@@ -259,6 +271,105 @@ fig1d.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_s
 
 #-----------------------------------------------------------------------------
 
+
+#Dataset sensitivity
+#filelists
+latest_1500_r3_file = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res3\*.txt")
+latest_1500_r4_file = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res4\*.txt")
+latest_1500_r5_file = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res5\*.txt")
+latest_var_r4_file = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\VAR_ZL40mm_res4\*.txt")
+testing_DMA_file = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\testing_DMA\*.txt")
+#Checking Z
+latest_1500_r3_z = [(pre.standoff_func(latest_1500_r3_file[i]) - cr)/(charge_mass**(1/3)) for i in range(len(latest_1500_r3_file))]
+latest_1500_r4_z = [(pre.standoff_func(latest_1500_r4_file[i]) - cr)/(charge_mass**(1/3)) for i in range(len(latest_1500_r4_file))]
+latest_1500_r5_z = [(pre.standoff_func(latest_1500_r5_file[i]) - cr)/(charge_mass**(1/3)) for i in range(len(latest_1500_r5_file))]
+latest_var_r4_z = [(pre.standoff_func(latest_var_r4_file[i]) - cr)/(charge_mass**(1/3)) for i in range(len(latest_var_r4_file))]
+testing_DMA_z = [(pre.standoff_func(testing_DMA_file[i]) - cr)/(charge_mass**(1/3)) for i in range(len(testing_DMA_file))]
+#Gtables
+latest_1500_r3 = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res3\*gtable",1)
+latest_1500_r4 = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res4\*gtable",1)
+latest_1500_r5 = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res5\*gtable",1)
+latest_var_r4 = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\VAR_ZL40mm_res4\*gtable",1)
+testing_DMA = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\testing_DMA\*gtable", 1)
+latest_1500_r3 = np.asarray([latest_1500_r3[i][:,7] for i in range(len(latest_1500_r3))]).T
+latest_1500_r4 = np.asarray([latest_1500_r4[i][:,7] for i in range(len(latest_1500_r4))]).T
+latest_1500_r5 = np.asarray([latest_1500_r5[i][:,7] for i in range(len(latest_1500_r5))]).T
+latest_var_r4 = np.asarray([latest_var_r4[i][:,7] for i in range(len(latest_var_r4))]).T
+testing_DMA = np.asarray([testing_DMA[i][:,7] for i in range(len(testing_DMA))]).T
+#Gauges
+latest_1500_r3_gauges = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res3\*gauges",1)
+latest_1500_r4_gauges = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res4\*gauges",1)
+latest_1500_r5_gauges = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res5\*gauges",1)
+latest_var_r4_gauges = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\VAR_ZL40mm_res4\*gauges",1)
+testing_DMA_gauges = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\testing_DMA\*gauges", 1)
+
+dist = 0.5/np.tan(np.deg2rad(80))
+latest_1500_r3_I = [Impulse_CFD(latest_1500_r3[:,i], dist, 80, np.linspace(0,80,200)) for i in range(len(latest_1500_r3_file))]
+latest_1500_r4_I = [Impulse_CFD(latest_1500_r4[:,i], dist, 80, np.linspace(0,80,200)) for i in range(len(latest_1500_r4_file))]
+latest_1500_r5_I = [Impulse_CFD(latest_1500_r5[:,i], dist, 80, np.linspace(0,80,200)) for i in range(len(latest_1500_r5_file))]
+latest_var_r4_I = [Impulse_CFD(latest_var_r4[:,i], dist, 80, np.linspace(0,80,200)) for i in range(len(latest_var_r4_file))]
+testing_DMA_I = [Impulse_CFD(testing_DMA[:,i], dist, 80, np.linspace(0,80,200)) for i in range(len(testing_DMA_file))]
+
+fig_dataset1, ax = plt.subplots(1,1)
+fig_dataset1.set_size_inches(2.8,2.5)
+#ax.set_title('Dataset, 5 samples:    0.055 < Z(clear s/o) < 0.160')
+ax.plot(np.linspace(0,80,200),latest_var_r4/1e3, 'c')
+ax.plot(np.linspace(0,80,200),latest_1500_r3/1e3, 'g')
+ax.plot(np.linspace(0,80,200),latest_1500_r4/1e3, 'r')
+ax.plot(np.linspace(0,80,200),latest_1500_r5/1e3, 'm')
+ax.plot(np.linspace(0,80,200),testing_DMA[:,0]/1e3, 'k')
+ax.plot(np.linspace(0,80,200),testing_DMA[:,1]/1e3, 'b')
+ax.set_ylabel('peak specific impulse (MPa.ms)')
+ax.set_xlabel('angle of incidence')
+labels = ['A', 'B', 'C', 'D', 'E', 'F']
+colors = ['c', 'g', 'r', 'm', 'k', 'b']
+lines = [Line2D([0], [0], color=c, linewidth=0.5) for c in colors]
+ax.legend(lines,labels)
+ax.minorticks_on()
+ax.grid(which='minor', alpha=0.2)
+ax.grid(which='major', alpha=0.5)
+plt.tight_layout()
+fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1.pdf', format = 'pdf')
+
+fig_dataset2, ax0 = plt.subplots(1,1)
+fig_dataset2.set_size_inches(2.8,2.5)
+#ax0.set_title('Sample of dataset, z(clear) = 0.133')
+ax0.plot(np.linspace(0,80,200),testing_DMA[:,0]/1e3, 'k', label = 'E')
+ax0.plot(np.linspace(0,80,200),testing_DMA[:,1]/1e3, 'b',label = 'F')
+handles, labels = ax0.get_legend_handles_labels()
+ax0.legend(handles, labels, loc='upper right', prop={'size':6})
+ax0.set_ylabel('peak specific impulse (MPa.ms)')
+ax0.set_xlabel('angle of incidence')
+ax0.minorticks_on()
+ax0.grid(which='minor', alpha=0.2)
+ax0.grid(which='major', alpha=0.5)
+plt.tight_layout()
+fig_dataset2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset2.pdf', format = 'pdf')
+
+fig_dataset3, ax1 = plt.subplots(1,1)
+fig_dataset3.set_size_inches(2.8,2.5)
+ax1.scatter(latest_var_r4_z, np.asarray(latest_var_r4_I)/1e3, c='c', s=10., label = 'A')
+ax1.scatter(latest_1500_r3_z, np.asarray(latest_1500_r3_I)/1e3, c='g', s=10., label = 'B')
+ax1.scatter(latest_1500_r4_z, np.asarray(latest_1500_r4_I)/1e3, c='r', s=10., label = 'C')
+ax1.scatter(latest_1500_r5_z, np.asarray(latest_1500_r5_I)/1e3, c='m', s=10., label = 'D')
+ax1.scatter(testing_DMA_z[0], np.asarray(testing_DMA_I[0])/1e3, c='k', s=10., label = 'E')
+ax1.scatter(testing_DMA_z[1], np.asarray(testing_DMA_I[1])/1e3, c='b', s=10., label = 'F')
+handles, labels = ax1.get_legend_handles_labels()
+ax1.legend(handles, labels, loc='upper right', prop={'size':6})
+ax1.set_xlabel('Z (clear standoff)')
+ax1.set_ylabel('Total Impulse (MPa.ms)')
+#ax1.set_title(r'$1m^2$ area integrated impulse')
+ax1.minorticks_on()
+ax1.grid(which='minor', alpha=0.2)
+ax1.grid(which='major', alpha=0.5)
+plt.tight_layout()
+fig_dataset3.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset3.pdf', format = 'pdf')
+
+
+
+
+
+#Graph 3 ---------------------------------------------------------------------
 #NF validation graph
 # #theta vs scaled I plots 
 Apollo_gtable_z80mm_chosenmesh = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\80mm_validation\*gtable",1)
@@ -266,16 +377,13 @@ Apollo_gtable_z80mm_first = pre.FileAddressList(os.environ['USERPROFILE'] + r"\G
 z80mm_first_theta = np.rad2deg(np.arctan2(Apollo_gtable_z80mm_first[0][:,2], 0.08))
 Apollo_gauges_z80mm_chosenmesh = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\mesh_strategy\80mm_validation\*gauges",1)
 Apollo_gauges_z80mm_first = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Near Field Sims\Sims\Latest\80mm_with_afterburn\*gauges",1)
-
-
-
-#Graph 3 ---------------------------------------------------------------------
 #theta vs scaled I plots 
 theta = np.linspace(0,80,200)
 fig2, [ax, ax0] = plt.subplots(1,2)
 fig2.set_size_inches(5,2.5)
 ax.set_xlabel('theta (degrees)')
 ax.set_ylabel('peak specific impulse (MPa.ms)')
+l0, = ax.plot(theta, Apollo_gtable_z0_055[ind-1][:,7]/1e3, 'k', linestyle=(0, (5, 10)), label = '6.250mm')
 l1, = ax.plot(theta, Apollo_gtable_z0_055[ind][:,7]/1e3, 'k', label = '3.125mm')
 l2, = ax.plot(theta, Apollo_gtable_z0_055[ind+4][:,7]/1e3, 'k--', label = '2.5mm')
 l3, = ax.plot(theta, Apollo_gtable_z0_055[ind+7][:,7]/1e3, 'k:', label = '2.5mm')
@@ -293,7 +401,7 @@ z80mm_chosenmesh_adjustedi = np.max(Apollo_gauges_z80mm_chosenmesh[0][0:z80mm_ch
 l8, = ax.plot(theta, z80mm_chosenmesh_adjustedi/1e3, 'k', label = '3.125mm')
 #l8, = ax.plot(theta, Apollo_gtable_z80mm_chosenmesh[0][:,7]/1e3, 'k', label = '3.125mm')
 
-leg1 = ax0.legend(handles = [l1, l2, l3, l4], loc = 'upper right', title = '$Z=0.055m/kg^{1/3}$', title_fontsize = 6, prop={'size':6})
+leg1 = ax0.legend(handles = [l0, l1, l2, l3, l4], loc = 'upper right', title = '$Z=0.055m/kg^{1/3}$', title_fontsize = 6, prop={'size':6})
 ax0.add_artist(leg1)
 leg2 = ax0.legend(handles=[l5,l6,l7,l8], loc = 'lower left', title = '$Z=0.12m/kg^{1/3}$', title_fontsize = 6, prop={'size':6})
 
@@ -301,6 +409,7 @@ leg2 = ax0.legend(handles=[l5,l6,l7,l8], loc = 'lower left', title = '$Z=0.12m/k
 
 ax0.set_xlabel('theta (degrees)')
 ax0.set_ylabel('peak specific impulse ratio')
+ax0.plot(theta, Apollo_gtable_z0_055[ind-1][:,7]/max(Apollo_gtable_z0_055[ind-1][:,7]), 'k', linestyle=(0, (5, 10)) ,label = '6.250mm')
 ax0.plot(theta, Apollo_gtable_z0_055[ind][:,7]/max(Apollo_gtable_z0_055[ind][:,7]), 'k', label = '3.125mm')
 ax0.plot(theta, Apollo_gtable_z0_055[ind+4][:,7]/max(Apollo_gtable_z0_055[ind+4][:,7]), 'k--', label = '2.5mm')
 ax0.plot(theta, Apollo_gtable_z0_055[ind+7][:,7]/max(Apollo_gtable_z0_055[ind+7][:,7]), 'k:', label = '2.5mm')
@@ -464,32 +573,32 @@ ax.locator_params(axis = 'both',tight=True, nbins=4)
 ax1.locator_params(axis = 'both',tight=True, nbins=4)
 fig7d.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation_d.pdf', format = 'pdf')
 
-#peak impulse distribution for first 0.3ms
-term = 0.15e-3
-z80mm_chosenmesh_fin = int(np.argwhere(Apollo_gauges_z80mm_chosenmesh[0][:,0]>term)[0][0])
+# #peak impulse distribution for first 0.3ms
+# term = 0.15e-3
+# z80mm_chosenmesh_fin = int(np.argwhere(Apollo_gauges_z80mm_chosenmesh[0][:,0]>term)[0][0])
 
-fig8, [ax, ax0] = plt.subplots(1,2)
-fig8.set_size_inches(5, 3)
-ax.set_xlabel('theta (degrees)')
-ax.set_ylabel('peak specific scaled impulse')
-ax.plot(theta, np.max(Apollo_gauges_z80mm_chosenmesh[0][0:z80mm_chosenmesh_fin,201:], axis = 0), 'k', label = '3.125mm')
-ax.plot(z80mm_first_theta, Apollo_gtable_z80mm_first[0][:,7], 'k', label = '1.25mm')
-ax.scatter(theta_exp_80mm, MxI_1_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
-ax.scatter(theta_exp_80mm, MxI_2_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(theta_exp_80mm, MxI_3_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(theta_exp_80mm_mean, Mx_mean_80mm, marker="o", s=15., label = '80mm Exp Mean')
+# fig8, [ax, ax0] = plt.subplots(1,2)
+# fig8.set_size_inches(5, 3)
+# ax.set_xlabel('theta (degrees)')
+# ax.set_ylabel('peak specific scaled impulse')
+# ax.plot(theta, np.max(Apollo_gauges_z80mm_chosenmesh[0][0:z80mm_chosenmesh_fin,201:], axis = 0), 'k', label = '3.125mm')
+# ax.plot(z80mm_first_theta, Apollo_gtable_z80mm_first[0][:,7], 'k', label = '1.25mm')
+# ax.scatter(theta_exp_80mm, MxI_1_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
+# ax.scatter(theta_exp_80mm, MxI_2_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+# ax.scatter(theta_exp_80mm, MxI_3_80mm, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+# ax.scatter(theta_exp_80mm_mean, Mx_mean_80mm, marker="o", s=15., label = '80mm Exp Mean')
 
-ax0.set_xlabel('theta (degrees)')
-ax0.set_ylabel('peak impulse ratio of maximum')
-ax0.plot(theta, Apollo_gtable_z80mm_chosenmesh[0][:,7]/max(Apollo_gtable_z80mm_chosenmesh[0][:,7]), 'k', label = '3.125mm')
-ax0.plot(z80mm_first_theta, Apollo_gtable_z80mm_first[0][:,7]/max(Apollo_gtable_z80mm_first[0][:,7]), 'k', label = '3.125mm')
-ax0.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
-ax0.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax0.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax0.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
+# ax0.set_xlabel('theta (degrees)')
+# ax0.set_ylabel('peak impulse ratio of maximum')
+# ax0.plot(theta, Apollo_gtable_z80mm_chosenmesh[0][:,7]/max(Apollo_gtable_z80mm_chosenmesh[0][:,7]), 'k', label = '3.125mm')
+# ax0.plot(z80mm_first_theta, Apollo_gtable_z80mm_first[0][:,7]/max(Apollo_gtable_z80mm_first[0][:,7]), 'k', label = '3.125mm')
+# ax0.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
+# ax0.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+# ax0.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+# ax0.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
 
-handles, labels = ax0.get_legend_handles_labels()
-ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.7, 0.80), prop={'size':6})
-plt.tight_layout()
+# handles, labels = ax0.get_legend_handles_labels()
+# ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.7, 0.80), prop={'size':6})
+# plt.tight_layout()
 
 #------------------------------------------------------------------------------

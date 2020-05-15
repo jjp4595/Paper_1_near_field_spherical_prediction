@@ -17,6 +17,7 @@ Include theta vs I graph with multiple cell resolutions and experimental values.
 Can discuss that convergence takes longer around areas of mach stem formation etc. 
 Apollo may appear to converge sooner due to the staging algorithm it uses. 
 The R/cell length is actually a lot smaller because of the smaller stage length but consistent resolution.
+Quicker convergence for total impulse. 
 
 \begin{figure}[htpb]
 	 \begin{subfigure}{\linewidth}
@@ -62,6 +63,35 @@ The R/cell length is actually a lot smaller because of the smaller stage length 
 	\caption{Overpressure and impulse time histories at z=0.055$m.kg^{\frac{1}{3}}$ for various angles of incidence.}
 	\label{fig:mesh_convergence_angle_zlow}
 \end{figure}
+
+\begin{table}[htpb]
+	\centering
+	\caption{Information for mesh strategy in context of entire range of clear scaled distance ($0.055 < z < 0.16m.kg^{\frac{1}{3}}$).}	
+	\import{Tables/}{dataset_meshes.tex}
+\end{table}
+
+\begin{figure}[htpb]
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/mesh_convergence_dataset1.pdf}
+		\caption{Specific impulse distribution overview for $0.055 < z < 0.16m.kg^{\frac{1}{3}}$.}
+		\label{fig:mesh_convergence_dataset1}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+	\centering
+	\includegraphics{Graphs/mesh_convergence_dataset2.pdf}
+	\caption{Specific impulse distribution for z $= 0.133m.kg^{\frac{1}{3}}$ for DMA analysis.}
+	\label{fig:mesh_convergence_dataset2}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+	\centering
+	\includegraphics{Graphs/mesh_convergence_dataset3.pdf}
+	\caption{Total area integrated impulse impinging on a $1m^2$ target plate for each mesh.}
+	\label{fig:mesh_convergence_dataset3}
+\end{subfigure}	
+\end{figure}
+
+
 
 \FloatBarrier
 \subsection{Validation against experimental data}
