@@ -2,16 +2,21 @@
 \section{Air blast loading using \textit{Apollo Blastsimulator}}
 \subsection{Mesh Sensitivity}
 
-\begin{table}[htpb]
-	\centering
-	\caption{Ultimate cell length for mesh convergence study at z = 0.055$m.kg^{\frac{1}{3}}$}
-	\import{Tables/}{z0_055_mesh_mm.tex}
+\begin{table}
+	\begin{subtable}{0.45\textwidth}
+		\centering
+		\caption{Ultimate cell length (mm) for meshes used.\linebreak}
+		\import{Tables/}{z0_055_mesh_mm.tex}
+	\end{subtable}
+	\hspace{5mm}
+	\begin{subtable}{0.45\textwidth}
+		\centering
+		\caption{Number of cells in distance between charge centre and measuring location (at 0$^{\circ}$ angle of incidence).}	
+		\import{Tables/}{z0_055_mesh_R.tex}
+	\end{subtable}
+	\caption{Mesh sensitivity study information for z = 0.055$m.kg^{\frac{1}{3}}$.}
 \end{table}
-\begin{table}[htpb]
-	\centering
-	\caption{Number of cells at ultimate cell length in distance between charge center and perpendicular measuring location at z = 0.055$m.kg^{\frac{1}{3}}$}	
-	\import{Tables/}{z0_055_mesh_R.tex}
-\end{table}
+
 
 Include theta vs I graph with multiple cell resolutions and experimental values. 
 Can discuss that convergence takes longer around areas of mach stem formation etc. 
@@ -20,12 +25,10 @@ The R/cell length is actually a lot smaller because of the smaller stage length 
 Quicker convergence for total impulse. 
 
 \begin{figure}[htpb]
-	 \begin{subfigure}{\linewidth}
-	 	\centering
-	 	\includegraphics{Graphs/mesh_convergence_z0_055_1.pdf}
-	 	\caption{z = 0.055$m.kg^{\frac{1}{3}}$}
-	 	\label{fig:mesh_convergence_z0_055_1}
-	\end{subfigure}
+	 \centering
+	 \includegraphics{Graphs/mesh_convergence_z0_055_1.pdf}
+	 \caption{Mesh convergence study for z = 0.055$m.kg^{\frac{1}{3}}$}
+	 \label{fig:mesh_convergence_z0_055_1}
 \end{figure}
 
 
@@ -89,6 +92,7 @@ Quicker convergence for total impulse.
 	\caption{Total area integrated impulse impinging on a $1m^2$ target plate for each mesh.}
 	\label{fig:mesh_convergence_dataset3}
 \end{subfigure}	
+	\caption{Mesh strategy across dataset range.}
 \end{figure}
 
 

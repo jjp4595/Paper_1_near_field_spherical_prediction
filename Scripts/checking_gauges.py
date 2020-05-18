@@ -251,4 +251,6 @@ testing_DMA_I = [Impulse_CFD(testing_DMA[:,i], 1, 80, np.linspace(0,80,200)) for
 
 
 
-
+testing_DMA_file = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\testing_DMA\*.txt")
+testing_DMA_z = [(pre.standoff_func(testing_DMA_file[i]) - cr)/(charge_mass**(1/3)) for i in range(len(testing_DMA_file))]
+testing_DMA = np.asarray([testing_DMA[i][:,7] for i in range(len(testing_DMA))]).T

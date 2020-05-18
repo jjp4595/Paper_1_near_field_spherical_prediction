@@ -6,7 +6,7 @@
 	\caption{Contour plot peak impulse distribution overview of PE4 dataset}
 	\label{fig:theta_peak_impulse_0}
 \end{figure}
-The CFD dataset features a cell size of 6.25mm, 100g of PE4 at clear scaled distance of $0.014m/kg^{1/3} \leq z \leq 0.107 m/kg^{1/3}$.
+The CFD dataset features a cell size of 6.25mm, 100g of PE4 at clear scaled distance of $0.05m/kg^{1/3} \leq z \leq 0.16 m/kg^{1/3}$.
 
 
 \subsection{Proposed Model}
@@ -17,11 +17,30 @@ The CFD dataset features a cell size of 6.25mm, 100g of PE4 at clear scaled dist
 	\label{fig:power_fit}
 \end{figure}
 
-Comparison of l1-norm and l2-norm for gaussian and effect on total impulse. 
+Comparison of l1-norm and l2-norm for Gaussian and effect on total impulse. 
 
 \begin{figure}[htpb]
 	\centering
 	\includegraphics{Graphs/theta_predictor.pdf}
-	\caption{Fitting a power law to the peak specific impulse data and an assessment of the fit.}
+	\caption{Modelling peak impulse distribution in angle of incidence.}
 	\label{fig:theta_predictor}
+\end{figure}
+
+Plots in Figures \ref{fig:theta_predictor_residuals_a} and \ref{fig:theta_predictor_residuals_b} show an in depth analyis of residual distributions for Gaussian fits.
+If normal probability plot of residuals is approximately linear this supports the condition that error terms are normally distributed. 
+%https://online.stat.psu.edu/stat501/lesson/4/4.6
+\begin{figure}[htpb]
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/theta_predictor_residuals_a.pdf}
+		\caption{Gaussian-single.}
+		\label{fig:theta_predictor_residuals_a}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/theta_predictor_residuals_b.pdf}
+		\caption{Gaussian-double}
+		\label{fig:theta_predictor_residuals_b}
+	\end{subfigure}	
+	\caption{Residual assessment of Gaussian models.}
 \end{figure}
