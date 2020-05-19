@@ -56,7 +56,7 @@ if __name__ == "__main__":
     ax.set_yscale('log')
     ax.set_xscale('log')
     ax.set_xlabel('$Z = R/W^{1/3} (m/kg^{1/3})$')
-    ax.set_ylabel('impulse / $W^{1/3}$')
+    ax.set_ylabel('Specific impulse / $W^{1/3}$')
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, labels, loc='center', bbox_to_anchor=(0.65, 0.8), prop={'size':6})
     plt.tight_layout()

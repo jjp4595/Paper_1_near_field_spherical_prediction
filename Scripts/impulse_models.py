@@ -14,16 +14,19 @@ A0 = (Ux * 1.8) / (4*np.pi)
 def Henrych(A0, W, a, theta):
     """
     Calculating specific impulse
+    A0 = (Nxw + Ux) / 4pi
+    W = charge mass
     """
     i = ((A0 * W) / (a**2)) * np.cos(np.deg2rad(theta))**4
     return i
+
 def Henrych_I(A0, W, theta_lim):
     """
     Calculating total impulse across a circle
     """
     return np.pi * A0 * W * np.sin(np.deg2rad(theta_lim))**2
 
-
+def Remmenikov(a, )
 
 #2) RPB - MCEER Model hybrid
 """
@@ -36,7 +39,7 @@ def RPB_MCEER_i(W, R, theta_lim):
     #Wroot = W**(1/3)
     A = R * np.tan(np.deg2rad(theta_lim)) * 2
     B = A
-    res = 200
+    res = 400
     x = np.linspace(-A/2, A/2, res)
     y = np.linspace(-B/2, B/2, res)
     [X,Y] = np.meshgrid(x,y)

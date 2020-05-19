@@ -9,10 +9,11 @@ import numpy as np #1.15.4
 
 import scipy.io as sio
 import lmfit as lm
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import os
 from scipy import stats
 from impulse_models import *
+from scipy.optimize import minimize
 
 #plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
 params = {'font.family':'serif',
@@ -110,12 +111,11 @@ def overlay_exps(ax, is_crit = None):
 
 
 
-
 #Graph1 - dataset- overview ---------------------------------------------------
 def graph_dataset_overview():   
     fig0, ax = plt.subplots(1,1)
     fig0.set_size_inches(3, 2.5)
-    CS = ax.contourf(theta, clear_standoff, peak_impulse/1e3, levels = [0 , 2.5, 5, 7.5, 10, 12.5, 15], cmap = plt.cm.cubehelix)
+    CS = ax.contourf(theta, clear_standoff, peak_impulse/1e3, levels = [0 ,0.625, 1.25, 2.5, 3.75, 5, 7.5, 10, 12.5], cmap = plt.cm.magma_r)
     cbar = fig0.colorbar(CS)
     cbar.ax.invert_yaxis()
     cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
@@ -468,6 +468,26 @@ data = (data_o - min(data_o)) / (max(data_o) - min(data_o))
 x = np.linspace(0,80,len(data))
 x = (x - min(x)) / (max(x) - min(x))
 
+#Henrych opt ------------------------------------------------------------------
+def Henrych_i_fit(x, A0):
+    """
+    x is theta
+    Calculating specific impulse
+    A0 = (Nxw + Ux) / 4pi
+    W = charge mass
+    """
+    W = 0.1
+    a = 0.08-charge_rad
+    i = ((A0 * W) / (a**2)) * np.cos(np.deg2rad(x))**4
+    return i
+def henrych_residual(params, y_true):
+    return mean_squared_error(y_true, Henrych_i_fit(np.linspace(-80,80,num=400), *params))
+x0 = [0.1]
+hen_mod = minimize(henrych_residual, x0, args=(data), method = 'BFGS')
+fig, ax = plt.subplots(1,1)
+ax.plot(np.linspace(-80,80,num=400), Henrych_i_fit(np.linspace(-80,80,num=400), hen_mod['x'][0]))
+
+
 
 #Nonlinear regression -gaussians
 result = lm.minimize(lm_residual, params, method = 'least_squares', args = (x, data))
@@ -500,73 +520,151 @@ poly6 = np.polynomial.polynomial.Polynomial.fit(x, data, 6)
 
 #impulse distribution in theta -----------------------------------------------
 def my_model_graphs():
-    fig, [ax0, ax1] = plt.subplots(1,2)
-    fig.set_size_inches(5,2.5)
-    
-    #Plotting Experimental data
-    overlay_exps(ax0, 1)
-    
-    #Plotting some more model functions
+    #Gaussian - 1 -------------------------------------------------------------
+    fig, [ax0, ax1, ax2] = plt.subplots(1,3)
+    fig.set_size_inches(7,2.5)    
+    #CFD
     ax0.plot(theta.mean(1), Icr_Ir.mean(1), 'k', markevery=10, label = 'CFD - mean')
-    ax0.fill_between(theta.mean(1), Icr_Ir.min(1), Icr_Ir.max(1), color = 'silver', alpha = 0.2, label = 'CFD - range')
+    ax0.fill_between(theta.mean(1), Icr_Ir.min(1), Icr_Ir.max(1), color = 'silver', alpha = 0.2, label = 'CFD - range')       
+    #Models
+    ax0.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'r:', label = 'Model fit')
     
-
-    
-    #Gaussian models
-    ax0.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'k:', label = 'Gaussian-single')
-    ax0.plot(theta.mean(1), gaussmod2[int(len(gaussmod)/2)::], 'k--' , label = 'Gaussian-double')
-    text_gaussian1 = r"$f(\theta) = exp \left( \frac{-(\theta-0.5)^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)
-    
-    #poly
-    #ax0.plot(theta.mean(1), poly6.__call__(x)[int(len(gaussmod)/2)::])
+    text_gaussian1 = r"$f(\theta) = exp \left( \frac{-(\theta-0.5)^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
     ax1.text(0.4, 0.2, text_gaussian1, fontsize = 'x-small', transform=ax1.transAxes)
+   
     
-    ##recip
-    #ax0.plot(theta.mean(1), recipr_1.__call__(1/x)[int(len(gaussmod)/2)::])
-    #https://statisticsbyjim.com/regression/curve-fitting-linear-nonlinear-regression/
-    #residual plots
-    #ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - poly6.__call__(x)[int(len(gaussmod)/2)::], s=10., label = 'Poly')
-    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod[int(len(gaussmod)/2)::], c = 'b', alpha = 0.5, s=1., label = 'Gaussian-double')
-    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod2[int(len(gaussmod)/2)::], c = 'k', alpha = 0.5 , s=1., label = 'Gaussian-single')
+    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod[int(len(gaussmod)/2)::], c = 'k' , s=1.)
     ax1.set_ylim(-0.1, 0.1)
     
+    res1 = stats.probplot(Icr_Ir.mean(1) - gaussmod[int(len(gaussmod)/2)::], plot=ax2)
+    ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
+    ax2.get_lines()[0].set_marker('s')
+    ax2.get_lines()[0].set_markerfacecolor('k')
+    ax2.get_lines()[0].set_markeredgecolor('k')
+    ax2.get_lines()[0].set_markersize(1.)    
+    ax2.set_title("")
+
     #axis settings
     ax0.set_xlabel('angle of incidence (degrees)')
     ax0.set_ylabel('Ir / Ir Max')
     handles, labels = ax0.get_legend_handles_labels()
     ax0.legend(handles, labels, loc='upper right', prop={'size':6})
-    handles, labels = ax1.get_legend_handles_labels()
-    ax1.legend(handles, labels, loc='upper right', prop={'size':6})
     ax1.set_xlabel('angle of incidence (degrees)')
     ax1.set_ylabel('Residual')
     ax0.locator_params(axis = 'both',tight=True, nbins=6)
     ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
-    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_predictor.pdf', format = 'pdf')
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_gaussian1.pdf', format = 'pdf')
     
+    #Gaussian - 2 ------------------------------------------------------------
+    fig, [ax0, ax1, ax2] = plt.subplots(1,3)
+    fig.set_size_inches(7,2.5)   
+    #CFD
+    ax0.plot(theta.mean(1), Icr_Ir.mean(1), 'k', markevery=10, label = 'CFD - mean')
+    ax0.fill_between(theta.mean(1), Icr_Ir.min(1), Icr_Ir.max(1), color = 'silver', alpha = 0.2, label = 'CFD - range')       
+    #Models
+    ax0.plot(theta.mean(1), gaussmod2[int(len(gaussmod2)/2)::], 'r:', label = 'Model fit')
     
-    fig, ax0 = plt.subplots(1,1)
-    fig.set_size_inches(2.5,2.5)
-    res1 = stats.probplot(Icr_Ir.mean(1) - gaussmod[int(len(gaussmod)/2)::], plot=ax0)
-    ax0.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax0.transAxes)
-    ax0.get_lines()[0].set_marker('s')
-    ax0.get_lines()[0].set_markerfacecolor((0, 0, 1, 0.5))
-    ax0.get_lines()[0].set_markersize(1)    
-    ax0.set_title("")
+    text_gaussian1 = "TO BE SORTED"    
+    ax1.text(0.4, 0.2, text_gaussian1, fontsize = 'x-small', transform=ax1.transAxes)
+   
+    
+    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod2[int(len(gaussmod2)/2)::], c = 'k', s=1.)
+    ax1.set_ylim(-0.1, 0.1)
+    
+    res1 = stats.probplot(Icr_Ir.mean(1) - gaussmod2[int(len(gaussmod2)/2)::], plot=ax2)
+    ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
+    ax2.get_lines()[0].set_marker('s')
+    ax2.get_lines()[0].set_markerfacecolor('k')
+    ax2.get_lines()[0].set_markeredgecolor('k')
+    ax2.get_lines()[0].set_markersize(1.)    
+    ax2.set_title("")
+
+    #axis settings
+    ax0.set_xlabel('angle of incidence (degrees)')
+    ax0.set_ylabel('Ir / Ir Max')
+    handles, labels = ax0.get_legend_handles_labels()
+    ax0.legend(handles, labels, loc='upper right', prop={'size':6})
+    ax1.set_xlabel('angle of incidence (degrees)')
+    ax1.set_ylabel('Residual')
+    ax0.locator_params(axis = 'both',tight=True, nbins=6)
+    ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
-    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_predictor_residuals_a.pdf', format = 'pdf')    
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_gaussian2.pdf', format = 'pdf')
+      
+    #Henrych ------------------------------------------------------------
+    fig, [ax0, ax1] = plt.subplots(1,2)
+    fig.set_size_inches(5,2.5)   
+    #CFD
+    ax0.plot(theta.mean(1), Icr_Ir.mean(1), 'k', markevery=10, label = 'CFD - mean')
+    ax0.fill_between(theta.mean(1), Icr_Ir.min(1), Icr_Ir.max(1), color = 'silver', alpha = 0.2, label = 'CFD - range')       
+    #Models
+    ax0.plot(np.linspace(0,80,num=200), Henrych_i_fit(np.linspace(0,80,num=200), hen_mod['x'][0]), 'r:', label = 'Model fit')
     
-    fig, ax1 = plt.subplots(1,1)
-    fig.set_size_inches(2.5,2.5)    
-    res2 = stats.probplot(Icr_Ir.mean(1) - gaussmod2[int(len(gaussmod)/2)::], plot=ax1)
-    ax1.text(0.55, 0.25, r"$R^2 = $"+str(round(res2[1][2]**2, 3)), fontsize = 'x-small', transform=ax1.transAxes)
-    ax1.get_lines()[0].set_marker('s')
-    ax1.get_lines()[0].set_markerfacecolor((0, 0, 0, 0.5))
-    ax1.get_lines()[0].set_markersize(1)  
-    ax1.get_figure().gca().set_title("")
+    texts = "TO BE SORTED"    
+    ax1.text(0.4, 0.2, texts, fontsize = 'x-small', transform=ax1.transAxes)
+       
+    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - Henrych_i_fit(np.linspace(0,80,num=200), hen_mod['x'][0]), c = 'k', s=1.)
+    ax1.set_ylim(-0.1, 0.1)
+    
+    # res1 = stats.probplot(Icr_Ir.mean(1) - Henrych_i_fit(np.linspace(0,80,num=200), hen_mod['x'][0]), plot=ax2)
+    # ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
+    # ax2.get_lines()[0].set_marker('s')
+    # ax2.get_lines()[0].set_markerfacecolor('k')
+    # ax2.get_lines()[0].set_markeredgecolor('k')
+    # ax2.get_lines()[0].set_markersize(1.)    
+    # ax2.set_title("")
+
+    #axis settings
+    ax0.set_xlabel('angle of incidence (degrees)')
+    ax0.set_ylabel('Ir / Ir Max')
+    handles, labels = ax0.get_legend_handles_labels()
+    ax0.legend(handles, labels, loc='upper right', prop={'size':6})
+    ax1.set_xlabel('angle of incidence (degrees)')
+    ax1.set_ylabel('Residual')
+    ax0.locator_params(axis = 'both',tight=True, nbins=6)
+    ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
-    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_predictor_residuals_b.pdf', format = 'pdf')
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_henrych.pdf', format = 'pdf')
     
+    #RPB-MCEER ------------------------------------------------------------
+    RPB_MCEER_exp = RPB_MCEER_i(0.1*1.2, 0.08-charge_rad, 80)
+    RPB_MCEER_exp_model_inter = np.interp(theta.mean(1), RPB_MCEER_exp[2][200,200::], RPB_MCEER_exp[3][200,200::] / max(RPB_MCEER_exp[3][200,200::]))
+    #impulse dist
+    fig, [ax0, ax1] = plt.subplots(1,2)
+    fig.set_size_inches(5,2.5)   
+    #CFD
+    ax0.plot(theta.mean(1), Icr_Ir.mean(1), 'k', markevery=10, label = 'CFD - mean')
+    ax0.fill_between(theta.mean(1), Icr_Ir.min(1), Icr_Ir.max(1), color = 'silver', alpha = 0.2, label = 'CFD - range')       
+    #Models
+    ax0.plot(theta.mean(1), RPB_MCEER_exp_model_inter , 'r:', label = 'Model fit')
+    
+    texts = "TO BE SORTED"    
+    ax1.text(0.4, 0.2, texts, fontsize = 'x-small', transform=ax1.transAxes)
+       
+    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - RPB_MCEER_exp_model_inter, c = 'k', s=1.)
+    #ax1.set_ylim(-0.2, 0.2)
+    
+    # res1 = stats.probplot(Icr_Ir.mean(1) - (RPB_MCEER_exp[3][200,200::] / max(RPB_MCEER_exp[3][200,200::])), plot=ax2)
+    # ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
+    # ax2.text(0.01, 0.25, "This might not be relevent as not a regression", fontsize = 'x-small', transform=ax2.transAxes)
+    # ax2.get_lines()[0].set_marker('s')
+    # ax2.get_lines()[0].set_markerfacecolor('k')
+    # ax2.get_lines()[0].set_markeredgecolor('k')
+    # ax2.get_lines()[0].set_markersize(1.)    
+    # ax2.set_title("")
+
+    #axis settings
+    ax0.set_xlabel('angle of incidence (degrees)')
+    ax0.set_ylabel('Ir / Ir Max')
+    handles, labels = ax0.get_legend_handles_labels()
+    ax0.legend(handles, labels, loc='upper right', prop={'size':6})
+    ax1.set_xlabel('angle of incidence (degrees)')
+    ax1.set_ylabel('Residual')
+    ax0.locator_params(axis = 'both',tight=True, nbins=6)
+    ax1.locator_params(axis = 'both',tight=True, nbins=6)
+    plt.tight_layout()
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_RPB_MCEER.pdf', format = 'pdf')
     
 my_model_graphs()
 
@@ -574,14 +672,14 @@ my_model_graphs()
 #Compare 
 def graph_impulse_comparisons():      
     
-    RPB_MCEER_exp = RPB_MCEER_i(0.1, 0.08, 80)
+    RPB_MCEER_exp = RPB_MCEER_i(0.1*1.2, 0.08, 80)
     i_jang = jang(np.linspace(0,80, num=80), 1, 0.8)
     i_dharmasena = dharmasena(np.linspace(0,80,num=80), 1)
     
     #Graph of RPB & MCEER contour
     fig2, ax = plt.subplots(1,1)
     fig2.set_size_inches(3, 2.5)
-    CS = ax.contourf(RPB_MCEER_exp[0], RPB_MCEER_exp[1], RPB_MCEER_exp[3], cmap = plt.cm.cubehelix)
+    CS = ax.contourf(RPB_MCEER_exp[0], RPB_MCEER_exp[1], RPB_MCEER_exp[3], levels = [0,0.25,0.5,0.75,1, 1.5, 2, 2.5, 3, 3.5, 4, 5], cmap = plt.cm.magma_r)
     cbar = fig2.colorbar(CS)
     cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
     ax.set_ylabel('x-position')
@@ -591,29 +689,17 @@ def graph_impulse_comparisons():
 
 
 
-    #Graph comparing different models    
-    # fig3, [ax0,ax1] = plt.subplots(1,2)
-    # fig3.set_size_inches(5,2.5)
-    # overlay_exps(ax0)
-    # ax0.plot(RPB_MCEER_exp[2][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)], RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2),0:int(len(RPB_MCEER_exp[2])/2)], 'k', label = 'MCEER-RPB')
-    # ax0.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/1e3, 'k-.', dashes=[12,6,12,6,3,6], label = 'CFD - 1.25mm')
-    # ax0.plot(np.linspace(0,80, num=80), Henrych(A0,0.1,0.08, np.linspace(0,80, num=80))/1e3, 'k:', label = 'Henrych')
-    # ax0.set_xlabel('theta (degrees)')
-    # ax0.set_ylabel('peak specific impulse (MPa.ms)')
-    # handles, labels = ax0.get_legend_handles_labels()
-    # ax0.legend(handles, labels)
-    
+    #Graph comparing different models       
     fig3, ax1 = plt.subplots(1,1)
     fig3.set_size_inches(2.5,2.5)    
     ax1.set_xlabel('angle of incidence')
     ax1.set_ylabel(r'$I_r/I_{r,max}$')
     
-    overlay_exps(ax1, 1)
     ax1.plot(RPB_MCEER_exp[2][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)], RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]/ max(RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]), 'k', label = 'RPB-MCEER')
     
     ax1.plot(np.linspace(0,80,num=200), Apollo_gtable[0][:,7]/max(Apollo_gtable[0][:,7]), 'k-.', dashes=[12,6,12,6,3,6], label='CFD - Z = 0.05')
 
-    ax1.plot(np.linspace(0,80, num=80), Henrych(255,0.1,0.08, np.linspace(255,80, num=80)) / max(Henrych(200,0.1,0.08, np.linspace(0,80, num=80))), 'k:', label = 'Henrych')
+    ax1.plot(np.linspace(0,80,num=400), Henrych_i_fit(np.linspace(0,80,num=400), hen_mod['x'][0]), 'k:', label = 'Henrych')
     
     ax1.plot(np.linspace(0,80, num=80), i_jang, 'k--', marker='o', markevery=12, ms=3., mfc = 'white', label = 'Jang')
     
@@ -622,7 +708,7 @@ def graph_impulse_comparisons():
     ax1.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'k:', label = 'Gaussian-single')
     
     handles, labels = ax1.get_legend_handles_labels()
-    ax1.legend(handles, labels, loc='lower left', prop={'size':6})
+    ax1.legend(handles, labels, loc='upper left', prop={'size':6})
     plt.tight_layout()  
     fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_theta_comparisons.pdf"), format = 'pdf')
 graph_impulse_comparisons()
@@ -646,7 +732,7 @@ crs = crs.transpose()
 def plot_model_surfaces():
     fig_test, ax = plt.subplots(1,1)
     fig_test.set_size_inches(3, 2.5)
-    CS = ax.contourf(theta_test, crs, test_impulses, levels = [0 , 2.5, 5, 7.5, 10, 12.5, 15], cmap = plt.cm.cubehelix)
+    CS = ax.contourf(theta_test, crs, test_impulses, levels = [0 ,0.625, 1.25, 2.5, 3.75, 5, 7.5, 10, 12.5], cmap = plt.cm.magma_r)
     cbar = fig_test.colorbar(CS)
     cbar.ax.invert_yaxis()
     cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
@@ -655,16 +741,4 @@ def plot_model_surfaces():
     plt.tight_layout()
     
     
-    #Percentage change from CFD
-    model_diff = abs(np.divide(np.subtract(test_impulses, peak_impulse/1e3), test_impulses)*100)
-    fig_change, ax = plt.subplots(1,1)
-    fig_change.set_size_inches(6, 5)
-    CS = ax.contourf(theta_test, crs, model_diff, levels = [0,5,10,15,20,30,40,50,100], cmap = plt.cm.cubehelix)
-    cbar = fig_change.colorbar(CS)
-    cbar.ax.invert_yaxis()
-    cbar.ax.set_ylabel('Relative change from CFD (%)')
-    ax.set_ylabel('standoff (clear charge radii)')
-    ax.set_xlabel('incident wave angle (degrees)')
-    plt.tight_layout()
-    fig_change.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Temp\surface_percentage.pdf"), format = 'pdf')
 plot_model_surfaces()
