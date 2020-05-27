@@ -4,8 +4,12 @@ import numpy as np
 import os
 
 #------------------------------------------------------------------------------
+#Standoffs/Scaled Distances
+z = np.arange(0.16+0.02625, 0.51, 0.02625)
+
+
 #meta variables 
-no_exps = 10
+no_exps = len(z)
 
 
 #Charge info
@@ -18,17 +22,14 @@ shape_ratio = 0 #0 for sphere
 term_time = [0.005 for i in range(no_exps)]
 
 #Model
-res_level = [3 for i in range(no_exps)]
+res_level = [5 for i in range(no_exps)]
 
 zone_length = [0.1 for i in range(no_exps)]
-
-#Standoffs/Scaled Distances
-z = np.linspace(0.055, 0.5, no_exps)
 
 
 #Output and theta range
 no_gauges = 200
-no_plot_files = 20
+no_plot_files = 4
 
             
 #file location information
@@ -50,7 +51,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
     """
     The function below creates the input files and batch file from a given template file. More paramaters can be added that need to be changed. 
     """    
-    startfile = 100
+    startfile = 105
     file_list = [str(num)+".txt" for num in list(range(startfile, startfile + no_exps))]
     
     batch_lines = []

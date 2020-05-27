@@ -4,6 +4,7 @@ Peak impulse predictor for theta.
 
 import preamble_functions as pre
 import matplotlib.pyplot as plt #3.0.2
+from scipy.signal import savgol_filter
 
 import numpy as np #1.15.4
 
@@ -42,11 +43,6 @@ plt.rcParams.update(params)
 #Import Apollo data
 Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res5\*.txt"))
 Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res5\*gtable"),1)
-
-# Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*.txt"))
-# Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\original_PE4_100g_theta80_z055_16\*gtable"),1)
-# Apollo_FileList = Apollo_FileList[4::]
-# Apollo_gtable = Apollo_gtable[4::]
 
 
 #Some charge properties
@@ -204,11 +200,18 @@ fig_power, slope, intercept = graph_powerlaw()
 """
 The functions below were for looking at an extended range of z. 0.05<clear z<0.5 at a course resolution. 
 """
-#testing_zrange_file = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\testing_z_range\*.txt")
-#testing_zrange_z = [(pre.standoff_func(testing_zrange_file[i]) - charge_rad)/(charge_mass**(1/3)) for i in range(len(testing_zrange_file))]
-#testing_zrange = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\testing_z_range\*gtable", 1)
-#testing_zrange = np.asarray([testing_zrange[i][:,7] for i in range(len(testing_zrange))]).T
-#testing_zrange_so = (np.asarray(testing_zrange_z) * 0.1**(1/3)) / charge_rad
+testing_zrange_file = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\testing_z_range\*.txt")
+testing_zrange_z = [(pre.standoff_func(testing_zrange_file[i]) - charge_rad)/(charge_mass**(1/3)) for i in range(len(testing_zrange_file))]
+testing_zrange = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\testing_z_range\*gtable", 1)
+testing_zrange = np.asarray([testing_zrange[i][:,7] for i in range(len(testing_zrange))]).T
+testing_zrange_Icr = [testing_zrange[:,i]/ (max(testing_zrange[:,i])) for i in range(len(testing_zrange_file))]
+testing_zrange_so = (np.asarray(testing_zrange_z) * 0.1**(1/3)) / charge_rad
+
+smooth = np.asarray([savgol_filter(testing_zrange[:,i], 101, 3) for i in range(len(testing_zrange_file))]).T
+smooth_Icr = [smooth[:,i]/ (max(smooth[:,i])) for i in range(len(testing_zrange_file))]
+
+smooth1 = np.asarray([savgol_filter(peak_impulse[:,i], 101, 3) for i in range(len(Apollo_FileList))]).T
+smooth1_Icr = [smooth1[:,i]/ (max(smooth1[:,i])) for i in range(len(Apollo_FileList))]
 
 def graph_powerlaw2():
     """
@@ -284,50 +287,68 @@ def graph_powerlaw2():
     ax.hist(residuals_power)
     #fig1.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\power_fit.pdf"), format = 'pdf')
     return fig1, slope, intercept
-#fig_power2, slope2, intercept2 = graph_powerlaw2()
+fig_power2, slope2, intercept2 = graph_powerlaw2()
 
 def my_model_graphs2():
-    fig, [ax0, ax1] = plt.subplots(1,2)
-    fig.set_size_inches(5,2.5)
+    fig, [[ax1,ax3],[ax0, ax2]] = plt.subplots(2,2)
+ 
     
-    #Plotting some more model functions
+    labels = ["Z=" + str(round(testing_zrange_z[i], 3)) + ", clear CR =" + str(round(testing_zrange_so[i], 1)) for i in range(len(testing_zrange_file))]
     
-    ax0.plot(np.linspace(0,80,200), testing_zrange, markevery=10, label = 'CFD - mean')
-    ax0.fill_between(np.linspace(0,80,200), Icr_Ir.min(1), Icr_Ir.max(1), alpha = 0.2, label = 'CFD - range')
+    [a,b,c,d,e,f,g,h,i,j] = ax0.plot(np.linspace(0,80,200), np.asarray(testing_zrange_Icr).T, markevery=10)
     
-    #Plotting Experimental data
-    overlay_exps(ax0, 1)
-    
-    #Gaussian models
-    ax0.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], label = 'One gaussian')
-    ax0.plot(theta.mean(1), gaussmod2[int(len(gaussmod)/2)::], '--',label = 'Two gaussian')
-    text_gaussian = r"$f(\theta) = exp \left( \frac{-(\theta-0.5)^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)
-    
-    #poly
-    ax0.plot(theta.mean(1), poly6.__call__(x)[int(len(gaussmod)/2)::])
-    ax0.text(0.6, 0.7, text_gaussian, fontsize = 'small', transform=ax0.transAxes)
-    
-
-    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod[int(len(gaussmod)/2)::],  s=5., label = '')
-    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod2[int(len(gaussmod)/2)::], s=5., label = 'Two gauss')
-    ax1.set_ylim(-0.1, 0.1)
-    
-    #axis settings
     ax0.set_xlabel('angle of incidence (degrees)')
     ax0.set_ylabel('Ir / Ir Max')
-    handles, labels = ax0.get_legend_handles_labels()
-    ax0.legend(handles, labels)
-    handles, labels = ax1.get_legend_handles_labels()
-    ax1.legend(handles, labels)
-    ax1.set_xlabel('angle of incidence (degrees)')
-    ax1.set_ylabel('Residual')
+    
+    ax0.legend([a,b,c,d,e,f,g,h,i,j], labels)
     ax0.locator_params(axis = 'both',tight=True, nbins=6)
-    ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
-    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_predictor.pdf', format = 'pdf')
-#my_model_graphs2()
+    ax1.plot(np.linspace(0,80,200), testing_zrange, markevery=10)
+    ax1.set_xlabel('angle of incidence (degrees)')
+    ax1.set_ylabel('specific impulse')      
+    ax1.set_title('Original')
+    ax2.plot(np.linspace(0,80,200), np.asarray(smooth_Icr).T)
+    ax2.set_xlabel('angle of incidence (degrees)')
+    ax2.set_ylabel('Ir / Ir Max')
+    ax2.legend([a,b,c,d,e,f,g,h,i,j], labels)
+    ax2.locator_params(axis = 'both',tight=True, nbins=6)
+    plt.tight_layout()    
+    ax3.plot(np.linspace(0,80,200), smooth, markevery=10)
+    ax3.set_xlabel('angle of incidence (degrees)')
+    ax3.set_ylabel('specific impulse')
+    ax3.set_title('Smoothed')
+    
+       
+    fig, [[ax1, ax3],[ax0,ax2]] = plt.subplots(2,2)
+    labels = ["Z=" + str(round(z_dataset[0,i], 3)) + ", clear CR =" + str(round(clear_standoff[0,i], 1)) for i in range(len(Apollo_gtable))]
+    
+    [a,b,c,d,e] = ax0.plot(np.linspace(0,80,200), Icr_Ir, markevery=10)
+    ax0.set_xlabel('angle of incidence (degrees)')
+    ax0.set_ylabel('Ir / Ir Max')
+    ax0.legend([a,b,c,d,e], labels)
+    ax0.locator_params(axis = 'both',tight=True, nbins=6)
+    plt.tight_layout()
+    
+    ax1.plot(np.linspace(0,80,200), peak_impulse, markevery=10)
+    ax1.set_xlabel('angle of incidence (degrees)')
+    ax1.set_ylabel('specific impulse')      
+    ax1.set_title('Original')
+    
+    ax2.plot(np.linspace(0,80,200), np.asarray(smooth1_Icr).T)
+    ax2.set_xlabel('angle of incidence (degrees)')
+    ax2.set_ylabel('Ir / Ir Max')
+    ax2.legend([a,b,c,d,e,f,g,h,i,j], labels)
+    ax2.locator_params(axis = 'both',tight=True, nbins=6)
+    plt.tight_layout()    
+    
+    ax3.plot(np.linspace(0,80,200), smooth1, markevery=10)
+    ax3.set_xlabel('angle of incidence (degrees)')
+    ax3.set_ylabel('specific impulse')    
+    ax3.set_title('Smoothed')
+    
+my_model_graphs2()
 
-#-------------------------------------- 
+#-----------------------------------------------------------------------------
 
 
 
@@ -455,13 +476,8 @@ def lm_residual2(params, x, ytrue):
 
 
 
-#gauss model current fitted to the closest test
-test = 0
 
-
-#data_o = np.concatenate([np.flipud(Icr_Ir[:,test]), Icr_Ir[:,test]]) #Fit data to closest sample
-#data_o = np.concatenate([np.flipud(Icr_Ir.max(1)), Icr_Ir.max(1)]) #Fit data to max Icr_Ir
-data_o = np.concatenate([np.flipud(Icr_Ir.mean(1)), Icr_Ir.mean(1)]) #Fit data to mean
+data_o = np.concatenate([np.flipud(np.asarray(smooth1_Icr).mean(0)), np.asarray(smooth1_Icr).mean(0)])
 data = (data_o - min(data_o)) / (max(data_o) - min(data_o))
 
 
@@ -519,13 +535,13 @@ poly6 = np.polynomial.polynomial.Polynomial.fit(x, data, 6)
 
 
 #impulse distribution in theta -----------------------------------------------
-def my_model_graphs():
+def my_model_graphs_exact():
     #Gaussian - 1 -------------------------------------------------------------
     fig, [ax0, ax1, ax2] = plt.subplots(1,3)
     fig.set_size_inches(7,2.5)    
     #CFD
-    ax0.plot(theta.mean(1), Icr_Ir.mean(1), 'k', markevery=10, label = 'CFD - mean')
-    ax0.fill_between(theta.mean(1), Icr_Ir.min(1), Icr_Ir.max(1), color = 'silver', alpha = 0.2, label = 'CFD - range')       
+    ax0.plot(theta.mean(1), np.asarray(smooth1_Icr).mean(0), 'k', markevery=10, label = 'CFD - mean')
+    ax0.fill_between(theta.mean(1), np.asarray(smooth1_Icr).min(0), np.asarray(smooth1_Icr).max(0), color = 'silver', alpha = 0.2, label = 'CFD - range')       
     #Models
     ax0.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'r:', label = 'Model fit')
     
@@ -533,10 +549,10 @@ def my_model_graphs():
     ax1.text(0.4, 0.2, text_gaussian1, fontsize = 'x-small', transform=ax1.transAxes)
    
     
-    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod[int(len(gaussmod)/2)::], c = 'k' , s=1.)
+    ax1.scatter(theta.mean(1), np.asarray(smooth1_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::], c = 'k' , s=1.)
     ax1.set_ylim(-0.1, 0.1)
     
-    res1 = stats.probplot(Icr_Ir.mean(1) - gaussmod[int(len(gaussmod)/2)::], plot=ax2)
+    res1 = stats.probplot(np.asarray(smooth1_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::], plot=ax2)
     ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
     ax2.get_lines()[0].set_marker('s')
     ax2.get_lines()[0].set_markerfacecolor('k')
@@ -556,55 +572,20 @@ def my_model_graphs():
     plt.tight_layout()
     fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_gaussian1.pdf', format = 'pdf')
     
-    #Gaussian - 2 ------------------------------------------------------------
-    fig, [ax0, ax1, ax2] = plt.subplots(1,3)
-    fig.set_size_inches(7,2.5)   
-    #CFD
-    ax0.plot(theta.mean(1), Icr_Ir.mean(1), 'k', markevery=10, label = 'CFD - mean')
-    ax0.fill_between(theta.mean(1), Icr_Ir.min(1), Icr_Ir.max(1), color = 'silver', alpha = 0.2, label = 'CFD - range')       
-    #Models
-    ax0.plot(theta.mean(1), gaussmod2[int(len(gaussmod2)/2)::], 'r:', label = 'Model fit')
-    
-    text_gaussian1 = "TO BE SORTED"    
-    ax1.text(0.4, 0.2, text_gaussian1, fontsize = 'x-small', transform=ax1.transAxes)
    
-    
-    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - gaussmod2[int(len(gaussmod2)/2)::], c = 'k', s=1.)
-    ax1.set_ylim(-0.1, 0.1)
-    
-    res1 = stats.probplot(Icr_Ir.mean(1) - gaussmod2[int(len(gaussmod2)/2)::], plot=ax2)
-    ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
-    ax2.get_lines()[0].set_marker('s')
-    ax2.get_lines()[0].set_markerfacecolor('k')
-    ax2.get_lines()[0].set_markeredgecolor('k')
-    ax2.get_lines()[0].set_markersize(1.)    
-    ax2.set_title("")
-
-    #axis settings
-    ax0.set_xlabel('angle of incidence (degrees)')
-    ax0.set_ylabel('Ir / Ir Max')
-    handles, labels = ax0.get_legend_handles_labels()
-    ax0.legend(handles, labels, loc='upper right', prop={'size':6})
-    ax1.set_xlabel('angle of incidence (degrees)')
-    ax1.set_ylabel('Residual')
-    ax0.locator_params(axis = 'both',tight=True, nbins=6)
-    ax1.locator_params(axis = 'both',tight=True, nbins=6)
-    plt.tight_layout()
-    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_gaussian2.pdf', format = 'pdf')
-      
     #Henrych ------------------------------------------------------------
     fig, [ax0, ax1] = plt.subplots(1,2)
     fig.set_size_inches(5,2.5)   
     #CFD
-    ax0.plot(theta.mean(1), Icr_Ir.mean(1), 'k', markevery=10, label = 'CFD - mean')
-    ax0.fill_between(theta.mean(1), Icr_Ir.min(1), Icr_Ir.max(1), color = 'silver', alpha = 0.2, label = 'CFD - range')       
+    ax0.plot(theta.mean(1), np.asarray(smooth1_Icr).mean(0), 'k', markevery=10, label = 'CFD - mean')
+    ax0.fill_between(theta.mean(1), np.asarray(smooth1_Icr).min(0), np.asarray(smooth1_Icr).max(0), color = 'silver', alpha = 0.2, label = 'CFD - range')       
     #Models
     ax0.plot(np.linspace(0,80,num=200), Henrych_i_fit(np.linspace(0,80,num=200), hen_mod['x'][0]), 'r:', label = 'Model fit')
     
     texts = "TO BE SORTED"    
     ax1.text(0.4, 0.2, texts, fontsize = 'x-small', transform=ax1.transAxes)
        
-    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - Henrych_i_fit(np.linspace(0,80,num=200), hen_mod['x'][0]), c = 'k', s=1.)
+    ax1.scatter(theta.mean(1), np.asarray(smooth1_Icr).mean(0) - Henrych_i_fit(np.linspace(0,80,num=200), hen_mod['x'][0]), c = 'k', s=1.)
     ax1.set_ylim(-0.1, 0.1)
     
     # res1 = stats.probplot(Icr_Ir.mean(1) - Henrych_i_fit(np.linspace(0,80,num=200), hen_mod['x'][0]), plot=ax2)
@@ -634,25 +615,64 @@ def my_model_graphs():
     fig, [ax0, ax1] = plt.subplots(1,2)
     fig.set_size_inches(5,2.5)   
     #CFD
-    ax0.plot(theta.mean(1), Icr_Ir.mean(1), 'k', markevery=10, label = 'CFD - mean')
-    ax0.fill_between(theta.mean(1), Icr_Ir.min(1), Icr_Ir.max(1), color = 'silver', alpha = 0.2, label = 'CFD - range')       
+    ax0.plot(theta.mean(1), np.asarray(smooth1_Icr).mean(0), 'k', markevery=10, label = 'CFD - mean')
+    ax0.fill_between(theta.mean(1), np.asarray(smooth1_Icr).min(0), np.asarray(smooth1_Icr).max(0), color = 'silver', alpha = 0.2, label = 'CFD - range')       
     #Models
     ax0.plot(theta.mean(1), RPB_MCEER_exp_model_inter , 'r:', label = 'Model fit')
     
     texts = "TO BE SORTED"    
     ax1.text(0.4, 0.2, texts, fontsize = 'x-small', transform=ax1.transAxes)
        
-    ax1.scatter(theta.mean(1), Icr_Ir.mean(1) - RPB_MCEER_exp_model_inter, c = 'k', s=1.)
-    #ax1.set_ylim(-0.2, 0.2)
+    ax1.scatter(theta.mean(1), np.asarray(smooth1_Icr).mean(0) - RPB_MCEER_exp_model_inter, c = 'k', s=1.)
+    ax1.set_ylim(-0.1, 0.1)
     
-    # res1 = stats.probplot(Icr_Ir.mean(1) - (RPB_MCEER_exp[3][200,200::] / max(RPB_MCEER_exp[3][200,200::])), plot=ax2)
-    # ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
-    # ax2.text(0.01, 0.25, "This might not be relevent as not a regression", fontsize = 'x-small', transform=ax2.transAxes)
-    # ax2.get_lines()[0].set_marker('s')
-    # ax2.get_lines()[0].set_markerfacecolor('k')
-    # ax2.get_lines()[0].set_markeredgecolor('k')
-    # ax2.get_lines()[0].set_markersize(1.)    
-    # ax2.set_title("")
+    #axis settings
+    ax0.set_xlabel('angle of incidence (degrees)')
+    ax0.set_ylabel('Ir / Ir Max')
+    handles, labels = ax0.get_legend_handles_labels()
+    ax0.legend(handles, labels, loc='upper right', prop={'size':6})
+    ax1.set_xlabel('angle of incidence (degrees)')
+    ax1.set_ylabel('Residual')
+    ax0.locator_params(axis = 'both',tight=True, nbins=6)
+    ax1.locator_params(axis = 'both',tight=True, nbins=6)
+    plt.tight_layout()
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_RPB_MCEER.pdf', format = 'pdf')    
+my_model_graphs_exact()
+
+
+
+#impulse distribution in theta -----------------------------------------------
+def my_model_graphs_large():
+    
+    data_o = np.concatenate([np.flipud(np.asarray(smooth_Icr).max(0)), np.asarray(smooth_Icr).max(0)])
+    data = (data_o - min(data_o)) / (max(data_o) - min(data_o))
+    x = np.linspace(0,80,len(data))
+    x = (x - min(x)) / (max(x) - min(x))       
+    #Nonlinear regression -gaussians
+    result = lm.minimize(lm_residual, params, method = 'least_squares', args = (x, data))
+    gaussmod = gauss_curve(x, result.params['cen1'].value, result.params['amp1'].value, result.params['wid1'].value)
+               
+    #Gaussian - 1 -------------------------------------------------------------
+    fig, [ax0, ax1, ax2] = plt.subplots(1,3)
+    fig.set_size_inches(7,2.5)    
+    #CFD
+    ax0.plot(theta.mean(1), np.asarray(smooth_Icr).mean(0), 'k', markevery=10, label = 'CFD - mean')
+    ax0.fill_between(theta.mean(1), np.asarray(smooth_Icr).min(0), np.asarray(smooth_Icr).max(0), color = 'silver', alpha = 0.2, label = 'CFD - range')       
+    #Models
+    ax0.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'r:', label = 'Model fit')
+    
+    text_gaussian1 = r"$f(\theta) = exp \left( \frac{-(\theta-0.5)^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
+    ax1.text(0.4, 0.2, text_gaussian1, fontsize = 'x-small', transform=ax1.transAxes)
+    ax1.scatter(theta.mean(1), np.asarray(smooth_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::], c = 'k' , s=1.)
+    ax1.set_ylim(-0.1, 0.1)
+    
+    res1 = stats.probplot(np.asarray(smooth_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::], plot=ax2)
+    ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
+    ax2.get_lines()[0].set_marker('s')
+    ax2.get_lines()[0].set_markerfacecolor('k')
+    ax2.get_lines()[0].set_markeredgecolor('k')
+    ax2.get_lines()[0].set_markersize(1.)    
+    ax2.set_title("")
 
     #axis settings
     ax0.set_xlabel('angle of incidence (degrees)')
@@ -664,9 +684,11 @@ def my_model_graphs():
     ax0.locator_params(axis = 'both',tight=True, nbins=6)
     ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
-    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_RPB_MCEER.pdf', format = 'pdf')
-    
-my_model_graphs()
+    #fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_gaussian1_largez.pdf', format = 'pdf')    
+my_model_graphs_large()      
+
+
+
 
 
 #Compare 
@@ -695,23 +717,17 @@ def graph_impulse_comparisons():
     ax1.set_xlabel('angle of incidence')
     ax1.set_ylabel(r'$I_r/I_{r,max}$')
     
-    ax1.plot(RPB_MCEER_exp[2][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)], RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]/ max(RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]), 'k', label = 'RPB-MCEER')
-    
+    ax1.plot(RPB_MCEER_exp[2][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)], RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]/ max(RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]), 'k', label = 'RPB-MCEER')    
     ax1.plot(np.linspace(0,80,num=200), Apollo_gtable[0][:,7]/max(Apollo_gtable[0][:,7]), 'k-.', dashes=[12,6,12,6,3,6], label='CFD - Z = 0.05')
-
-    ax1.plot(np.linspace(0,80,num=400), Henrych_i_fit(np.linspace(0,80,num=400), hen_mod['x'][0]), 'k:', label = 'Henrych')
-    
-    ax1.plot(np.linspace(0,80, num=80), i_jang, 'k--', marker='o', markevery=12, ms=3., mfc = 'white', label = 'Jang')
-    
-    ax1.plot(np.linspace(0,80, num=80), i_dharmasena, 'k-.', marker='D', markevery=16, ms=3., label = 'Dharmasena')
-    
-    ax1.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'k:', label = 'Gaussian-single')
-    
+    ax1.plot(np.linspace(0,80,num=400), Henrych_i_fit(np.linspace(0,80,num=400), hen_mod['x'][0]), 'k:', label = 'Henrych')    
+    ax1.plot(np.linspace(0,80, num=80), i_jang, 'k--', marker='o', markevery=12, ms=3., mfc = 'white', label = 'Jang')    
+    ax1.plot(np.linspace(0,80, num=80), i_dharmasena, 'k-.', marker='D', markevery=16, ms=3., label = 'Dharmasena')    
+    ax1.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'k:', label = 'Gaussian-single')    
     handles, labels = ax1.get_legend_handles_labels()
     ax1.legend(handles, labels, loc='upper left', prop={'size':6})
     plt.tight_layout()  
     fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_theta_comparisons.pdf"), format = 'pdf')
-graph_impulse_comparisons()
+#graph_impulse_comparisons()
 
 
 #--TESTING---

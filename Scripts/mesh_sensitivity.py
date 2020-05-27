@@ -10,6 +10,7 @@ import matplotlib.ticker as ticker
 import scipy.io as sio
 import os 
 from impulse_models import *
+from scipy.signal import savgol_filter
 
 cr = 0.0246
 charge_mass = 0.1
@@ -309,6 +310,7 @@ latest_1500_r4 = np.asarray([latest_1500_r4[i][:,7] for i in range(len(latest_15
 latest_1500_r5 = np.asarray([latest_1500_r5[i][:,7] for i in range(len(latest_1500_r5))]).T
 latest_var_r4 = np.asarray([latest_var_r4[i][:,7] for i in range(len(latest_var_r4))]).T
 testing_DMA = np.asarray([testing_DMA[i][:,7] for i in range(len(testing_DMA))]).T
+
 #Gauges
 latest_1500_r3_gauges = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res3\*gauges",1)
 latest_1500_r4_gauges = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res4\*gauges",1)
@@ -337,7 +339,7 @@ ax.set_xlabel('angle of incidence')
 labels = ['A', 'B', 'C', 'D', 'E', 'F']
 colors = ['c', 'g', 'r', 'm', 'k', 'b']
 lines = [Line2D([0], [0], color=c, linewidth=0.5) for c in colors]
-ax.legend(lines,labels)
+ax.legend(lines,labels, loc='upper right', prop={'size':6})
 ax.minorticks_on()
 ax.grid(which='minor', alpha=0.2)
 ax.grid(which='major', alpha=0.5)
@@ -349,6 +351,7 @@ fig_dataset2.set_size_inches(2.8,2.5)
 #ax0.set_title('Sample of dataset, z(clear) = 0.133')
 ax0.plot(np.linspace(0,80,200),testing_DMA[:,0]/1e3, 'k', label = 'E')
 ax0.plot(np.linspace(0,80,200),testing_DMA[:,1]/1e3, 'b',label = 'F')
+ax0.plot(np.linspace(0,80,200),savgol_filter(testing_DMA[:,0]/1e3, 101, 3), 'k:', label = 'E - smoothed')
 handles, labels = ax0.get_legend_handles_labels()
 ax0.legend(handles, labels, loc='upper right', prop={'size':6})
 ax0.set_ylabel('peak specific impulse (MPa.ms)')
@@ -433,6 +436,22 @@ ax0.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", 
 ax0.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
 ax0.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/max(gtable_80mm[0][:,7]), dashes=[12,6,12,6,3,6], c='k', label = '1.25mm')
 ax0.plot(theta, z80mm_chosenmesh_adjustedi/max(z80mm_chosenmesh_adjustedi), 'k', label = '3.125mm')
+plt.tight_layout()
+
+fig2, ax = plt.subplots(1,1)
+fig2.set_size_inches(2.5,2.5)
+ax.scatter(theta_exp_80mm, MxI_1_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = 'Exp')
+ax.scatter(theta_exp_80mm, MxI_2_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax.scatter(theta_exp_80mm, MxI_3_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax.scatter(theta_exp_80mm_mean, Mx_mean_80mm/1e3, marker="o", s=15., label = 'Exp Mean')
+ax.plot(theta, z80mm_chosenmesh_adjustedi/1e3, 'k', label = '3.125mm')
+ax.plot(theta_80mm_mesh, gtable_80mm[0][:,7]/1e3, dashes=[12,6,12,6,3,6], c='k', label = '1.25mm')
+#ax.plot(theta, Apollo_gtable_z80mm_chosenmesh[0][:,7]/1e3, 'k', label = '3.125mm')
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles, labels, loc='upper right', prop={'size':6})
+ax.set_ylim(0,5)
+ax.set_xlabel('theta (degrees)')
+ax.set_ylabel('peak specific impulse ratio')
 plt.tight_layout()
 fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_z0_055_3.pdf', format = 'pdf')
 #-----------------------------------------------------------------------------

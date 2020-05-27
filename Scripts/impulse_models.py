@@ -26,7 +26,7 @@ def Henrych_I(A0, W, theta_lim):
     """
     return np.pi * A0 * W * np.sin(np.deg2rad(theta_lim))**2
 
-def Remmenikov(a, )
+#def Remmenikov(a, )
 
 #2) RPB - MCEER Model hybrid
 """
