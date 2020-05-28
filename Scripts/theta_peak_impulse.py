@@ -59,8 +59,6 @@ theta = []
 for i in range(len(Apollo_gtable)):
     clear_standoff[i] = pre.standoff_func(Apollo_FileList[i]) - charge_rad
     peak_impulses.append(Apollo_gtable[i][:,7])
-    #incident_impulse.append(Apollo_gtable[i][incident_index::,7])
-    #ref_factor.append(peak_impulse[i]/incident_impulse[i])
     Icr_Ir.append(peak_impulses[i] / max(peak_impulses[i]))
     theta.append(np.rad2deg(np.arctan(np.divide(Apollo_gtable[i][:,2], clear_standoff[i] + charge_rad))))
 
@@ -107,22 +105,6 @@ def overlay_exps(ax, is_crit = None):
 
 
 
-#Graph1 - dataset- overview ---------------------------------------------------
-def graph_dataset_overview():   
-    fig0, ax = plt.subplots(1,1)
-    fig0.set_size_inches(3, 2.5)
-    CS = ax.contourf(theta, clear_standoff, peak_impulse/1e3, levels = [0 ,0.625, 1.25, 2.5, 3.75, 5, 7.5, 10, 12.5], cmap = plt.cm.magma_r)
-    cbar = fig0.colorbar(CS)
-    cbar.ax.invert_yaxis()
-    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-    ax.set_ylabel('standoff (clear charge radii)')
-    ax.set_xlabel('incident wave angle (degrees)')
-    plt.tight_layout()
-    fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_0.pdf"), format = 'pdf')
-    return fig0
-graph_dataset_overview()
-
-
 #Graph 2 Power law-------------------------------------------------------------
 def graph_powerlaw():
     slope, intercept, r_value, p_value, std_err = stats.linregress(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3))
@@ -131,7 +113,7 @@ def graph_powerlaw():
     const = const.sum()/len(const)
     residuals_power = np.log10(peak_impulse[0,:]/1e3) - linear_model
     RSS_power = np.power(residuals_power,2).sum()
-    RSE_power = ( (1/(len(residuals_power)-2)) * RSS_power   )
+    RSE_power = ( (1/(len(residuals_power)-2)) * RSS_power   )#Residual standard error https://stats.stackexchange.com/questions/57746/what-is-residual-standard-error
     text_ax1 = "$R^2 =$" + str(round(r2_score(np.log10(peak_impulse[0,:]/1e3), linear_model), 3))
     
     if p_value < 0.0001:
@@ -226,7 +208,7 @@ def graph_powerlaw2():
     const = const.sum()/len(const)
     residuals_power = np.log10(testing_zrange.max(0)/1e3) - linear_model
     RSS_power = np.power(residuals_power,2).sum()
-    RSE_power = ( (1/(len(residuals_power)-2)) * RSS_power   )
+    RSE_power = ( (1/(len(residuals_power)-2)) * RSS_power   )#Residual standard error https://stats.stackexchange.com/questions/57746/what-is-residual-standard-error
     text_ax1 = "$R^2 =$" + str(round(r2_score(np.log10(testing_zrange.max(0)/1e3), linear_model), 3))
     
     if p_value < 0.0001:
@@ -283,9 +265,7 @@ def graph_powerlaw2():
     ax3.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
     
-    fig, ax = plt.subplots(1,1)
-    ax.hist(residuals_power)
-    #fig1.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\power_fit.pdf"), format = 'pdf')
+    fig1.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\power_fit2.pdf"), format = 'pdf')
     return fig1, slope, intercept
 fig_power2, slope2, intercept2 = graph_powerlaw2()
 
@@ -348,58 +328,39 @@ def my_model_graphs2():
     
 my_model_graphs2()
 
+
+
+#Graph1 - dataset- overview ---------------------------------------------------
+def graph_dataset_overview():   
+    fig0, ax = plt.subplots(1,1)
+    fig0.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta, clear_standoff, smooth1/1e3, levels = np.arange(0,15,0.25), cmap = plt.cm.magma_r)
+    cbar = fig0.colorbar(CS)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_overview.pdf"), format = 'pdf')
+    
+    fig0, ax = plt.subplots(1,1)
+    fig0.set_size_inches(3, 2.5)
+    crs = testing_zrange_so  
+    theta_test = np.linspace(0,80, num=len(smooth))
+    theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)       
+    crs = np.repeat(crs[:,np.newaxis], len(theta_test), 1)
+    crs = crs.transpose()      
+    CS = ax.contourf(theta_test, crs, smooth/1e3, levels = np.arange(0,15,0.25), cmap = plt.cm.magma_r)
+    cbar = fig0.colorbar(CS)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_overview.pdf"), format = 'pdf')    
+    return 
+graph_dataset_overview()
 #-----------------------------------------------------------------------------
-
-
-
-#------------------------------------------------------------------------------
-#Generating %Difference for where z_dataset is greater than lower limit of MCEER
-# z_I_percent = z_dataset[0,4::]
-# theta_I_percent = np.linspace(0,80,num=40)
-
-# Imp_Henrych = np.zeros((len(theta_I_percent), len(z_I_percent)))
-# Imp_RPB_MCEER = np.zeros_like(Imp_Henrych)
-# Imp_CFD = np.zeros_like(Imp_Henrych)
-
-# for j in range(np.size(Imp_Henrych,1)):
-#     for i in range(np.size(Imp_Henrych,0)):       
-#         Imp_RPB_MCEER[i,j] = RPB_MCEER_i(charge_mass, z_I_percent[j]*(charge_mass**(1/3)), theta_I_percent[i])[4]
-#         Imp_Henrych[i,j] = Henrych_I(A0, charge_mass, theta_I_percent[i])
-#         Imp_CFD[i,j] = Impulse_CFD(peak_impulses[j+4], z_I_percent[j]*(charge_mass**(1/3)), theta_I_percent[i], theta[:,j+4])
-#     print(j/np.size(Imp_Henrych,1))
-
-
-# fig4a, ax0 = plt.subplots(1,1)
-# fig4a.set_size_inches(3, 2.5)
-# #CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_RPB_MCEER), cmap = plt.cm.cubehelix)
-# #cbar = fig4a.colorbar(CS0, ax=ax0)
-# cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-# ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
-# ax0.set_xlabel('$Theta_{lim}$')
-# plt.tight_layout()
-# #fig4a.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_a.pdf"), format = 'pdf')
-
-# fig4b, ax0 = plt.subplots(1,1)
-# fig4b.set_size_inches(3, 2.5)
-# #CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_Henrych), cmap = plt.cm.cubehelix)
-# #cbar = fig4b.colorbar(CS0, ax=ax0)
-# cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-# ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
-# ax0.set_xlabel('$Theta_{lim}$')
-# plt.tight_layout()
-# #fig4b.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_b.pdf"), format = 'pdf')
-
-# fig4c, ax0 = plt.subplots(1,1)
-# fig4c.set_size_inches(3, 2.5)
-# #CS0 = ax0.contourf(theta_I_percent, z_I_percent, np.transpose(Imp_CFD)/1e3, cmap = plt.cm.cubehelix)
-# #cbar = fig4c.colorbar(CS0, ax=ax0)
-# cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-# ax0.set_ylabel('Clear scaled distance, z$(m/kg^{1/3})$')
-# ax0.set_xlabel('$Theta_{lim}$')
-# plt.tight_layout()
-# #fig4c.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_percent_c.pdf"), format = 'pdf')
-#------------------------------------------------------------------------------
-
 
 
 
@@ -471,20 +432,9 @@ def lm_residual2(params, x, ytrue):
     current_cost = ( (mean_squared_error(ytrue, gauss_two_curve(x, *args)))**2 + (reg1 * pen1(amp1, amp2)**2) ) **0.5
     return current_cost
 
-#------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
-
-
-
-
-data_o = np.concatenate([np.flipud(np.asarray(smooth1_Icr).mean(0)), np.asarray(smooth1_Icr).mean(0)])
-data = (data_o - min(data_o)) / (max(data_o) - min(data_o))
-
-
-x = np.linspace(0,80,len(data))
-x = (x - min(x)) / (max(x) - min(x))
-
-#Henrych opt ------------------------------------------------------------------
+#Henrych optimal ------------------------------------------------------------------
 def Henrych_i_fit(x, A0):
     """
     x is theta
@@ -498,44 +448,22 @@ def Henrych_i_fit(x, A0):
     return i
 def henrych_residual(params, y_true):
     return mean_squared_error(y_true, Henrych_i_fit(np.linspace(-80,80,num=400), *params))
-x0 = [0.1]
-hen_mod = minimize(henrych_residual, x0, args=(data), method = 'BFGS')
-fig, ax = plt.subplots(1,1)
-ax.plot(np.linspace(-80,80,num=400), Henrych_i_fit(np.linspace(-80,80,num=400), hen_mod['x'][0]))
-
-
-
-#Nonlinear regression -gaussians
-result = lm.minimize(lm_residual, params, method = 'least_squares', args = (x, data))
-gaussmod = gauss_curve(x, result.params['cen1'].value, result.params['amp1'].value, result.params['wid1'].value)
-
-result2 = lm.minimize(lm_residual2, params2, method = 'least_squares', args = (x, data))
-gaussmod2 = gauss_two_curve(x, result2.params['cen1'].value, result2.params['amp1'].value, result2.params['wid1'].value, result2.params['cen2'].value, result2.params['amp2'].value, result2.params['wid2'].value)
-
-#Linearregressions
-poly6 = np.polynomial.polynomial.Polynomial.fit(x, data, 6)
-
-
-# # #FIGURE OUT WHAT IS GOING ON HERE
-# x = np.linspace(0,80,int(len(data)/2))
-# x = (x - min(x)) / (max(x) - min(x))
-# y = peak_impulse.mean(1)
-# recipr_1 = np.polynomial.polynomial.Polynomial.fit(1/x, y, 1)
-# recipr_1 = recipr_1.__call__(1/x)
-
-# fig, [ax, ax2, ax3] = plt.subplots(1,3)
-# ax.plot(1/x, recipr_1)
-# ax2.plot(x, 1/recipr_1)
-# ax3.plot(theta.mean(1), 1/recipr_1)
-# #recipr_1 = recipr_1[int(len(gaussmod)/2)::]
-# recipr_1 = 1/recipr_1
-# recipr_1 = (recipr_1 - min(recipr_1)) / (max(recipr_1) - min(recipr_1))
 
 
 
 
 #impulse distribution in theta -----------------------------------------------
 def my_model_graphs_exact():
+    #Fitting model
+    data_o = np.concatenate([np.flipud(np.asarray(smooth1_Icr).mean(0)), np.asarray(smooth1_Icr).mean(0)])
+    data = (data_o - min(data_o)) / (max(data_o) - min(data_o))  
+    x = np.linspace(0,80,len(data))
+    x = (x - min(x)) / (max(x) - min(x))
+    result = lm.minimize(lm_residual, params, method = 'least_squares', args = (x, data))
+    gaussmod = gauss_curve(x, result.params['cen1'].value, result.params['amp1'].value, result.params['wid1'].value)      
+    #Linearregressions
+    #poly6 = np.polynomial.polynomial.Polynomial.fit(x, data, 6)
+    
     #Gaussian - 1 -------------------------------------------------------------
     fig, [ax0, ax1, ax2] = plt.subplots(1,3)
     fig.set_size_inches(7,2.5)    
@@ -551,6 +479,13 @@ def my_model_graphs_exact():
     
     ax1.scatter(theta.mean(1), np.asarray(smooth1_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::], c = 'k' , s=1.)
     ax1.set_ylim(-0.1, 0.1)
+    
+    RSS = np.power(np.asarray(smooth1_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::],2).sum()
+    RSE = ( (1/(len(np.asarray(smooth1_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::])-2)) * RSS  )
+    if RSE < 0.0001:
+        text_RSE = "$RSE < 0.0001$"
+    else:
+        text_RSE = "$RSE = {:.3f}$".format(RSE)
     
     res1 = stats.probplot(np.asarray(smooth1_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::], plot=ax2)
     ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
@@ -574,6 +509,10 @@ def my_model_graphs_exact():
     
    
     #Henrych ------------------------------------------------------------
+    x0 = [0.1]
+    hen_mod = minimize(henrych_residual, x0, args=(data), method = 'BFGS')
+    rem_actual = Henrych_i((0.08-charge_rad), charge_rad, 7900, 5.53, 1660, np.linspace(0,80,200))
+    
     fig, [ax0, ax1] = plt.subplots(1,2)
     fig.set_size_inches(5,2.5)   
     #CFD
@@ -581,21 +520,11 @@ def my_model_graphs_exact():
     ax0.fill_between(theta.mean(1), np.asarray(smooth1_Icr).min(0), np.asarray(smooth1_Icr).max(0), color = 'silver', alpha = 0.2, label = 'CFD - range')       
     #Models
     ax0.plot(np.linspace(0,80,num=200), Henrych_i_fit(np.linspace(0,80,num=200), hen_mod['x'][0]), 'r:', label = 'Model fit')
-    
+    ax0.plot(np.linspace(0,80,num=200), rem_actual/max(rem_actual), 'c--', label = 'Model actual')
     texts = "TO BE SORTED"    
-    ax1.text(0.4, 0.2, texts, fontsize = 'x-small', transform=ax1.transAxes)
-       
-    ax1.scatter(theta.mean(1), np.asarray(smooth1_Icr).mean(0) - Henrych_i_fit(np.linspace(0,80,num=200), hen_mod['x'][0]), c = 'k', s=1.)
+    ax1.text(0.4, 0.2, texts, fontsize = 'x-small', transform=ax1.transAxes)      
+    ax1.scatter(theta.mean(1), np.asarray(smooth1_Icr).mean(0) - rem_actual/max(rem_actual), c = 'k', s=1.)
     ax1.set_ylim(-0.1, 0.1)
-    
-    # res1 = stats.probplot(Icr_Ir.mean(1) - Henrych_i_fit(np.linspace(0,80,num=200), hen_mod['x'][0]), plot=ax2)
-    # ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
-    # ax2.get_lines()[0].set_marker('s')
-    # ax2.get_lines()[0].set_markerfacecolor('k')
-    # ax2.get_lines()[0].set_markeredgecolor('k')
-    # ax2.get_lines()[0].set_markersize(1.)    
-    # ax2.set_title("")
-
     #axis settings
     ax0.set_xlabel('angle of incidence (degrees)')
     ax0.set_ylabel('Ir / Ir Max')
@@ -618,14 +547,11 @@ def my_model_graphs_exact():
     ax0.plot(theta.mean(1), np.asarray(smooth1_Icr).mean(0), 'k', markevery=10, label = 'CFD - mean')
     ax0.fill_between(theta.mean(1), np.asarray(smooth1_Icr).min(0), np.asarray(smooth1_Icr).max(0), color = 'silver', alpha = 0.2, label = 'CFD - range')       
     #Models
-    ax0.plot(theta.mean(1), RPB_MCEER_exp_model_inter , 'r:', label = 'Model fit')
-    
+    ax0.plot(theta.mean(1), RPB_MCEER_exp_model_inter , 'r:', label = 'Model fit')   
     texts = "TO BE SORTED"    
-    ax1.text(0.4, 0.2, texts, fontsize = 'x-small', transform=ax1.transAxes)
-       
+    ax1.text(0.4, 0.2, texts, fontsize = 'x-small', transform=ax1.transAxes)       
     ax1.scatter(theta.mean(1), np.asarray(smooth1_Icr).mean(0) - RPB_MCEER_exp_model_inter, c = 'k', s=1.)
     ax1.set_ylim(-0.1, 0.1)
-    
     #axis settings
     ax0.set_xlabel('angle of incidence (degrees)')
     ax0.set_ylabel('Ir / Ir Max')
@@ -637,7 +563,9 @@ def my_model_graphs_exact():
     ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
     fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_RPB_MCEER.pdf', format = 'pdf')    
-my_model_graphs_exact()
+    
+    return gaussmod
+gaussmod_small = my_model_graphs_exact()
 
 
 
@@ -659,8 +587,7 @@ def my_model_graphs_large():
     ax0.plot(theta.mean(1), np.asarray(smooth_Icr).mean(0), 'k', markevery=10, label = 'CFD - mean')
     ax0.fill_between(theta.mean(1), np.asarray(smooth_Icr).min(0), np.asarray(smooth_Icr).max(0), color = 'silver', alpha = 0.2, label = 'CFD - range')       
     #Models
-    ax0.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'r:', label = 'Model fit')
-    
+    ax0.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'r:', label = 'Model fit')    
     text_gaussian1 = r"$f(\theta) = exp \left( \frac{-(\theta-0.5)^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
     ax1.text(0.4, 0.2, text_gaussian1, fontsize = 'x-small', transform=ax1.transAxes)
     ax1.scatter(theta.mean(1), np.asarray(smooth_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::], c = 'k' , s=1.)
@@ -673,7 +600,6 @@ def my_model_graphs_large():
     ax2.get_lines()[0].set_markeredgecolor('k')
     ax2.get_lines()[0].set_markersize(1.)    
     ax2.set_title("")
-
     #axis settings
     ax0.set_xlabel('angle of incidence (degrees)')
     ax0.set_ylabel('Ir / Ir Max')
@@ -684,77 +610,286 @@ def my_model_graphs_large():
     ax0.locator_params(axis = 'both',tight=True, nbins=6)
     ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
-    #fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_gaussian1_largez.pdf', format = 'pdf')    
-my_model_graphs_large()      
-
-
-
-
-
-#Compare 
-def graph_impulse_comparisons():      
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_gaussian1_largez.pdf', format = 'pdf')    
     
-    RPB_MCEER_exp = RPB_MCEER_i(0.1*1.2, 0.08, 80)
-    i_jang = jang(np.linspace(0,80, num=80), 1, 0.8)
-    i_dharmasena = dharmasena(np.linspace(0,80,num=80), 1)
     
-    #Graph of RPB & MCEER contour
-    fig2, ax = plt.subplots(1,1)
-    fig2.set_size_inches(3, 2.5)
-    CS = ax.contourf(RPB_MCEER_exp[0], RPB_MCEER_exp[1], RPB_MCEER_exp[3], levels = [0,0.25,0.5,0.75,1, 1.5, 2, 2.5, 3, 3.5, 4, 5], cmap = plt.cm.magma_r)
-    cbar = fig2.colorbar(CS)
-    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-    ax.set_ylabel('x-position')
-    ax.set_xlabel('y-position')
-    plt.tight_layout()
-    fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_RPB_MCEER_plate.pdf"), format = 'pdf')
-
-
-
-    #Graph comparing different models       
-    fig3, ax1 = plt.subplots(1,1)
-    fig3.set_size_inches(2.5,2.5)    
-    ax1.set_xlabel('angle of incidence')
-    ax1.set_ylabel(r'$I_r/I_{r,max}$')
     
-    ax1.plot(RPB_MCEER_exp[2][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)], RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]/ max(RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]), 'k', label = 'RPB-MCEER')    
-    ax1.plot(np.linspace(0,80,num=200), Apollo_gtable[0][:,7]/max(Apollo_gtable[0][:,7]), 'k-.', dashes=[12,6,12,6,3,6], label='CFD - Z = 0.05')
-    ax1.plot(np.linspace(0,80,num=400), Henrych_i_fit(np.linspace(0,80,num=400), hen_mod['x'][0]), 'k:', label = 'Henrych')    
-    ax1.plot(np.linspace(0,80, num=80), i_jang, 'k--', marker='o', markevery=12, ms=3., mfc = 'white', label = 'Jang')    
-    ax1.plot(np.linspace(0,80, num=80), i_dharmasena, 'k-.', marker='D', markevery=16, ms=3., label = 'Dharmasena')    
-    ax1.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'k:', label = 'Gaussian-single')    
-    handles, labels = ax1.get_legend_handles_labels()
-    ax1.legend(handles, labels, loc='upper left', prop={'size':6})
-    plt.tight_layout()  
-    fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_theta_comparisons.pdf"), format = 'pdf')
-#graph_impulse_comparisons()
+    return gaussmod
+gaussmod_large = my_model_graphs_large()      
 
 
-#--TESTING---
+
 #Build surface from Guassian Eq and power law.
-crs = np.linspace(clear_standoff.min(), clear_standoff.max(), num = len(Apollo_gtable))
-
-peak_I_test = np.multiply(np.power(crs, slope), 10**intercept)
-
-y_gauss = np.repeat(gaussmod[int(len(gaussmod)/2)::][:,np.newaxis], len(crs), 1) #use numpy broadcasting rules
-
-theta_test = np.linspace(0,80, num=len(y_gauss))
-theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)
-
-test_impulses = np.multiply( y_gauss , peak_I_test )
-crs = np.repeat(crs[:,np.newaxis], len(y_gauss), 1)
-crs = crs.transpose()
-
 def plot_model_surfaces():
+    #Single gauss - small
+    crs = np.linspace(clear_standoff.min(), clear_standoff.max(), num = len(Apollo_gtable))
+    peak_I_test = np.multiply(np.power(crs, slope), 10**intercept)    
+    y_gauss = np.repeat(gaussmod_small[int(len(gaussmod_small)/2)::][:,np.newaxis], len(crs), 1) #use numpy broadcasting rules    
+    theta_test = np.linspace(0,80, num=len(y_gauss))
+    theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)    
+    test_impulses = np.multiply( y_gauss , peak_I_test )
+    crs = np.repeat(crs[:,np.newaxis], len(y_gauss), 1)
+    crs = crs.transpose()    
     fig_test, ax = plt.subplots(1,1)
     fig_test.set_size_inches(3, 2.5)
-    CS = ax.contourf(theta_test, crs, test_impulses, levels = [0 ,0.625, 1.25, 2.5, 3.75, 5, 7.5, 10, 12.5], cmap = plt.cm.magma_r)
+    CS = ax.contourf(theta_test, crs, test_impulses, levels = np.arange(0,15,0.25), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_gaussian1.pdf', format = 'pdf')
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta_test, crs, test_impulses-(smooth1/1e3), levels = np.arange(0,1,0.02), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_gaussian2.pdf', format = 'pdf')
+    
+    #Henrych - small Z
+    crs = np.linspace(clear_standoff.min(), clear_standoff.max(), num = len(Apollo_gtable))
+    HenImps = np.asarray([Henrych_i(clear_standoff[0,i]*charge_rad, charge_rad, 7900, 5.53, 1660, np.linspace(0,80,200)) for i in range(len(Apollo_gtable))]).T 
+    theta_test = np.linspace(0,80, num=len(HenImps))
+    theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)       
+    crs = np.repeat(crs[:,np.newaxis], len(HenImps), 1)
+    crs = crs.transpose()    
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta_test, crs, HenImps/1e3, levels = np.arange(0,75,2.5), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_henrych1.pdf', format = 'pdf')
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta_test, crs, HenImps/1e3-(smooth1/1e3), levels = np.arange(0,75,2.5), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_henrych2.pdf', format = 'pdf')
+ 
+    #RPB-MCEER - small Z
+    RPB_imps = []
+    for i in range(len(Apollo_gtable)):
+        RPB_MCEER_exp = RPB_MCEER_i(0.1*1.2, clear_standoff[0,i]*charge_rad, 80)
+        RPB_imps.append(np.interp(theta.mean(1), RPB_MCEER_exp[2][200,200::], RPB_MCEER_exp[3][200,200::]))
+    RPB_imps = np.asarray(RPB_imps).T   
+    crs = np.linspace(clear_standoff.min(), clear_standoff.max(), num = len(Apollo_gtable))   
+    theta_test = np.linspace(0,80, num=len(RPB_imps))
+    theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)       
+    crs = np.repeat(crs[:,np.newaxis], len(RPB_imps), 1)
+    crs = crs.transpose()    
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta_test, crs, RPB_imps, levels = np.arange(0,75,2.5), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_RPB1.pdf', format = 'pdf')
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta_test, crs, RPB_imps-(smooth1/1e3), levels = np.arange(0,75,2.5), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_RPB2.pdf', format = 'pdf')
+         
+    
+    #Single Gauss - large
+    crs = np.linspace(testing_zrange_so.min(), testing_zrange_so.max(), num = len(testing_zrange_file))
+    peak_I_test = np.multiply(np.power(crs, slope2), 10**intercept2)    
+    y_gauss = np.repeat(gaussmod_large[int(len(gaussmod_large)/2)::][:,np.newaxis], len(crs), 1) #use numpy broadcasting rules    
+    theta_test = np.linspace(0,80, num=len(y_gauss))
+    theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)    
+    test_impulses2 = np.multiply( y_gauss , peak_I_test )
+    crs = np.repeat(crs[:,np.newaxis], len(y_gauss), 1)
+    crs = crs.transpose()    
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta_test, crs, test_impulses2, levels = np.arange(0,15,0.25), cmap = plt.cm.magma_r)
     cbar = fig_test.colorbar(CS)
     cbar.ax.invert_yaxis()
     cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
     ax.set_ylabel('standoff (clear charge radii)')
     ax.set_xlabel('incident wave angle (degrees)')
     plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_gaussian1.pdf', format = 'pdf')
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta_test, crs, test_impulses2-(smooth/1e3), levels = np.arange(0,1,0.02), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_gaussian2.pdf', format = 'pdf')
+
+    #Henrych - large Z
+    crs = np.linspace(testing_zrange_so.min(), testing_zrange_so.max(), num = len(testing_zrange_file))
+    HenImps = np.asarray([Henrych_i(testing_zrange_so[i]*charge_rad, charge_rad, 7900, 5.53, 1660, np.linspace(0,80,200)) for i in range(len(testing_zrange_file))]).T 
+    theta_test = np.linspace(0,80, num=len(HenImps))
+    theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)       
+    crs = np.repeat(crs[:,np.newaxis], len(HenImps), 1)
+    crs = crs.transpose()    
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta_test, crs, HenImps/1e3, levels = np.arange(0,75,2.5), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_henrych1.pdf', format = 'pdf')
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta_test, crs, HenImps/1e3-(smooth/1e3), levels = np.arange(0,75,2.5), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_henrych2.pdf', format = 'pdf')
+ 
+    #RPB-MCEER - large Z
+    RPB_imps = []
+    for i in range(len(testing_zrange_file)):
+        RPB_MCEER_exp = RPB_MCEER_i(0.1*1.2, testing_zrange_so[i]*charge_rad, 80)
+        RPB_imps.append(np.interp(theta.mean(1), RPB_MCEER_exp[2][200,200::], RPB_MCEER_exp[3][200,200::]))
+    RPB_imps = np.asarray(RPB_imps).T   
+    crs = np.linspace(testing_zrange_so.min(), testing_zrange_so.max(), num = len(testing_zrange_file))   
+    theta_test = np.linspace(0,80, num=len(RPB_imps))
+    theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)       
+    crs = np.repeat(crs[:,np.newaxis], len(RPB_imps), 1)
+    crs = crs.transpose()    
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta_test, crs, RPB_imps, levels = np.arange(0,75,2.5), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_RPB1.pdf', format = 'pdf')
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta_test, crs, RPB_imps-(smooth/1e3), levels = np.arange(0,75,2.5), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_RPB2.pdf', format = 'pdf')
+
+    return test_impulses, test_impulses2
+gauss_small, gauss_large = plot_model_surfaces()
+
+
+
+
+
+
+def TotalImpulseSurfaces():
+    max_target_length = 2.5
+    upper_theta = 80
+    theta_lim = np.linspace(0,upper_theta,80)   
+    R = np.divide(max_target_length, np.tan(np.deg2rad(upper_theta))) 
     
+    #Small Dataset
+    z = z_dataset[0,:]
+    Imp_CFD = np.zeros((len(z), len(theta_lim)))
+    Imp_gauss = np.zeros_like(Imp_CFD)
+    for i in range(len(z)):
+        for j in range(len(theta_lim)):       
+            Imp_CFD[i,j] = Impulse_CFD(smooth1[:,i], R, theta_lim[j], np.linspace(0,80,200))
+            Imp_gauss[i,j] = Impulse_CFD(gauss_small[:,i], R, theta_lim[j], np.linspace(0,80,200))
     
-plot_model_surfaces()
+    crs = np.linspace(clear_standoff.min(), clear_standoff.max(), num = len(Apollo_gtable))
+    crs = np.repeat(crs[:,np.newaxis], len(theta_lim), 1)
+    crs = crs.T
+    theta_test = np.repeat(theta_lim[:,np.newaxis], len(Apollo_gtable), 1)    
+    target_rad = np.multiply(np.tan(np.deg2rad(theta_test)), R)  
+   
+    
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(target_rad, crs, Imp_gauss.T, levels = np.arange(0,15,0.25), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('total impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('target radius (m)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss.pdf', format = 'pdf')
+
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(target_rad, crs, Imp_gauss.T - Imp_CFD.T/1e3, levels = np.arange(0,5,0.025), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('total impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('target radius (m)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss2.pdf', format = 'pdf')
+ 
+    #Large Z Dataset
+    z = np.asarray(testing_zrange_z)
+    Imp_CFD = np.zeros((len(z), len(theta_lim)))
+    Imp_gauss = np.zeros_like(Imp_CFD)
+    for i in range(len(z)):
+        for j in range(len(theta_lim)):       
+            Imp_CFD[i,j] = Impulse_CFD(smooth[:,i], R, theta_lim[j], np.linspace(0,80,200))
+            Imp_gauss[i,j] = Impulse_CFD(gauss_large[:,i], R, theta_lim[j], np.linspace(0,80,200))
+    
+    crs = np.linspace(testing_zrange_so.min(), testing_zrange_so.max(), num = len(testing_zrange_file)) 
+    crs = np.repeat(crs[:,np.newaxis], len(theta_lim), 1)
+    crs = crs.T
+    theta_test = np.repeat(theta_lim[:,np.newaxis], len(z), 1)    
+    target_rad = np.multiply(np.tan(np.deg2rad(theta_test)), R)  
+   
+    
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(target_rad, crs, Imp_gauss.T, levels = np.arange(0,20,0.25), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('total impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('target radius (m)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss.pdf', format = 'pdf')
+
+    fig_test, ax = plt.subplots(1,1)
+    fig_test.set_size_inches(3, 2.5)
+    CS = ax.contourf(target_rad, crs, Imp_gauss.T - Imp_CFD.T/1e3, levels = np.arange(0,10,0.025), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, ax=ax)
+    cbar.ax.invert_yaxis()
+    cbar.ax.set_ylabel('total impulse (MPa.ms)')
+    ax.set_ylabel('standoff (clear charge radii)')
+    ax.set_xlabel('target radius (m)')
+    plt.tight_layout()
+    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss2.pdf', format = 'pdf')
+#TotalImpulseSurfaces()
+

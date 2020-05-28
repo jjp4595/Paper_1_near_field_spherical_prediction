@@ -7,17 +7,42 @@ from MCEER_curves import MCEER
 from scipy import ndimage
 
 #Models in the literature: ---------------------------------------------------
-#1) Henrych Model
-Qw = 4.79e6/4184 #Specific energy of PE4, 4.79 assumed from EOS.dat
-Ux = (2 * Qw)**0.5
-A0 = (Ux * 1.8) / (4*np.pi)
-def Henrych(A0, W, a, theta):
+#1) Henrych/Rem Model
+def Henrych_i(a, r0, D0, Q0, rho, theta):
     """
-    Calculating specific impulse
-    A0 = (Nxw + Ux) / 4pi
-    W = charge mass
+
+    Parameters
+    ----------
+    a : TYPE
+        standoff distance (m)
+    r0 : TYPE
+        charge radius (m).
+    D0 : TYPE
+        detonation velocity (m/s).
+    Q0 : TYPE
+        Specific Energy (MJ/kg).
+    rho : TYPE
+        Density (kg/m3).
+    theta : TYPE
+        .
+    Returns
+    -------
+    i : array
+        specific impulse distribution.
+
     """
+    P0 = rho * (D0**2) /2 / (3+1) #detonation pressure, Pa
+    u0 = (2*Q0*1000000)**0.5 #detonation products velocity, m/s
+    w0 = P0/rho/u0 #velocity of hypothetical surface, m/s
+    A0 = (u0 + w0)/(4*np.pi) #explosive constant m/s
+    
+    tau = (1/u0 + 1/w0) * r0 #DP loading duration (s)
+    Pm = P0 * (r0/a)**2 #Max pressure at barrier
+    
+    W = (4/3) * np.pi * (r0**3) * rho
+    
     i = ((A0 * W) / (a**2)) * np.cos(np.deg2rad(theta))**4
+    
     return i
 
 def Henrych_I(A0, W, theta_lim):
@@ -26,7 +51,42 @@ def Henrych_I(A0, W, theta_lim):
     """
     return np.pi * A0 * W * np.sin(np.deg2rad(theta_lim))**2
 
-#def Remmenikov(a, )
+def Henrych_I(a, r0, D0, Q0, rho, theta_lim):
+    """
+
+    Parameters
+    ----------
+    a : TYPE
+        standoff distance (m)
+    r0 : TYPE
+        charge radius (m).
+    D0 : TYPE
+        detonation velocity (m/s).
+    Q0 : TYPE
+        Specific Energy (MJ/kg).
+    rho : TYPE
+        Density (kg/m3).
+    theta : TYPE
+        .
+    Returns
+    -------
+    i : array
+        specific impulse distribution.
+
+    """
+    P0 = rho * (D0**2) /2 / (3+1) #detonation pressure, Pa
+    u0 = (2*Q0*1000000)**0.5 #detonation products velocity, m/s
+    w0 = P0/rho/u0 #velocity of hypothetical surface, m/s
+    A0 = (u0 + w0)/(4*np.pi) #explosive constant m/s
+    
+    tau = (1/u0 + 1/w0) * r0 #DP loading duration (s)
+    Pm = P0 * (r0/a)**2 #Max pressure at barrier
+    
+    W = (4/3) * np.pi * (r0**3) * rho
+    
+    I = np.pi * A0 * W * np.sin(np.deg2rad(theta_lim))**2
+    
+    return I
 
 #2) RPB - MCEER Model hybrid
 """
@@ -97,7 +157,7 @@ def Impulse_CFD(specific_impulse, R, theta_lim, theta):
 	#Plate dimensions
     A = R * np.tan(np.deg2rad(theta_lim)) * 2
     B = A
-    res = 500
+    res = 200
     x = np.linspace(-A/2, A/2, res)
     y = np.linspace(-B/2, B/2, res)
     [X,Y] = np.meshgrid(x,y)

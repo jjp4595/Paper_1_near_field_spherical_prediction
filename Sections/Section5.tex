@@ -1,38 +1,34 @@
 \section{Discussion}
 
-\subsection{Comparison of near-field predictive methods for specific impulse}
-A comparison of the near-field predictive methods is shown below in Figure \ref{fig:theta_peak_impulse_i_theta_comparisons}. 
-The Jang model uses a $\beta$ of 0.8 as proposed by the authors however this coefficient is derived properly by performing finite element analysis. 
-The proposed coefficient is used here to demonstrate the overall distribution. 
-
-Due to TNT equivalence issues, the left plot displaying absolute values should be considered cautiously. 
-A more useful interpretation is given in the plot on the right hand side, that shows the impulse as a ratio of the maximum (at $\theta=0$). 
-From this plot, it is shown that the Henrych model and the RPB models mimic the shape of the CFD output and experimental results in a more accurate way than the Jang and Dharmasena model. 
-However, the RPB and Henrych models do display a faster rate of decrease between 20 and 60 degrees, when integrated around 360 degrees this will have a profound effect on the overall impulse and hence are not extremely accurate representations of the impulse distributions.   
-The Henrych and RPB models are taken forward for further analysis. 
-
-
 \subsection{Area integrated impulse comparison}
 \begin{figure}[htpb]
-	\centering
-	\begin{subfigure}{\linewidth}
+	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics{Graphs/theta_peak_impulse_i_percent_a.pdf}
-		\caption{RPB-MCEER}
-		\label{fig:theta_peak_impulse_i_percent_a}
+		\includegraphics{Graphs/smallz_totalimpulse_gauss.pdf}
+		\caption{Constructed surface from Gaussian model}
+		\label{fig:smallz_totalimpulse_gauss}
 	\end{subfigure}
-	\begin{subfigure}{\linewidth}
+	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics{Graphs/theta_peak_impulse_i_percent_b.pdf}
-		\caption{Henrych}
-		\label{fig:theta_peak_impulse_i_percent_b}
+		\includegraphics{Graphs/smallz_totalimpulse_gauss2.pdf}
+		\caption{CFD residual}
+		\label{fig:smallz_totalimpulse_gauss2}
 	\end{subfigure}
-	\begin{subfigure}{\linewidth}
+	\caption{Total impulse on a circular target of various radii for a clear scaled distance of $0.055 < z < 0.16m.kg^{\frac{1}{3}}$}
+\end{figure}
+
+\begin{figure}[htpb]
+	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics{Graphs/theta_peak_impulse_i_percent_c.pdf}
-		\caption{CFD}
-		\label{fig:theta_peak_impulse_i_percent_c}
+		\includegraphics{Graphs/largez_totalimpulse_gauss.pdf}
+		\caption{Constructed surface from Gaussian model}
+		\label{fig:largez_totalimpulse_gauss}
 	\end{subfigure}
-	\caption{}
-	\label{fig:theta_peak_impulse_i_percent_}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/largez_totalimpulse_gauss2.pdf}
+		\caption{CFD residual}
+		\label{fig:largez_totalimpulse_gauss2}
+	\end{subfigure}
+	\caption{Total impulse on a circular target of various radii for a clear scaled distance of $0.055 < z < 0.5m.kg^{\frac{1}{3}}$}
 \end{figure}

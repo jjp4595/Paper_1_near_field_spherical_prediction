@@ -201,3 +201,51 @@ ax0.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm))/(0.1
 handles, labels = ax0.get_legend_handles_labels()
 ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.7, 0.80), prop={'size':6})
 plt.tight_layout()
+
+
+
+
+
+
+
+
+
+
+
+#Compare 
+def graph_impulse_comparisons():      
+    
+    RPB_MCEER_exp = RPB_MCEER_i(0.1*1.2, 0.08, 80)
+    i_jang = jang(np.linspace(0,80, num=80), 1, 0.8)
+    i_dharmasena = dharmasena(np.linspace(0,80,num=80), 1)
+    
+    #Graph of RPB & MCEER contour
+    fig2, ax = plt.subplots(1,1)
+    fig2.set_size_inches(3, 2.5)
+    CS = ax.contourf(RPB_MCEER_exp[0], RPB_MCEER_exp[1], RPB_MCEER_exp[3], levels = [0,0.25,0.5,0.75,1, 1.5, 2, 2.5, 3, 3.5, 4, 5], cmap = plt.cm.magma_r)
+    cbar = fig2.colorbar(CS)
+    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
+    ax.set_ylabel('x-position')
+    ax.set_xlabel('y-position')
+    plt.tight_layout()
+    fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_RPB_MCEER_plate.pdf"), format = 'pdf')
+
+
+
+    #Graph comparing different models       
+    fig3, ax1 = plt.subplots(1,1)
+    fig3.set_size_inches(2.5,2.5)    
+    ax1.set_xlabel('angle of incidence')
+    ax1.set_ylabel(r'$I_r/I_{r,max}$')
+    
+    ax1.plot(RPB_MCEER_exp[2][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)], RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]/ max(RPB_MCEER_exp[3][int(len(RPB_MCEER_exp[2])/2), 0:int(len(RPB_MCEER_exp[2])/2)]), 'k', label = 'RPB-MCEER')    
+    ax1.plot(np.linspace(0,80,num=200), Apollo_gtable[0][:,7]/max(Apollo_gtable[0][:,7]), 'k-.', dashes=[12,6,12,6,3,6], label='CFD - Z = 0.05')
+    ax1.plot(np.linspace(0,80,num=400), Henrych_i_fit(np.linspace(0,80,num=400), hen_mod['x'][0]), 'k:', label = 'Henrych')    
+    ax1.plot(np.linspace(0,80, num=80), i_jang, 'k--', marker='o', markevery=12, ms=3., mfc = 'white', label = 'Jang')    
+    ax1.plot(np.linspace(0,80, num=80), i_dharmasena, 'k-.', marker='D', markevery=16, ms=3., label = 'Dharmasena')    
+    ax1.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'k:', label = 'Gaussian-single')    
+    handles, labels = ax1.get_legend_handles_labels()
+    ax1.legend(handles, labels, loc='upper left', prop={'size':6})
+    plt.tight_layout()  
+    fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_i_theta_comparisons.pdf"), format = 'pdf')
+#graph_impulse_comparisons()
