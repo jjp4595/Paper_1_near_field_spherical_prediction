@@ -410,6 +410,7 @@ fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_
 
 fig_dataset1, ax = plt.subplots(1,1)
 fig_dataset1.set_size_inches(2.5,2.5)
+
 ax.plot(np.linspace(0,80,200), smooth/smooth.max(0), 'm', ls = '--', lw = 0.5)
 ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax.set_xlabel('angle of incidence')
@@ -425,7 +426,7 @@ ax.grid(which='major', alpha=0.5)
 ax.set_xlim(0,80)
 ax.set_ylim(0,1)
 plt.tight_layout()
-fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1b.pdf', format = 'pdf')
+fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1a.pdf', format = 'pdf')
 
 
 

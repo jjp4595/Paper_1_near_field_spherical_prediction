@@ -383,14 +383,14 @@ ax.legend(lines,labels, loc='upper right', prop={'size':6})
 ax.minorticks_on()
 ax.grid(which='minor', alpha=0.2)
 ax.grid(which='major', alpha=0.5) 
-ax.set_xlim(0,80)
-ax.set_ylim(0,12)
+ax0.set_xlim(0,80)
+ax0.set_ylim(0,12)
 plt.tight_layout()
 fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1.pdf', format = 'pdf')
 
 fig_dataset1, ax = plt.subplots(1,1)
 fig_dataset1.set_size_inches(2.5,2.5)
-smooth = np.asarray([savgol_filter(latest_1500_r5[:,i], 101, 3) for i in range(len(latest_1500_r5_file))]).T
+smooth = np.asarray([savgol_filter(testing_zrange[:,i], 101, 3) for i in range(len(testing_zrange_file))]).T
 ax.plot(np.linspace(0,80,200), smooth/1e3, 'm', ls = '--', lw = 0.5)
 ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax.set_xlabel('angle of incidence')
@@ -403,29 +403,11 @@ ax.legend(lines,labels, loc='upper right', prop={'size':6})
 ax.minorticks_on()
 ax.grid(which='minor', alpha=0.2)
 ax.grid(which='major', alpha=0.5) 
-ax.set_xlim(0,80)
-ax.set_ylim(0,12)
+ax0.set_xlim(0,80)
+ax0.set_ylim(0,12)
 plt.tight_layout()
-fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1a.pdf', format = 'pdf')
+fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1.pdf', format = 'pdf')
 
-fig_dataset1, ax = plt.subplots(1,1)
-fig_dataset1.set_size_inches(2.5,2.5)
-ax.plot(np.linspace(0,80,200), smooth/smooth.max(0), 'm', ls = '--', lw = 0.5)
-ax.set_ylabel('peak specific impulse (MPa.ms)')
-ax.set_xlabel('angle of incidence')
-labels = ['D']
-colors = ['m']
-lws = [0.5]
-lss = ['--']
-lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
-ax.legend(lines,labels, loc='upper right', prop={'size':6})
-ax.minorticks_on()
-ax.grid(which='minor', alpha=0.2)
-ax.grid(which='major', alpha=0.5) 
-ax.set_xlim(0,80)
-ax.set_ylim(0,1)
-plt.tight_layout()
-fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1b.pdf', format = 'pdf')
 
 
 

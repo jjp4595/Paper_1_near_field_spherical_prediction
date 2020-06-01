@@ -371,61 +371,26 @@ fig_dataset3.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_
 
 fig_dataset1, ax = plt.subplots(1,1)
 fig_dataset1.set_size_inches(2.5,2.5)
+ax.plot(np.linspace(0,80,200),latest_var_r4/1e3, 'c', ls = '-', lw = 1)
+ax.plot(np.linspace(0,80,200),latest_1500_r3/1e3, 'g', ls= '--', lw = 1)
+ax.plot(np.linspace(0,80,200),latest_1500_r4/1e3, 'r', ls = '-', lw = 0.5)
 ax.plot(np.linspace(0,80,200),latest_1500_r5/1e3, 'm', ls = '--', lw = 0.5)
+ax.plot(np.linspace(0,80,200),testing_DMA[:,0]/1e3, 'k', ls = '-.', lw = 0.5)
+ax.plot(np.linspace(0,80,200),testing_DMA[:,1]/1e3, 'b', ls = '-.', lw = 0.5)
 ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax.set_xlabel('angle of incidence')
-labels = ['D']
-colors = ['m']
-lws = [0.5]
-lss = ['--']
+labels = ['A', 'B', 'C', 'D', 'E', 'F']
+colors = ['c', 'g', 'r', 'm', 'k', 'b']
+lws = [1, 1, 0.5, 0.5, 0.5, 0.5]
+lss = ['-', '--', '-', '--', '-.', '-.']
 lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
 ax.legend(lines,labels, loc='upper right', prop={'size':6})
 ax.minorticks_on()
 ax.grid(which='minor', alpha=0.2)
 ax.grid(which='major', alpha=0.5) 
-ax.set_xlim(0,80)
-ax.set_ylim(0,12)
 plt.tight_layout()
 fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1.pdf', format = 'pdf')
 
-fig_dataset1, ax = plt.subplots(1,1)
-fig_dataset1.set_size_inches(2.5,2.5)
-smooth = np.asarray([savgol_filter(latest_1500_r5[:,i], 101, 3) for i in range(len(latest_1500_r5_file))]).T
-ax.plot(np.linspace(0,80,200), smooth/1e3, 'm', ls = '--', lw = 0.5)
-ax.set_ylabel('peak specific impulse (MPa.ms)')
-ax.set_xlabel('angle of incidence')
-labels = ['D']
-colors = ['m']
-lws = [0.5]
-lss = ['--']
-lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
-ax.legend(lines,labels, loc='upper right', prop={'size':6})
-ax.minorticks_on()
-ax.grid(which='minor', alpha=0.2)
-ax.grid(which='major', alpha=0.5) 
-ax.set_xlim(0,80)
-ax.set_ylim(0,12)
-plt.tight_layout()
-fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1a.pdf', format = 'pdf')
-
-fig_dataset1, ax = plt.subplots(1,1)
-fig_dataset1.set_size_inches(2.5,2.5)
-ax.plot(np.linspace(0,80,200), smooth/smooth.max(0), 'm', ls = '--', lw = 0.5)
-ax.set_ylabel('peak specific impulse (MPa.ms)')
-ax.set_xlabel('angle of incidence')
-labels = ['D']
-colors = ['m']
-lws = [0.5]
-lss = ['--']
-lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
-ax.legend(lines,labels, loc='upper right', prop={'size':6})
-ax.minorticks_on()
-ax.grid(which='minor', alpha=0.2)
-ax.grid(which='major', alpha=0.5) 
-ax.set_xlim(0,80)
-ax.set_ylim(0,1)
-plt.tight_layout()
-fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1b.pdf', format = 'pdf')
 
 
 

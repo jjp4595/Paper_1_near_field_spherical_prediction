@@ -14,7 +14,19 @@
 		\caption{$0.05m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$}
 		\label{fig:largez_overview}
 	\end{subfigure}	
-	\caption{Peak specific impulse distribution overview of PE4 datasets.}
+	\begin{subfigure}[htpb]{0.45\textwidth}
+	\centering
+	\includegraphics{Graphs/data_overview_ex1.pdf}
+	\caption{$0.05m/kg^{1/3} \leq z \leq 0.16 m/kg^{1/3}$}
+	\label{fig:data_overview_ex1}
+\end{subfigure}
+\begin{subfigure}[htpb]{0.45\textwidth}
+	\centering
+	\includegraphics{Graphs/data_overview_ex2.pdf}
+	\caption{$0.05m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$}
+	\label{fig:data_overview_ex2}
+\end{subfigure}	
+	\caption{Peak specific impulse distribution overview of PE4 datasets. Scaled distance refers relative to charge centre.}
 \end{figure}
 
 
@@ -23,16 +35,22 @@
 \subsubsection{Fitting to peak specific impulse value}
 \begin{figure}[htpb]
 	\centering
-	\includegraphics{Graphs/power_fit.pdf}
-	\caption{Fitting a power law to the peak specific impulse data ($0.05m/kg^{1/3} \leq z \leq 0.16 m/kg^{1/3}$) and an assessment of the fit.}
-	\label{fig:power_fit}
-\end{figure}
-
-\begin{figure}[htpb]
-	\centering
-	\includegraphics{Graphs/power_fit2.pdf}
-	\caption{Fitting a power law to the peak specific impulse data ($0.05m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$) and an assessment of the fit.}
-	\label{fig:power_fit2}
+	\begin{subfigure}[htpb]{\textwidth}
+		\centering
+		\includegraphics{Graphs/power_fit.pdf}
+		\vspace{2mm}
+		\caption{$0.05m/kg^{1/3} \leq z \leq 0.16 m/kg^{1/3}$}
+		\label{fig:power_fit}
+	\end{subfigure}
+	
+	\begin{subfigure}[htpb]{\textwidth}
+		\centering
+		\includegraphics{Graphs/power_fit2.pdf}
+		\vspace{2mm}
+		\caption{$0.05m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$}
+		\label{fig:power_fit2}
+	\end{subfigure}
+	\caption{Fitting a power law to the peak specific impulse data  and an assessment of the fit.}
 \end{figure}
 
 \subsubsection{Fitting distribution of theta}
