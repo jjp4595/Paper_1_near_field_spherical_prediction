@@ -375,12 +375,12 @@ fig_dataset1.set_size_inches(2.5,2.5)
 ax.plot(np.linspace(0,80,200),latest_1500_r5/1e3, 'r', ls = '-', lw = 0.5)
 ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax.set_xlabel('angle of incidence')
-labels = [str(round(latest_1500_r5_z_centre[i], 3)) for i in range(len(latest_1500_r5_file))]
-colors = ['r' for i in range(len(latest_1500_r5_file)) ]
-lws = [0.5 for i in range(len(latest_1500_r5_file))]
-lss = ['-' for i in range(len(latest_1500_r5_file))]
+labels = ['D']
+colors = ['r']
+lws = [0.5]
+lss = ['-']
 lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
-ax.legend(lines,labels, loc='upper right', title=r'$z(m/kg^{1/3})$', title_fontsize = 'x-small', prop={'size':6})
+ax.legend(lines,labels, loc='upper right', prop={'size':6})
 ax.minorticks_on()
 ax.grid(which='minor', alpha=0.2)
 ax.grid(which='major', alpha=0.5) 
@@ -400,7 +400,7 @@ colors = ['r' for i in range(len(latest_1500_r5_file)) ]
 lws = [0.5 for i in range(len(latest_1500_r5_file))]
 lss = ['-' for i in range(len(latest_1500_r5_file))]
 lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
-ax.legend(lines,labels, loc='upper right', title=r'$z(m/kg^{1/3})$', title_fontsize = 'x-small', prop={'size':6})
+ax.legend(lines,labels, loc='upper right', title='z ()', title_fontsize = 'x-small', prop={'size':6})
 ax.minorticks_on()
 ax.grid(which='minor', alpha=0.2)
 ax.grid(which='major', alpha=0.5) 
@@ -412,16 +412,14 @@ fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_
 fig_dataset1, ax = plt.subplots(1,1)
 fig_dataset1.set_size_inches(2.5,2.5)
 ax.plot(np.linspace(0,80,200), smooth/smooth.max(0), 'r', ls = '-', lw = 0.5)
-ax.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
-ax.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
 ax.set_ylabel('peak specific impulse (MPa.ms)')
 ax.set_xlabel('angle of incidence')
-legend_elements = [Line2D([], [],  lw=0.5, linestyle = '-', color='r', label = 'CFD'), 
-                   Line2D([], [],  color=[0.75,0.75,0.75], marker ='x', linestyle='None', markersize=4, label='Exp. repeats'),
-                   Line2D([], [],   marker ='o', linestyle='None', markersize=4, label='Exp. mean')]
-ax.legend(handles=legend_elements, loc='upper right', prop={'size':6})
+labels = ['D']
+colors = ['r']
+lws = [0.5]
+lss = ['-']
+lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
+ax.legend(lines,labels, loc='upper right', prop={'size':6})
 ax.minorticks_on()
 ax.grid(which='minor', alpha=0.2)
 ax.grid(which='major', alpha=0.5) 
@@ -507,24 +505,24 @@ ax.grid(which='major', alpha=0.5)
 plt.tight_layout()
 fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_z0_055_3.pdf', format = 'pdf')
 
-# fig2, ax = plt.subplots(1,1)
-# fig2.set_size_inches(2.5,2.5)
-# ax.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
-# ax.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-# ax.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-# ax.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
-# ax.plot(theta, savgol_filter(z80mm_chosenmesh_adjustedi/1e3,101,3)/max(savgol_filter(z80mm_chosenmesh_adjustedi/1e3,101,3)), 'r', ls = '-', lw = 0.5, label = 'CFD')
-# handles, labels = ax.get_legend_handles_labels()
-# ax.legend(handles, labels, loc='upper right', prop={'size':6})
-# ax.set_ylim(0,1)
-# ax.set_xlim(0,80)
-# ax.set_xlabel('theta (degrees)')
-# ax.set_ylabel('peak specific impulse ratio')
-# ax.minorticks_on()
-# ax.grid(which='minor', alpha=0.2)
-# ax.grid(which='major', alpha=0.5) 
-# plt.tight_layout()
-# fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_z0_055_3a.pdf', format = 'pdf')
+fig2, ax = plt.subplots(1,1)
+fig2.set_size_inches(2.5,2.5)
+ax.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
+ax.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+ax.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
+ax.plot(theta, savgol_filter(z80mm_chosenmesh_adjustedi/1e3,101,3)/max(savgol_filter(z80mm_chosenmesh_adjustedi/1e3,101,3)), 'r', ls = '-', lw = 0.5, label = 'CFD')
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles, labels, loc='upper right', prop={'size':6})
+ax.set_ylim(0,1)
+ax.set_xlim(0,80)
+ax.set_xlabel('theta (degrees)')
+ax.set_ylabel('peak specific impulse ratio')
+ax.minorticks_on()
+ax.grid(which='minor', alpha=0.2)
+ax.grid(which='major', alpha=0.5) 
+plt.tight_layout()
+fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_z0_055_3a.pdf', format = 'pdf')
 #-----------------------------------------------------------------------------
 
 

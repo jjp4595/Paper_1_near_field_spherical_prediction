@@ -156,7 +156,7 @@ def graph_powerlaw(dataset):
     ax3.scatter(np.log10(dataset['z']), residuals_power,marker = 's',facecolors = 'none', edgecolors='k',  s = 10., label = 'Residuals')
     ax3.set_ylim(-0.1,0.1)
     ax3.set_ylabel('Residual')
-    ax3.set_xlabel('log(z ' + r'$(m.kg^{\frac{1}{3}})$' +')')
+    ax3.set_xlabel('z ' + r'$(m.kg^{\frac{1}{3}})$')
     ax3.minorticks_on()
     ax3.grid(which='minor', alpha=0.2)
     ax3.grid(which='major', alpha=0.5)

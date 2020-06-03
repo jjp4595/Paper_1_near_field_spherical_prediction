@@ -6,7 +6,7 @@ import preamble_functions as pre
 import matplotlib.pyplot as plt #3.0.2
 from matplotlib.ticker import LinearLocator, FixedLocator, FormatStrFormatter
 from scipy.signal import savgol_filter
-import math
+
 import numpy as np #1.15.4
 
 import scipy.io as sio
@@ -46,8 +46,33 @@ plt.rcParams.update(params)
 #Some charge properties
 charge_rad = 0.0246
 charge_mass = 0.1
-TNTeq = 1.2
 
+#Import Apollo data
+Apollo_FileList = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res5\*.txt"))
+Apollo_gtable = pre.FileAddressList(os.path.join(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res5\*gtable"),1)
+
+#Finding theta and creating data structures ----------------------------------
+clear_standoff=np.zeros((len(Apollo_gtable),1))
+z_center=np.zeros((len(Apollo_gtable),1))
+peak_impulses=[]
+Icr_Ir = []
+z_dataset = []
+theta = []
+for i in range(len(Apollo_gtable)):
+    z_center[i] = pre.standoff_func(Apollo_FileList[i])
+    clear_standoff[i] = pre.standoff_func(Apollo_FileList[i]) - charge_rad
+    peak_impulses.append(Apollo_gtable[i][:,7])
+    Icr_Ir.append(peak_impulses[i] / max(peak_impulses[i]))
+    theta.append(np.rad2deg(np.arctan(np.divide(Apollo_gtable[i][:,2], clear_standoff[i] + charge_rad))))
+
+theta = np.stack(theta, axis=1)
+peak_impulse = np.stack(peak_impulses, axis = 1)
+Icr_Ir = np.stack(Icr_Ir, axis =1)
+z_center = np.transpose(np.repeat(z_center, len(theta), axis=1))
+z_center = np.divide(z_center, charge_mass**(1/3))
+clear_standoff = np.transpose(np.repeat(clear_standoff, len(theta), axis=1))
+z_dataset = np.divide(clear_standoff, charge_mass**(1/3)) 
+clear_standoff = np.divide(clear_standoff, charge_rad) #multiples of clear charge radii
 #-----------------------------------------------------------------------------
 
 def dataimport(folderpath):
@@ -56,8 +81,8 @@ def dataimport(folderpath):
     data = np.asarray([data[i][:,7] for i in range(len(file))]).T 
     smooth = np.asarray([savgol_filter(data[:,i], 101, 3) for i in range(len(file))]).T
     smooth_Icr = [data[:,i]/ (max(data[:,i])) for i in range(len(file))]     
-    z_center = [(pre.standoff_func(file[i]))/((charge_mass*TNTeq)**(1/3)) for i in range(len(file))]
-    z_clear = [(pre.standoff_func(file[i]) - charge_rad)/((charge_mass*TNTeq)**(1/3)) for i in range(len(file))]
+    z_center = [(pre.standoff_func(file[i]))/(charge_mass**(1/3)) for i in range(len(file))]
+    z_clear = [(pre.standoff_func(file[i]) - charge_rad)/(charge_mass**(1/3)) for i in range(len(file))]
     so = (np.asarray(z_center) * 0.1**(1/3)) / charge_rad    
     so_clear = (np.asarray(z_clear) * 0.1**(1/3)) / charge_rad  
     keys = ['imp', 'imp_smooth', 'icr', 'z', 'z_clear', 'so', 'so_clear']
@@ -103,15 +128,15 @@ def overlay_exps(ax, is_crit = None):
 
 
 #Graph 2 Power law-------------------------------------------------------------
-def graph_powerlaw(dataset):    
-    slope, intercept, r_value, p_value, std_err = stats.linregress(np.log10(dataset['z']), np.log10(dataset['imp_smooth'].max(0)/1e3))
-    linear_model = intercept + slope*np.log10(dataset['z'])
-    const = np.divide(dataset['imp_smooth'].max(0)/1e3, dataset['z']**slope)
+def graph_powerlaw():
+    slope, intercept, r_value, p_value, std_err = stats.linregress(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3))
+    linear_model = intercept + slope*np.log10(clear_standoff[0,:])
+    const = np.divide(peak_impulse[0,:]/1e3, clear_standoff[0,:]**slope)
     const = const.sum()/len(const)
-    residuals_power = np.log10(dataset['imp_smooth'].max(0)/1e3) - linear_model
+    residuals_power = np.log10(peak_impulse[0,:]/1e3) - linear_model
     RSS_power = np.power(residuals_power,2).sum()
     RSE_power = ( (1/(len(residuals_power)-2)) * RSS_power   )#Residual standard error https://stats.stackexchange.com/questions/57746/what-is-residual-standard-error
-    text_ax1 = "$R^2 =$" + str(round(r2_score(np.log10(dataset['imp_smooth'].max(0)/1e3), linear_model), 3))
+    text_ax1 = "$R^2 =$" + str(round(r2_score(np.log10(peak_impulse[0,:]/1e3), linear_model), 3))
     
     if p_value < 0.0001:
         text_ax3_p = "$p < 0.0001$"
@@ -124,39 +149,38 @@ def graph_powerlaw(dataset):
         text_ax3_se = "$RSE = {:.3f}$".format(RSE_power)
     
     
-    text_ax2 = "$f(x) = {%.3f}.x^{%.3f}$" % (const, slope)
+    text_ax2 = "$f(x) = {%.3f}.x^{%.3f}$" % (intercept, slope)
     
     fig1, [ax1, ax3, ax2] = plt.subplots(1,3)
     fig1.set_size_inches(7, 2.5)
     
-    ax1.scatter(np.log10(dataset['z']), np.log10(dataset['imp_smooth'].max(0)/1e3), marker = 's',facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
-    ax1.plot(np.log10(dataset['z']), linear_model, 'k', label='fitted model')
-    ax1.plot(np.log10(dataset['z']), linear_model + (2 * RSE_power), '--k', alpha = 0.2, label='95% PI')
-    ax1.plot(np.log10(dataset['z']), linear_model - (2 * RSE_power), '--k', alpha = 0.2)
+    ax1.scatter(np.log10(clear_standoff[0,:]), np.log10(peak_impulse[0,:]/1e3), marker = 's',facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
+    ax1.plot(np.log10(clear_standoff[0,:]), linear_model, 'k', label='fitted model')
+    ax1.plot(np.log10(clear_standoff[0,:]), linear_model + (2 * RSE_power), '--k', alpha = 0.2, label='95% PI')
+    ax1.plot(np.log10(clear_standoff[0,:]), linear_model - (2 * RSE_power), '--k', alpha = 0.2)
     ax1.text(0.1, 0.25, text_ax1, fontsize = 'x-small', transform=ax1.transAxes)
     ax1.text(0.1, 0.15, text_ax3_p, fontsize = 'x-small', transform=ax1.transAxes)
     ax1.text(0.1, 0.05, text_ax3_se, fontsize = 'x-small', transform=ax1.transAxes)
     ax1.set_ylabel('log(peak specific impulse (MPa.ms))')
-    ax1.set_xlabel('log(z ' + r'$(m.kg^{\frac{1}{3}})$' +')')
+    ax1.set_xlabel('log(standoff (clear charge radii))')
     ax1.minorticks_on()
     ax1.grid(which='minor', alpha=0.2)
     ax1.grid(which='major', alpha=0.5)
     
 
-    ax2.scatter(dataset['z'], dataset['imp_smooth'].max(0)/1e3, marker = 's',facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
-    ax2.plot(dataset['z'], const * dataset['z']**slope, 'k', label='fitted model')
+    ax2.scatter(clear_standoff[0,:], peak_impulse[0,:]/1e3, marker = 's',facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
+    ax2.plot(clear_standoff[0,:], const * clear_standoff[0,:]**slope, 'k', label='fitted model')
     ax2.text(0.25, 0.9, text_ax2, fontsize = 'small', transform=ax2.transAxes)
     ax2.set_ylabel('peak specific impulse (MPa.ms)')
-    ax2.set_xlabel('z ' + r'$(m.kg^{\frac{1}{3}})$')
+    ax2.set_xlabel('standoff (clear charge radii)')
     ax2.minorticks_on()
-    ax2.set_ylim(0,math.ceil(dataset['imp_smooth'].max()/1e3))
     ax2.grid(which='minor', alpha=0.2)
     ax2.grid(which='major', alpha=0.5)
     
-    ax3.scatter(np.log10(dataset['z']), residuals_power,marker = 's',facecolors = 'none', edgecolors='k',  s = 10., label = 'Residuals')
+    ax3.scatter(np.log10(clear_standoff[0,:]), residuals_power,marker = 's',facecolors = 'none', edgecolors='k',  s = 10., label = 'Residuals')
     ax3.set_ylim(-0.1,0.1)
     ax3.set_ylabel('Residual')
-    ax3.set_xlabel('log(z ' + r'$(m.kg^{\frac{1}{3}})$' +')')
+    ax3.set_xlabel('log(standoff (clear charge radii))')
     ax3.minorticks_on()
     ax3.grid(which='minor', alpha=0.2)
     ax3.grid(which='major', alpha=0.5)
@@ -167,13 +191,224 @@ def graph_powerlaw(dataset):
     ax2.locator_params(axis = 'both',tight=True, nbins=6)
     ax3.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
+    fig1.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\power_fit.pdf"), format = 'pdf')
     return fig1, slope, intercept
-fig_power, small['slope'], small['const'] = graph_powerlaw(small)
-fig_power.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\power_fit_small.pdf"), format = 'pdf')
-fig_power, large['slope'], large['const'] = graph_powerlaw(large)
-fig_power.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\power_fit_large.pdf"), format = 'pdf')
-fig_power, test['slope'], test['const'] = graph_powerlaw(test)
+fig_power, slope, intercept = graph_powerlaw()
 #-----------------------------------------------------------------------------
+
+
+
+
+
+#--------------------------------------
+"""
+The functions below were for looking at an extended range of z. 0.05<clear z<0.5 at a course resolution. 
+"""
+def graph_powerlaw_coarse():
+    """
+    Second power law looking at dataset of 0.05<clear z<0.5 with coarser data
+    """
+
+    slope, intercept, r_value, p_value, std_err = stats.linregress(np.log10(testing_zrange_so), np.log10(testing_zrange.max(0)/1e3))
+    linear_model = intercept + slope*np.log10(testing_zrange_so)
+    const = np.divide(testing_zrange.max(0)/1e3, testing_zrange_so**slope)
+    const = const.sum()/len(const)
+    residuals_power = np.log10(testing_zrange.max(0)/1e3) - linear_model
+    RSS_power = np.power(residuals_power,2).sum()
+    RSE_power = ( (1/(len(residuals_power)-2)) * RSS_power   )#Residual standard error https://stats.stackexchange.com/questions/57746/what-is-residual-standard-error
+    text_ax1 = "$R^2 =$" + str(round(r2_score(np.log10(testing_zrange.max(0)/1e3), linear_model), 3))
+    
+    if p_value < 0.0001:
+        text_ax3_p = "$p < 0.0001$"
+    else:
+        text_ax3_p = "$p = {:.3f}$".format(p_value)
+    
+    if RSE_power < 0.0001:
+        text_ax3_se = "$RSE < 0.0001$"
+    else:
+        text_ax3_se = "$RSE = {:.3f}$".format(RSE_power)
+    
+    
+    text_ax2 = "$f(x) = {%.3f}.x^{%.3f}$" % (intercept, slope)
+    
+    fig1, [ax1, ax3, ax2] = plt.subplots(1,3)
+    fig1.set_size_inches(7, 2.5)
+    
+    ax1.scatter(np.log10(testing_zrange_so), np.log10(testing_zrange.max(0)/1e3), marker = 's',facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
+    ax1.plot(np.log10(testing_zrange_so), linear_model, 'k', label='fitted model')
+    ax1.plot(np.log10(testing_zrange_so), linear_model + (2 * RSE_power), '--k', alpha = 0.2, label='95% PI')
+    ax1.plot(np.log10(testing_zrange_so), linear_model - (2 * RSE_power), '--k', alpha = 0.2)
+    ax1.text(0.1, 0.25, text_ax1, fontsize = 'x-small', transform=ax1.transAxes)
+    ax1.text(0.1, 0.15, text_ax3_p, fontsize = 'x-small', transform=ax1.transAxes)
+    ax1.text(0.1, 0.05, text_ax3_se, fontsize = 'x-small', transform=ax1.transAxes)
+    ax1.set_ylabel('log(peak specific impulse (MPa.ms))')
+    ax1.set_xlabel('log(standoff (clear charge radii))')
+    ax1.minorticks_on()
+    ax1.grid(which='minor', alpha=0.2)
+    ax1.grid(which='major', alpha=0.5)
+    
+
+    ax2.scatter(testing_zrange_so, testing_zrange.max(0)/1e3, marker = 's',facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
+    ax2.plot(testing_zrange_so, const * testing_zrange_so**slope, 'k', label='fitted model')
+    ax2.text(0.25, 0.9, text_ax2, fontsize = 'small', transform=ax2.transAxes)
+    ax2.set_ylabel('peak specific impulse (MPa.ms)')
+    ax2.set_xlabel('standoff (clear charge radii)')
+    ax2.minorticks_on()
+    ax2.grid(which='minor', alpha=0.2)
+    ax2.grid(which='major', alpha=0.5)
+    
+    ax3.scatter(np.log10(testing_zrange_so), residuals_power, marker = 's',facecolors = 'none', edgecolors='k',  s = 10., label = 'Residuals')
+    ax3.set_ylim(-0.1,0.1)
+    ax3.set_ylabel('Residual')
+    ax3.set_xlabel('log(standoff (clear charge radii))')
+    ax3.minorticks_on()
+    ax3.grid(which='minor', alpha=0.2)
+    ax3.grid(which='major', alpha=0.5)
+    
+    handles, labels = ax1.get_legend_handles_labels()
+    ax1.legend(handles, labels, loc='upper right', prop={'size':6})
+    ax1.locator_params(axis = 'both',tight=True, nbins=6)
+    ax2.locator_params(axis = 'both',tight=True, nbins=6)
+    ax3.locator_params(axis = 'both',tight=True, nbins=6)
+    plt.tight_layout()
+    
+    fig1.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\power_fit2.pdf"), format = 'pdf')
+    
+graph_powerlaw_coarse()
+
+# def my_model_graphs2():
+#     fig, [[ax1,ax3],[ax0, ax2]] = plt.subplots(2,2)
+ 
+    
+#     labels = ["Z=" + str(round(testing_zrange_z[i], 3)) + ", clear CR =" + str(round(testing_zrange_so[i], 1)) for i in range(len(testing_zrange_file))]
+    
+#     [a,b,c,d,e,f,g,h,i,j] = ax0.plot(np.linspace(0,80,200), np.asarray(testing_zrange_Icr).T, markevery=10)
+    
+#     ax0.set_xlabel('angle of incidence (degrees)')
+#     ax0.set_ylabel('Ir / Ir Max')
+    
+#     ax0.legend([a,b,c,d,e,f,g,h,i,j], labels)
+#     ax0.locator_params(axis = 'both',tight=True, nbins=6)
+#     plt.tight_layout()
+#     ax1.plot(np.linspace(0,80,200), testing_zrange, markevery=10)
+#     ax1.set_xlabel('angle of incidence (degrees)')
+#     ax1.set_ylabel('specific impulse')      
+#     ax1.set_title('Original')
+#     ax2.plot(np.linspace(0,80,200), np.asarray(smooth_Icr).T)
+#     ax2.set_xlabel('angle of incidence (degrees)')
+#     ax2.set_ylabel('Ir / Ir Max')
+#     ax2.legend([a,b,c,d,e,f,g,h,i,j], labels)
+#     ax2.locator_params(axis = 'both',tight=True, nbins=6)
+#     plt.tight_layout()    
+#     ax3.plot(np.linspace(0,80,200), smooth, markevery=10)
+#     ax3.set_xlabel('angle of incidence (degrees)')
+#     ax3.set_ylabel('specific impulse')
+#     ax3.set_title('Smoothed')
+    
+       
+#     fig, [[ax1, ax3],[ax0,ax2]] = plt.subplots(2,2)
+#     labels = ["Z=" + str(round(z_dataset[0,i], 3)) + ", clear CR =" + str(round(clear_standoff[0,i], 1)) for i in range(len(Apollo_gtable))]
+    
+#     [a,b,c,d,e] = ax0.plot(np.linspace(0,80,200), Icr_Ir, markevery=10)
+#     ax0.set_xlabel('angle of incidence (degrees)')
+#     ax0.set_ylabel('Ir / Ir Max')
+#     ax0.legend([a,b,c,d,e], labels)
+#     ax0.locator_params(axis = 'both',tight=True, nbins=6)
+#     plt.tight_layout()
+    
+#     ax1.plot(np.linspace(0,80,200), peak_impulse, markevery=10)
+#     ax1.set_xlabel('angle of incidence (degrees)')
+#     ax1.set_ylabel('specific impulse')      
+#     ax1.set_title('Original')
+    
+#     ax2.plot(np.linspace(0,80,200), np.asarray(smooth1_Icr).T)
+#     ax2.set_xlabel('angle of incidence (degrees)')
+#     ax2.set_ylabel('Ir / Ir Max')
+#     ax2.legend([a,b,c,d,e,f,g,h,i,j], labels)
+#     ax2.locator_params(axis = 'both',tight=True, nbins=6)
+#     plt.tight_layout()    
+    
+#     ax3.plot(np.linspace(0,80,200), smooth1, markevery=10)
+#     ax3.set_xlabel('angle of incidence (degrees)')
+#     ax3.set_ylabel('specific impulse')    
+#     ax3.set_title('Smoothed')
+    
+# my_model_graphs2()
+
+
+#TEST
+def graph_powerlaw_fine():
+    """
+    Second power law looking at dataset of 0.05<clear z<0.5
+    """
+    slope, intercept, r_value, p_value, std_err = stats.linregress(np.log10(testing_zrange_so), np.log10(testing_zrange.max(0)/1e3))
+    linear_model = intercept + slope*np.log10(testing_zrange_so)
+    const = np.divide(testing_zrange.max(0)/1e3, testing_zrange_so**slope)
+    const = const.sum()/len(const)
+    residuals_power = np.log10(testing_zrange.max(0)/1e3) - linear_model
+    RSS_power = np.power(residuals_power,2).sum()
+    RSE_power = ( (1/(len(residuals_power)-2)) * RSS_power   )#Residual standard error https://stats.stackexchange.com/questions/57746/what-is-residual-standard-error
+    text_ax1 = "$R^2 =$" + str(round(r2_score(np.log10(testing_zrange.max(0)/1e3), linear_model), 3))
+    
+    if p_value < 0.0001:
+        text_ax3_p = "$p < 0.0001$"
+    else:
+        text_ax3_p = "$p = {:.3f}$".format(p_value)
+    
+    if RSE_power < 0.0001:
+        text_ax3_se = "$RSE < 0.0001$"
+    else:
+        text_ax3_se = "$RSE = {:.3f}$".format(RSE_power)
+    
+    
+    text_ax2 = "$f(x) = {%.3f}.x^{%.3f}$" % (intercept, slope)
+    
+    fig1, [ax1, ax3, ax2] = plt.subplots(1,3)
+    fig1.set_size_inches(7, 2.5)
+    
+    ax1.scatter(np.log10(testing_zrange_so), np.log10(testing_zrange.max(0)/1e3),marker = 's', facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
+    ax1.plot(np.log10(testing_zrange_so), linear_model, 'k', label='fitted model')
+    ax1.plot(np.log10(testing_zrange_so), linear_model + (2 * RSE_power), '--k', alpha = 0.2, label='95% PI')
+    ax1.plot(np.log10(testing_zrange_so), linear_model - (2 * RSE_power), '--k', alpha = 0.2)
+    ax1.text(0.1, 0.25, text_ax1, fontsize = 'x-small', transform=ax1.transAxes)
+    ax1.text(0.1, 0.15, text_ax3_p, fontsize = 'x-small', transform=ax1.transAxes)
+    ax1.text(0.1, 0.05, text_ax3_se, fontsize = 'x-small', transform=ax1.transAxes)
+    ax1.set_ylabel('log(peak specific impulse (MPa.ms))')
+    ax1.set_xlabel('log(standoff (clear charge radii))')
+    ax1.minorticks_on()
+    ax1.grid(which='minor', alpha=0.2)
+    ax1.grid(which='major', alpha=0.5)
+    
+
+    ax2.scatter(testing_zrange_so, testing_zrange.max(0)/1e3,marker = 's', facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
+    ax2.plot(testing_zrange_so, const * testing_zrange_so**slope, 'k', label='fitted model')
+    ax2.text(0.25, 0.9, text_ax2, fontsize = 'small', transform=ax2.transAxes)
+    ax2.set_ylabel('peak specific impulse (MPa.ms)')
+    ax2.set_xlabel('standoff (clear charge radii)')
+    ax2.minorticks_on()
+    ax2.grid(which='minor', alpha=0.2)
+    ax2.grid(which='major', alpha=0.5)
+    
+    ax3.scatter(np.log10(testing_zrange_so), residuals_power,marker = 's',facecolors = 'none', edgecolors='k',  s = 10., label = 'Residuals')
+    ax3.set_ylim(-0.1,0.1)
+    ax3.set_ylabel('Residual')
+    ax3.set_xlabel('log(standoff (clear charge radii))')
+    ax3.minorticks_on()
+    ax3.grid(which='minor', alpha=0.2)
+    ax3.grid(which='major', alpha=0.5)
+    
+    handles, labels = ax1.get_legend_handles_labels()
+    ax1.legend(handles, labels, loc='upper right', prop={'size':6})
+    ax1.locator_params(axis = 'both',tight=True, nbins=6)
+    ax2.locator_params(axis = 'both',tight=True, nbins=6)
+    ax3.locator_params(axis = 'both',tight=True, nbins=6)
+    plt.tight_layout()
+    fig1.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\power_fit2.pdf"), format = 'pdf')
+    return fig1, slope, intercept
+fig_power2, slope2, intercept2 = graph_powerlaw_fine()
+
+
+
 
 #Graph1 - dataset- overview ---------------------------------------------------
 def graph_dataset_overview():   
@@ -275,6 +510,8 @@ def graph_dataset_overview():
 
 graph_dataset_overview()
 #-----------------------------------------------------------------------------
+
+
 
 #------------------------------------------------------------------------------
 #Model fitting Stuff that needs refinement 
