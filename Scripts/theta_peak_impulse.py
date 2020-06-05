@@ -4,6 +4,7 @@ Peak impulse predictor for theta.
 
 import preamble_functions as pre
 import matplotlib.pyplot as plt #3.0.2
+from matplotlib.lines import Line2D
 from matplotlib.ticker import LinearLocator, FixedLocator, FormatStrFormatter
 from scipy.signal import savgol_filter
 import math
@@ -45,7 +46,7 @@ plt.rcParams.update(params)
 
 #Some charge properties
 charge_rad = 0.0246
-charge_mass = 0.1
+cm = 0.1
 TNTeq = 1.2
 
 #-----------------------------------------------------------------------------
@@ -54,10 +55,12 @@ def dataimport(folderpath):
     file = pre.FileAddressList(folderpath + r"\*.txt")
     data = pre.FileAddressList(folderpath+ r"\*gtable", 1)
     data = np.asarray([data[i][:,7] for i in range(len(file))]).T 
-    smooth = np.asarray([savgol_filter(data[:,i], 101, 3) for i in range(len(file))]).T
-    smooth_Icr = [data[:,i]/ (max(data[:,i])) for i in range(len(file))]     
-    z_center = [(pre.standoff_func(file[i]))/((charge_mass*TNTeq)**(1/3)) for i in range(len(file))]
-    z_clear = [(pre.standoff_func(file[i]) - charge_rad)/((charge_mass*TNTeq)**(1/3)) for i in range(len(file))]
+    smooth = np.asarray([savgol_filter(data[:,i], 151, 3) for i in range(len(file))]).T
+    smooth_Icr = np.asarray([smooth[:,i]/ (max(smooth[:,i])) for i in range(len(file))]).T     
+    z_center = [(pre.standoff_func(file[i]))/((cm*TNTeq)**(1/3)) for i in range(len(file))]
+    z_clear = [(pre.standoff_func(file[i]) - charge_rad)/((cm*TNTeq)**(1/3)) for i in range(len(file))]
+    z_center = np.asarray(z_center)
+    z_clear = np.asarray(z_clear)
     so = (np.asarray(z_center) * 0.1**(1/3)) / charge_rad    
     so_clear = (np.asarray(z_clear) * 0.1**(1/3)) / charge_rad  
     keys = ['imp', 'imp_smooth', 'icr', 'z', 'z_clear', 'so', 'so_clear']
@@ -104,14 +107,14 @@ def overlay_exps(ax, is_crit = None):
 
 #Graph 2 Power law-------------------------------------------------------------
 def graph_powerlaw(dataset):    
-    slope, intercept, r_value, p_value, std_err = stats.linregress(np.log10(dataset['z']), np.log10(dataset['imp_smooth'].max(0)/1e3))
+    slope, intercept, r_value, p_value, std_err = stats.linregress(np.log10(dataset['z']), np.log10(dataset['imp_smooth'].max(0)/1e3/((cm*TNTeq)**(1/3))))
     linear_model = intercept + slope*np.log10(dataset['z'])
-    const = np.divide(dataset['imp_smooth'].max(0)/1e3, dataset['z']**slope)
+    const = np.divide(dataset['imp_smooth'].max(0)/1e3/((cm*TNTeq)**(1/3)), dataset['z']**slope)
     const = const.sum()/len(const)
-    residuals_power = np.log10(dataset['imp_smooth'].max(0)/1e3) - linear_model
+    residuals_power = np.log10(dataset['imp_smooth'].max(0)/1e3/((cm*TNTeq)**(1/3))) - linear_model
     RSS_power = np.power(residuals_power,2).sum()
     RSE_power = ( (1/(len(residuals_power)-2)) * RSS_power   )#Residual standard error https://stats.stackexchange.com/questions/57746/what-is-residual-standard-error
-    text_ax1 = "$R^2 =$" + str(round(r2_score(np.log10(dataset['imp_smooth'].max(0)/1e3), linear_model), 3))
+    text_ax1 = "$R^2 =$" + str(round(r2_score(np.log10(dataset['imp_smooth'].max(0)/1e3/((cm*TNTeq)**(1/3))), linear_model), 3))
     
     if p_value < 0.0001:
         text_ax3_p = "$p < 0.0001$"
@@ -129,34 +132,34 @@ def graph_powerlaw(dataset):
     fig1, [ax1, ax3, ax2] = plt.subplots(1,3)
     fig1.set_size_inches(7, 2.5)
     
-    ax1.scatter(np.log10(dataset['z']), np.log10(dataset['imp_smooth'].max(0)/1e3), marker = 's',facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
+    ax1.scatter(np.log10(dataset['z']), np.log10(dataset['imp_smooth'].max(0)/1e3/((cm*TNTeq)**(1/3))), marker = 's',facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
     ax1.plot(np.log10(dataset['z']), linear_model, 'k', label='fitted model')
     ax1.plot(np.log10(dataset['z']), linear_model + (2 * RSE_power), '--k', alpha = 0.2, label='95% PI')
     ax1.plot(np.log10(dataset['z']), linear_model - (2 * RSE_power), '--k', alpha = 0.2)
     ax1.text(0.1, 0.25, text_ax1, fontsize = 'x-small', transform=ax1.transAxes)
     ax1.text(0.1, 0.15, text_ax3_p, fontsize = 'x-small', transform=ax1.transAxes)
     ax1.text(0.1, 0.05, text_ax3_se, fontsize = 'x-small', transform=ax1.transAxes)
-    ax1.set_ylabel('log(peak specific impulse (MPa.ms))')
+    ax1.set_ylabel('log(peak scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', wrap = True, fontsize = 'x-small')
     ax1.set_xlabel('log(z ' + r'$(m.kg^{\frac{1}{3}})$' +')')
     ax1.minorticks_on()
     ax1.grid(which='minor', alpha=0.2)
     ax1.grid(which='major', alpha=0.5)
     
 
-    ax2.scatter(dataset['z'], dataset['imp_smooth'].max(0)/1e3, marker = 's',facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
+    ax2.scatter(dataset['z'], dataset['imp_smooth'].max(0)/1e3/((cm*TNTeq)**(1/3)), marker = 's',facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
     ax2.plot(dataset['z'], const * dataset['z']**slope, 'k', label='fitted model')
     ax2.text(0.25, 0.9, text_ax2, fontsize = 'small', transform=ax2.transAxes)
-    ax2.set_ylabel('peak specific impulse (MPa.ms)')
-    ax2.set_xlabel('z ' + r'$(m.kg^{\frac{1}{3}})$')
+    ax2.set_ylabel('peak scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', wrap = True, fontsize = 'x-small')
+    ax2.set_xlabel('z ' + r'$(m/kg^{\frac{1}{3}})$')
     ax2.minorticks_on()
-    ax2.set_ylim(0,math.ceil(dataset['imp_smooth'].max()/1e3))
+    ax2.set_ylim(0,25)
     ax2.grid(which='minor', alpha=0.2)
     ax2.grid(which='major', alpha=0.5)
     
     ax3.scatter(np.log10(dataset['z']), residuals_power,marker = 's',facecolors = 'none', edgecolors='k',  s = 10., label = 'Residuals')
     ax3.set_ylim(-0.1,0.1)
     ax3.set_ylabel('Residual')
-    ax3.set_xlabel('log(z ' + r'$(m.kg^{\frac{1}{3}})$' +')')
+    ax3.set_xlabel('log(z ' + r'$(m/kg^{\frac{1}{3}})$' +')')
     ax3.minorticks_on()
     ax3.grid(which='minor', alpha=0.2)
     ax3.grid(which='major', alpha=0.5)
@@ -167,114 +170,79 @@ def graph_powerlaw(dataset):
     ax2.locator_params(axis = 'both',tight=True, nbins=6)
     ax3.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
-    return fig1, slope, intercept
+    return fig1, slope, const
 fig_power, small['slope'], small['const'] = graph_powerlaw(small)
 fig_power.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\power_fit_small.pdf"), format = 'pdf')
 fig_power, large['slope'], large['const'] = graph_powerlaw(large)
 fig_power.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\power_fit_large.pdf"), format = 'pdf')
-fig_power, test['slope'], test['const'] = graph_powerlaw(test)
+#fig_power, test['slope'], test['const'] = graph_powerlaw(test)
 #-----------------------------------------------------------------------------
 
 #Graph1 - dataset- overview ---------------------------------------------------
-def graph_dataset_overview():   
-    fig0, ax = plt.subplots(1,1)
-    fig0.set_size_inches(3, 2.5)
-    CS = ax.contourf(theta, z_center, smooth1/1e3, levels = np.linspace(0,15,50), cmap = plt.cm.magma_r)
-    cbar = fig0.colorbar(CS, format='%.1f' ,ticks = np.linspace(0,15,7))
-    ax.xaxis.set_major_locator(LinearLocator(5)) 
-    ax.yaxis.set_major_locator(LinearLocator(5))
-    ax.xaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-    ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-    ax.set_ylabel('scaled distance, z ' + r'$(m.kg^{\frac{1}{3}}$)')
-    ax.set_xlabel('incident wave angle (degrees)')
-    plt.tight_layout()
-    fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_overview.pdf"), format = 'pdf')
+def graph_dataset_overview(dataset):  
+    theta = np.repeat(np.linspace(0,80, dataset['imp'].shape[0])[:,np.newaxis], dataset['imp'].shape[1], 1) 
+    z = dataset['z']
+    z = z.reshape((dataset['imp'].shape[1], 1))
+    z = z.T
+    z = np.repeat(z, dataset['imp'].shape[0], 0)
     
     fig0, ax = plt.subplots(1,1)
     fig0.set_size_inches(3, 2.5)
-    crs = np.asarray(testing_zrange_z_center)  
-    theta_test = np.linspace(0,80, num=len(smooth))
-    theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)       
-    crs = np.repeat(crs[:,np.newaxis], len(theta_test), 1)
-    crs = crs.transpose()      
-    CS = ax.contourf(theta_test, crs, smooth/1e3, levels = np.linspace(0,15,50), cmap = plt.cm.magma_r)
-    cbar = fig0.colorbar(CS, format='%.1f' ,ticks = np.linspace(0,15,7))
-    ax.xaxis.set_major_locator(LinearLocator(5)) 
-    ax.yaxis.set_major_locator(LinearLocator(5))
-    ax.xaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-    ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-    ax.set_ylabel('scaled distance, z ' + r'$(m.kg^{\frac{1}{3}}$)')
+    CS = ax.contourf(theta, z, dataset['imp_smooth']/1e3/((cm*TNTeq)**(1/3)), levels = np.linspace(0,25,50), cmap = plt.cm.magma_r)
+    cbar = fig0.colorbar(CS, format='%.1f' ,ticks = np.linspace(0,25,6))
+    # ax.xaxis.set_major_locator(LinearLocator(5)) 
+    # ax.yaxis.set_major_locator(LinearLocator(5))
+    # ax.xaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+    # ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
     ax.set_xlabel('incident wave angle (degrees)')
+    
     plt.tight_layout()
-    fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_overview.pdf"), format = 'pdf')     
-
-    fig0, ax = plt.subplots(1,1)
-    fig0.set_size_inches(2.5, 2.5)
-    ax.plot(theta[:,0], peak_impulse[:,0]/1e3, lw = 0.75, ls = '-', c='k', label = 'z = lower')
-    ax.plot(theta[:,-1], peak_impulse[:,-1]/1e3, lw = 0.75, ls = '--', c='k', label = 'z = upper')
-    ax.set_xlabel('incident wave angle (degrees)')
-    ax.set_ylabel('peak specific impulse (MPa.ms)')
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles, labels, loc='upper right', prop={'size':6})
-    ax.minorticks_on()
-    ax.set_xlim(0,80)
-    ax.set_ylim(0,12)
-    ax.grid(which='minor', alpha=0.2)
-    ax.grid(which='major', alpha=0.5)
-    plt.tight_layout()    
-    fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_ex1.pdf"), format = 'pdf')     
    
-    fig0, ax = plt.subplots(1,1)
-    fig0.set_size_inches(2.5, 2.5)
-    ax.plot(np.linspace(0,80,200), testing_zrange[:,0]/1e3, lw = 0.75, ls = '-', c='k', label = 'z = lower')
-    ax.plot(np.linspace(0,80,200), testing_zrange[:,-1]/1e3, lw = 0.75, ls = '--', c='k', label = 'z = upper')
-    ax.set_xlabel('incident wave angle (degrees)')
-    ax.set_ylabel('peak specific impulse (MPa.ms)')
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles, labels, loc='upper right', prop={'size':6})
-    ax.minorticks_on()
-    ax.set_xlim(0,80)
-    ax.set_ylim(0,12)
-    ax.grid(which='minor', alpha=0.2)
-    ax.grid(which='major', alpha=0.5)
-    plt.tight_layout()  
-    fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_ex2.pdf"), format = 'pdf')     
 
-    fig0, ax = plt.subplots(1,1)
-    fig0.set_size_inches(2.5, 2.5)
-    ax.plot(theta, smooth1/1e3, lw = 0.75, ls = '-', c='k')
-    ax.plot(theta, peak_impulse/1e3, lw = 0.75, ls = '--', alpha = 0.4, c='k')
+    fig2, ax = plt.subplots(1,1)
+    fig2.set_size_inches(2.5, 2.5)
+    ax.plot(theta, dataset['imp_smooth']/1e3/((cm*TNTeq)**(1/3)), lw = 0.75, ls = '-', c='k')
+    ax.plot(theta, dataset['imp']/1e3/((cm*TNTeq)**(1/3)), lw = 0.75, ls = '--', alpha = 0.4, c='k')
     ax.set_xlabel('incident wave angle (degrees)')
-    ax.set_ylabel('peak specific impulse (MPa.ms)')
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles, labels, loc='upper right', prop={'size':6})
+    ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    labels = ['Smooth', 'Original']
+    colors = ['k', 'k']
+    lws = [0.75, 0.75]
+    alphas = [1, 0.4]
+    lss = ['-', '--']
+    lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], alpha = alphas[i], color=colors[i]) for i in range(len(labels))]
+    ax.legend(lines,labels, loc='upper right', prop={'size':6})
     ax.minorticks_on()
     ax.set_xlim(0,80)
-    ax.set_ylim(0,12)
+    ax.set_ylim(0,25)
     ax.grid(which='minor', alpha=0.2)
     ax.grid(which='major', alpha=0.5)
     plt.tight_layout()
     
-    fig0, ax = plt.subplots(1,1)
-    fig0.set_size_inches(2.5, 2.5)
-    ax.plot(np.linspace(0,80,200), smooth/1e3, lw = 0.75, ls = '-', c='k')
-    ax.plot(np.linspace(0,80,200), testing_zrange/1e3, lw = 0.75, ls = '--', alpha = 0.2, c='k')
+    fig3, ax = plt.subplots(1,1)
+    fig3.set_size_inches(2.5, 2.5)
+    ax.plot(theta, dataset['icr'], lw = 0.5, ls = '-', c='k')
     ax.set_xlabel('incident wave angle (degrees)')
-    ax.set_ylabel('peak specific impulse (MPa.ms)')
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles, labels, loc='upper right', prop={'size':6})
+    ax.set_ylabel('peak specific impulse ratio')
     ax.minorticks_on()
     ax.set_xlim(0,80)
-    ax.set_ylim(0,12)
+    ax.set_ylim(0,1)
     ax.grid(which='minor', alpha=0.2)
     ax.grid(which='major', alpha=0.5)
     plt.tight_layout()
-    
+    return fig0, fig2, fig3 
+fig0, fig2, fig3 = graph_dataset_overview(small)
+fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_small_a.pdf"), format = 'pdf')
+fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_small_b.pdf"), format = 'pdf')
+fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_small_c.pdf"), format = 'pdf')
+fig0, fig2, fig3 = graph_dataset_overview(large)
+fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_large_a.pdf"), format = 'pdf')
+fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_large_b.pdf"), format = 'pdf')
+fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_large_c.pdf"), format = 'pdf')
 
-graph_dataset_overview()
-#-----------------------------------------------------------------------------
+
 
 #------------------------------------------------------------------------------
 #Model fitting Stuff that needs refinement 
@@ -305,115 +273,70 @@ params['cen1'] = lm.Parameter(name='cen1', value = 0.5, vary = 'false', min = 0.
 params['amp1'] = lm.Parameter(name='amp1', value = 0.5, min=0, max=1)
 params['wid1'] = lm.Parameter(name='wid1', value = 0.5, min=0, max=1)   
 
-
-
-#2) Two Gaussian 
-params2 = lm.Parameters()
-params2['cen1'] = lm.Parameter(name='cen1', value = 0.5, vary = 'false', min = 0.4, max = 0.6)
-params2['amp1'] = lm.Parameter(name='amp1', value = 0.5, min=0, max=1)
-params2['wid1'] = lm.Parameter(name='wid1', value = 0.5, min=0, max=1)  
-params2['cen2'] = lm.Parameter(name='cen2', value = 0.5, vary = 'false', min = 0.4, max = 0.6)
-params2['amp2'] = lm.Parameter(name='amp2', value = 0.5, min=0, max=1)
-params2['wid2'] = lm.Parameter(name='wid2', value = 0.5, min=0, max=1)  
-def gauss_two_curve(x, *params):
-    y1 = np.zeros_like(x)
-    y2 = np.zeros_like(x)
-    y1 = params[1] * np.exp( -((x - params[0])**2 / (2*(params[2]**2)) ) )
-    y2 = params[4] * np.exp( -((x - params[3])**2 / (2*(params[5]**2)) ) )
-    y = y1 + y2
-    return y
-
 #Amplitude penalty function
 def pen1(param1, param2):
     delta = param2 - param1
     out = max(0,delta)
     return out**0.5  
 
-#Objective function to be minimised. Loss function is MSE.
-def lm_residual2(params, x, ytrue):
-    cen1 = params['cen1'].value
-    amp1 = params['amp1'].value
-    wid1 = params['wid1'].value
-    cen2 = params['cen2'].value
-    amp2 = params['amp2'].value
-    wid2 = params['wid2'].value
-
-
-    args = [cen1, amp1, wid1, cen2, amp2, wid2]
-    reg1 = 5
-    current_cost = ( (mean_squared_error(ytrue, gauss_two_curve(x, *args)))**2 + (reg1 * pen1(amp1, amp2)**2) ) **0.5
-    return current_cost
-
 #-----------------------------------------------------------------------------
-
-#Henrych optimal ------------------------------------------------------------------
-def Henrych_i_fit(x, A0):
-    """
-    x is theta
-    Calculating specific impulse
-    A0 = (Nxw + Ux) / 4pi
-    W = charge mass
-    """
-    W = 0.1
-    a = 0.08-charge_rad
-    i = ((A0 * W) / (a**2)) * np.cos(np.deg2rad(x))**4
-    return i
-def henrych_residual(params, y_true):
-    return mean_squared_error(y_true, Henrych_i_fit(np.linspace(-80,80,num=400), *params))
-
-
-
 
 #impulse distribution in theta -----------------------------------------------
 def my_model_graphs_exact():
     #Fitting model
-    data_o = np.concatenate([np.flipud(np.asarray(smooth1_Icr).mean(0)), np.asarray(smooth1_Icr).mean(0)])
-    data = (data_o - min(data_o)) / (max(data_o) - min(data_o))  
-    x = np.linspace(0,80,len(data))
+    data= np.concatenate([np.flipud(small['icr'].mean(1)), small['icr'].mean(1)])
+ 
+    x = np.linspace(-80,80,len(data))
     x = (x - min(x)) / (max(x) - min(x))
     result = lm.minimize(lm_residual, params, method = 'least_squares', args = (x, data))
     gaussmod = gauss_curve(x, result.params['cen1'].value, result.params['amp1'].value, result.params['wid1'].value)      
-    #Linearregressions
-    #poly6 = np.polynomial.polynomial.Polynomial.fit(x, data, 6)
     
     #Gaussian - 1 -------------------------------------------------------------
     fig, [ax0, ax1, ax2] = plt.subplots(1,3)
     fig.set_size_inches(7,2.5)    
-    #CFD
-    ax0.plot(theta.mean(1), np.asarray(smooth1_Icr).mean(0), 'k', markevery=10, label = 'CFD - mean')
-    ax0.fill_between(theta.mean(1), np.asarray(smooth1_Icr).min(0), np.asarray(smooth1_Icr).max(0), color = 'silver', alpha = 0.2, label = 'CFD - range')       
-    #Models
-    ax0.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'r:', label = 'Model fit')
-    
-    text_gaussian1 = r"$f(\theta) = exp \left( \frac{-(\theta-0.5)^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
-    ax1.text(0.4, 0.2, text_gaussian1, fontsize = 'x-small', transform=ax1.transAxes)
-   
-    
-    ax1.scatter(theta.mean(1), np.asarray(smooth1_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::], c = 'k' , s=1.)
-    ax1.set_ylim(-0.1, 0.1)
-    
-    RSS = np.power(np.asarray(smooth1_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::],2).sum()
-    RSE = ( (1/(len(np.asarray(smooth1_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::])-2)) * RSS  )
+    ax0.plot(np.linspace(0,80,200), small['icr'].mean(1), 'k', markevery=10, label = 'CFD - mean')
+    ax0.fill_between(np.linspace(0,80,200), small['icr'].min(1), small['icr'].max(1), color = 'silver', alpha = 0.4, label = 'CFD - range')       
+    ax0.plot(np.linspace(0,80,200), gaussmod[int(len(gaussmod)/2)::], 'r:', label = 'Model fit')
+    ax0.set_xlabel('angle of incidence (degrees)')
+    ax0.set_ylabel('peak specific impulse ratio')
+    ax0.set_xlim(0,80)
+    ax0.set_ylim(0,1)
+    handles, labels = ax0.get_legend_handles_labels()
+    ax0.legend(handles, labels, loc='upper right', prop={'size':6})    
+    ax1.set_xlabel('angle of incidence (degrees)')
+    ax1.set_ylabel('Residual')
+    text_gaussian1 = r"$f(\theta) = exp \left( \frac{-\left( \frac{\theta}{160} +0.5 \right) ^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
+    ax1.text(0.05, 0.2, text_gaussian1, fontsize = 'small', transform=ax1.transAxes)       
+    ax1.plot(np.linspace(0,80,200), small['icr'].mean(1) - gaussmod[int(len(gaussmod)/2)::], ls = 'None', marker = 's', mfc = 'none', mec='k',  ms = 3., markevery = 8)
+    ax1.set_ylim(-0.1, 0.1) 
+    ax1.set_xlim(0,80)
+    RSS = np.power(small['icr'].mean(1) - gaussmod[int(len(gaussmod)/2)::],2).sum()
+    RSE = ( (1/(len(small['icr'].mean(1) - gaussmod[int(len(gaussmod)/2)::])-2)) * RSS  )
     if RSE < 0.0001:
         text_RSE = "$RSE < 0.0001$"
     else:
-        text_RSE = "$RSE = {:.3f}$".format(RSE)
-    
-    res1 = stats.probplot(np.asarray(smooth1_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::], plot=ax2)
+        text_RSE = "$RSE = {:.3f}$".format(RSE)   
+    ax1.text(0.05,0.05, text_RSE, fontsize='x-small', transform=ax1.transAxes)
+    res1 = stats.probplot(small['icr'].mean(1) - gaussmod[int(len(gaussmod)/2)::], plot=ax2)   
     ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
     ax2.get_lines()[0].set_marker('s')
-    ax2.get_lines()[0].set_markerfacecolor('k')
+    ax2.get_lines()[0].set_markerfacecolor('none')
     ax2.get_lines()[0].set_markeredgecolor('k')
-    ax2.get_lines()[0].set_markersize(1.)    
+    ax2.get_lines()[0].set_markersize(3.)
+    ax2.get_lines()[0].set_markevery(6)       
     ax2.set_title("")
-
+    ax2.set_xlim(-2.5,2.5)
+    ax2.set_ylim(-0.05, 0.1)
     #axis settings
-    ax0.set_xlabel('angle of incidence (degrees)')
-    ax0.set_ylabel('Ir / Ir Max')
-    handles, labels = ax0.get_legend_handles_labels()
-    ax0.legend(handles, labels, loc='upper right', prop={'size':6})
-    ax1.set_xlabel('angle of incidence (degrees)')
-    ax1.set_ylabel('Residual')
+    ax0.minorticks_on()
+    ax0.grid(which='minor', alpha=0.2)
+    ax0.grid(which='major', alpha=0.5)
+    ax1.minorticks_on()
+    ax1.grid(which='minor', alpha=0.2)
+    ax1.grid(which='major', alpha=0.5)
+    ax2.minorticks_on()
+    ax2.grid(which='minor', alpha=0.2)
+    ax2.grid(which='major', alpha=0.5)    
     ax0.locator_params(axis = 'both',tight=True, nbins=6)
     ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
@@ -421,262 +344,272 @@ def my_model_graphs_exact():
     
    
     #Henrych ------------------------------------------------------------
-    x0 = [0.1]
-    hen_mod = minimize(henrych_residual, x0, args=(data), method = 'BFGS')
-    rem_actual = Henrych_i((0.08-charge_rad), charge_rad, 7900, 5.53, 1660, np.linspace(0,80,200))
-    
-    fig, [ax0, ax1] = plt.subplots(1,2)
-    fig.set_size_inches(5,2.5)   
-    #CFD
-    ax0.plot(theta.mean(1), np.asarray(smooth1_Icr).mean(0), 'k', markevery=10, label = 'CFD - mean')
-    ax0.fill_between(theta.mean(1), np.asarray(smooth1_Icr).min(0), np.asarray(smooth1_Icr).max(0), color = 'silver', alpha = 0.2, label = 'CFD - range')       
-    #Models
-    ax0.plot(np.linspace(0,80,num=200), Henrych_i_fit(np.linspace(0,80,num=200), hen_mod['x'][0]), 'r:', label = 'Model fit')
-    ax0.plot(np.linspace(0,80,num=200), rem_actual/max(rem_actual), 'c--', label = 'Model actual')
-    texts = "TO BE SORTED"    
-    ax1.text(0.4, 0.2, texts, fontsize = 'x-small', transform=ax1.transAxes)      
-    ax1.scatter(theta.mean(1), np.asarray(smooth1_Icr).mean(0) - rem_actual/max(rem_actual), c = 'k', s=1.)
+    rem_actual = Henrych_i((0.08-charge_rad), charge_rad, 7900, 5.53, 1660, np.linspace(0,80,200))   
+    fig, [ax0, ax1, ax2] = plt.subplots(1,3)
+    fig.set_size_inches(7,2.5)   
+    ax0.plot(np.linspace(0,80,200), small['icr'].mean(1), 'k', markevery=10, label = 'CFD - mean')
+    ax0.fill_between(np.linspace(0,80,200), small['icr'].min(1), small['icr'].max(1), color = 'silver', alpha = 0.4, label = 'CFD - range')       
+    ax0.plot(np.linspace(0,80,num=200), rem_actual/max(rem_actual), 'r:', label = 'Model actual')
+    ax1.plot(np.linspace(0,80,200), small['icr'].mean(1) - rem_actual/max(rem_actual), ls = 'None', marker = 's', mfc = 'none', mec='k',  ms = 3., markevery = 8)
     ax1.set_ylim(-0.1, 0.1)
-    #axis settings
+    ax1.set_xlim(0,80)
+    RSS = np.power(small['icr'].mean(1) - rem_actual/max(rem_actual), 2).sum()
+    RSE = ( (1/(len(small['icr'].mean(1) - rem_actual/max(rem_actual))-2)) * RSS  )
+    if RSE < 0.0001:
+        text_RSE = "$RSE < 0.0001$"
+    else:
+        text_RSE = "$RSE = {:.3f}$".format(RSE)   
+    ax1.text(0.05,0.05, text_RSE, fontsize='x-small', transform=ax1.transAxes)
+    res1 = stats.probplot(small['icr'].mean(1) - rem_actual/max(rem_actual), plot=ax2)   
+    ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
+    ax2.get_lines()[0].set_marker('s')
+    ax2.get_lines()[0].set_markerfacecolor('none')
+    ax2.get_lines()[0].set_markeredgecolor('k')
+    ax2.get_lines()[0].set_markersize(3.)
+    ax2.get_lines()[0].set_markevery(6)     
+    ax2.set_title("")
     ax0.set_xlabel('angle of incidence (degrees)')
-    ax0.set_ylabel('Ir / Ir Max')
+    ax0.set_ylabel('peak specific impulse ratio')
+    ax0.set_xlim(0,80)
+    ax0.set_ylim(0,1)
+    ax2.set_xlim(-2.5,2.5)
+    ax2.set_ylim(-0.05, 0.1)
     handles, labels = ax0.get_legend_handles_labels()
     ax0.legend(handles, labels, loc='upper right', prop={'size':6})
     ax1.set_xlabel('angle of incidence (degrees)')
     ax1.set_ylabel('Residual')
+    ax0.minorticks_on()
+    ax0.grid(which='minor', alpha=0.2)
+    ax0.grid(which='major', alpha=0.5)
+    ax1.minorticks_on()
+    ax1.grid(which='minor', alpha=0.2)
+    ax1.grid(which='major', alpha=0.5)
+    ax2.minorticks_on()
+    ax2.grid(which='minor', alpha=0.2)
+    ax2.grid(which='major', alpha=0.5)      
     ax0.locator_params(axis = 'both',tight=True, nbins=6)
     ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
     fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_henrych.pdf', format = 'pdf')
     
+
     #RPB-MCEER ------------------------------------------------------------
     RPB_MCEER_exp = RPB_MCEER_i(0.1*1.2, 0.08-charge_rad, 80)
-    RPB_MCEER_exp_model_inter = np.interp(theta.mean(1), RPB_MCEER_exp[2][200,200::], RPB_MCEER_exp[3][200,200::] / max(RPB_MCEER_exp[3][200,200::]))
-    #impulse dist
-    fig, [ax0, ax1] = plt.subplots(1,2)
-    fig.set_size_inches(5,2.5)   
-    #CFD
-    ax0.plot(theta.mean(1), np.asarray(smooth1_Icr).mean(0), 'k', markevery=10, label = 'CFD - mean')
-    ax0.fill_between(theta.mean(1), np.asarray(smooth1_Icr).min(0), np.asarray(smooth1_Icr).max(0), color = 'silver', alpha = 0.2, label = 'CFD - range')       
-    #Models
-    ax0.plot(theta.mean(1), RPB_MCEER_exp_model_inter , 'r:', label = 'Model fit')   
-    texts = "TO BE SORTED"    
-    ax1.text(0.4, 0.2, texts, fontsize = 'x-small', transform=ax1.transAxes)       
-    ax1.scatter(theta.mean(1), np.asarray(smooth1_Icr).mean(0) - RPB_MCEER_exp_model_inter, c = 'k', s=1.)
+    RPB_MCEER_exp_model_inter = np.interp(np.linspace(0,80,200), RPB_MCEER_exp[2][200,200::], RPB_MCEER_exp[3][200,200::] / max(RPB_MCEER_exp[3][200,200::]))
+    fig, [ax0, ax1, ax2] = plt.subplots(1,3)
+    fig.set_size_inches(7,2.5)   
+    ax0.plot(np.linspace(0,80,200), small['icr'].mean(1), 'k', markevery=10, label = 'CFD - mean')
+    ax0.fill_between(np.linspace(0,80,200), small['icr'].min(1), small['icr'].max(1), color = 'silver', alpha = 0.4, label = 'CFD - range')       
+    ax0.plot(np.linspace(0,80,200), RPB_MCEER_exp_model_inter , 'r:', label = 'Model fit')        
+    ax1.plot(np.linspace(0,80,200), small['icr'].mean(1) - RPB_MCEER_exp_model_inter, ls = 'None', marker = 's', mfc = 'none', mec='k',  ms = 3., markevery = 8)
     ax1.set_ylim(-0.1, 0.1)
-    #axis settings
+    ax1.set_xlim(0,80)
+    RSS = np.power(small['icr'].mean(1) - RPB_MCEER_exp_model_inter,2).sum()
+    RSE = ( (1/(len(small['icr'].mean(1) - RPB_MCEER_exp_model_inter)-2)) * RSS  )
+    if RSE < 0.0001:
+        text_RSE = "$RSE < 0.0001$"
+    else:
+        text_RSE = "$RSE = {:.3f}$".format(RSE)   
+    ax1.text(0.05,0.05, text_RSE, fontsize='x-small', transform=ax1.transAxes)
+    res1 = stats.probplot(small['icr'].mean(1) - RPB_MCEER_exp_model_inter, plot=ax2)  
+    
+    ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
+    ax2.get_lines()[0].set_marker('s')
+    ax2.get_lines()[0].set_markerfacecolor('none')
+    ax2.get_lines()[0].set_markeredgecolor('k')
+    ax2.get_lines()[0].set_markersize(3.)
+    ax2.get_lines()[0].set_markevery(6)     
+    ax2.set_title("")
     ax0.set_xlabel('angle of incidence (degrees)')
-    ax0.set_ylabel('Ir / Ir Max')
+    ax0.set_ylabel('peak specific impulse ratio')
+    ax0.set_xlim(0,80)
+    ax0.set_ylim(0,1)
+    ax2.set_xlim(-2.5,2.5)
+    ax2.set_ylim(-0.05, 0.1)
     handles, labels = ax0.get_legend_handles_labels()
     ax0.legend(handles, labels, loc='upper right', prop={'size':6})
     ax1.set_xlabel('angle of incidence (degrees)')
     ax1.set_ylabel('Residual')
+    ax0.minorticks_on()
+    ax0.grid(which='minor', alpha=0.2)
+    ax0.grid(which='major', alpha=0.5)
+    ax1.minorticks_on()
+    ax1.grid(which='minor', alpha=0.2)
+    ax1.grid(which='major', alpha=0.5)
+    ax2.minorticks_on()
+    ax2.grid(which='minor', alpha=0.2)
+    ax2.grid(which='major', alpha=0.5) 
     ax0.locator_params(axis = 'both',tight=True, nbins=6)
     ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
-    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_RPB_MCEER.pdf', format = 'pdf')    
-    
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_RPB_MCEER.pdf', format = 'pdf')        
     return gaussmod
-gaussmod_small = my_model_graphs_exact()
+small['gaussmod'] = my_model_graphs_exact()
 
 
 
 #impulse distribution in theta -----------------------------------------------
-def my_model_graphs_large():
-    
-    data_o = np.concatenate([np.flipud(np.asarray(smooth_Icr).max(0)), np.asarray(smooth_Icr).max(0)])
-    data = (data_o - min(data_o)) / (max(data_o) - min(data_o))
-    x = np.linspace(0,80,len(data))
+def my_model_graphs_large(): 
+    data_o = large['icr'].mean(1)
+    data = np.concatenate([np.flipud(data_o), data_o])
+    x = np.linspace(-80,80,len(data))
     x = (x - min(x)) / (max(x) - min(x))       
     #Nonlinear regression -gaussians
     result = lm.minimize(lm_residual, params, method = 'least_squares', args = (x, data))
     gaussmod = gauss_curve(x, result.params['cen1'].value, result.params['amp1'].value, result.params['wid1'].value)
-               
-    #Gaussian - 1 -------------------------------------------------------------
+
     fig, [ax0, ax1, ax2] = plt.subplots(1,3)
     fig.set_size_inches(7,2.5)    
-    #CFD
-    ax0.plot(theta.mean(1), np.asarray(smooth_Icr).mean(0), 'k', markevery=10, label = 'CFD - mean')
-    ax0.fill_between(theta.mean(1), np.asarray(smooth_Icr).min(0), np.asarray(smooth_Icr).max(0), color = 'silver', alpha = 0.2, label = 'CFD - range')       
-    #Models
-    ax0.plot(theta.mean(1), gaussmod[int(len(gaussmod)/2)::], 'r:', label = 'Model fit')    
-    text_gaussian1 = r"$f(\theta) = exp \left( \frac{-(\theta-0.5)^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
-    ax1.text(0.4, 0.2, text_gaussian1, fontsize = 'x-small', transform=ax1.transAxes)
-    ax1.scatter(theta.mean(1), np.asarray(smooth_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::], c = 'k' , s=1.)
+    ax0.plot(np.linspace(0,80,200), data_o, 'k', markevery=10, label = 'CFD - mean')
+    ax0.fill_between(np.linspace(0,80,200), large['icr'].min(1), large['icr'].max(1), color = 'silver', alpha = 0.4, label = 'CFD - range')       
+    ax0.plot(np.linspace(0,80,200), gaussmod[int(len(gaussmod)/2)::], 'r:', label = 'Model fit')    
+    ax1.plot(np.linspace(0,80,200), large['icr'].max(1) - gaussmod[int(len(gaussmod)/2)::], ls = 'None', marker = 's', mfc = 'none', mec='k',  ms = 3., markevery = 8)
+    ax0.set_xlim(0,80)
+    ax0.set_ylim(0, 1)
+    ax1.set_xlim(0,80)
     ax1.set_ylim(-0.1, 0.1)
-    
-    res1 = stats.probplot(np.asarray(smooth_Icr).mean(0) - gaussmod[int(len(gaussmod)/2)::], plot=ax2)
+    text_gaussian1 = r"$f(\theta) = exp \left( \frac{-\left( \frac{\theta}{160} +0.5 \right) ^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
+    ax1.text(0.05, 0.2, text_gaussian1, fontsize = 'small', transform=ax1.transAxes)       
+    ax1.set_ylim(-0.1, 0.1) 
+    ax1.set_xlim(0,80)
+    RSS = np.power(small['icr'].mean(1) - gaussmod[int(len(gaussmod)/2)::],2).sum()
+    RSE = ( (1/(len(small['icr'].mean(1) - gaussmod[int(len(gaussmod)/2)::])-2)) * RSS  )
+    if RSE < 0.0001:
+        text_RSE = "$RSE < 0.0001$"
+    else:
+        text_RSE = "$RSE = {:.3f}$".format(RSE)   
+    ax1.text(0.05,0.05, text_RSE, fontsize='x-small', transform=ax1.transAxes)    
+    res1 = stats.probplot(data_o - gaussmod[int(len(gaussmod)/2)::], plot=ax2)
     ax2.text(0.55, 0.25, r"$R^2 = $"+str(round(res1[1][2]**2, 3)), fontsize = 'x-small', transform=ax2.transAxes)
     ax2.get_lines()[0].set_marker('s')
-    ax2.get_lines()[0].set_markerfacecolor('k')
+    ax2.get_lines()[0].set_markerfacecolor('none')
     ax2.get_lines()[0].set_markeredgecolor('k')
-    ax2.get_lines()[0].set_markersize(1.)    
+    ax2.get_lines()[0].set_markersize(3.)
+    ax2.get_lines()[0].set_markevery(6)   
     ax2.set_title("")
-    #axis settings
+    ax2.set_xlim(-2.5,2.5)
+    ax2.set_ylim(-0.05, 0.1)
     ax0.set_xlabel('angle of incidence (degrees)')
-    ax0.set_ylabel('Ir / Ir Max')
+    ax0.set_ylabel('peak specific impulse ratio')
     handles, labels = ax0.get_legend_handles_labels()
     ax0.legend(handles, labels, loc='upper right', prop={'size':6})
     ax1.set_xlabel('angle of incidence (degrees)')
     ax1.set_ylabel('Residual')
+    ax0.minorticks_on()
+    ax0.grid(which='minor', alpha=0.2)
+    ax0.grid(which='major', alpha=0.5)
+    ax1.minorticks_on()
+    ax1.grid(which='minor', alpha=0.2)
+    ax1.grid(which='major', alpha=0.5)
+    ax2.minorticks_on()
+    ax2.grid(which='minor', alpha=0.2)
+    ax2.grid(which='major', alpha=0.5) 
     ax0.locator_params(axis = 'both',tight=True, nbins=6)
     ax1.locator_params(axis = 'both',tight=True, nbins=6)
     plt.tight_layout()
     fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\model_gaussian1_largez.pdf', format = 'pdf')      
     return gaussmod
-gaussmod_large = my_model_graphs_large()      
+large['gaussmod'] = my_model_graphs_large()      
 
 
 
 #Build surface from Guassian Eq and power law.
-def plot_model_surfaces():
-    #Single gauss - small
-    crs = np.linspace(clear_standoff.min(), clear_standoff.max(), num = len(Apollo_gtable))
-    peak_I_test = np.multiply(np.power(crs, slope), 10**intercept)    
-    y_gauss = np.repeat(gaussmod_small[int(len(gaussmod_small)/2)::][:,np.newaxis], len(crs), 1) #use numpy broadcasting rules    
-    theta_test = np.linspace(0,80, num=len(y_gauss))
-    theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)    
-    test_impulses = np.multiply( y_gauss , peak_I_test )
-    crs = np.repeat(crs[:,np.newaxis], len(y_gauss), 1)
-    crs = crs.transpose()    
-    fig_test, ax = plt.subplots(1,1)
-    fig_test.set_size_inches(3, 2.5)
-    CS = ax.contourf(theta_test, crs, test_impulses, levels = np.arange(0,15,0.25), cmap = plt.cm.magma_r)
-    cbar = fig_test.colorbar(CS, ax=ax)
-    cbar.ax.invert_yaxis()
-    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-    ax.set_ylabel('standoff (clear charge radii)')
-    ax.set_xlabel('incident wave angle (degrees)')
-    plt.tight_layout()
-    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_gaussian1.pdf', format = 'pdf')
-    fig_test, ax = plt.subplots(1,1)
-    fig_test.set_size_inches(3, 2.5)
-    CS = ax.contourf(theta_test, crs, test_impulses-(smooth1/1e3), levels = np.arange(0,1,0.02), cmap = plt.cm.magma_r)
-    cbar = fig_test.colorbar(CS, ax=ax)
-    cbar.ax.invert_yaxis()
-    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-    ax.set_ylabel('standoff (clear charge radii)')
-    ax.set_xlabel('incident wave angle (degrees)')
-    plt.tight_layout()
-    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_gaussian2.pdf', format = 'pdf')
+def plot_model_surfaces(dataset):
+    theta = np.repeat(np.linspace(0,80, dataset['imp'].shape[0])[:,np.newaxis], dataset['imp'].shape[1], 1) 
+    z = dataset['z']
+    z = z.reshape((dataset['imp'].shape[1], 1))
+    z = z.T
+    z = np.repeat(z, dataset['imp'].shape[0], 0)    
     
-    #Single Gauss - large
-    crs = np.linspace(testing_zrange_so.min(), testing_zrange_so.max(), num = len(testing_zrange_file))
-    peak_I_test = np.multiply(np.power(crs, slope2), 10**intercept2)    
-    y_gauss = np.repeat(gaussmod_large[int(len(gaussmod_large)/2)::][:,np.newaxis], len(crs), 1) #use numpy broadcasting rules    
-    theta_test = np.linspace(0,80, num=len(y_gauss))
-    theta_test = np.repeat(theta_test[:,np.newaxis], len(crs), 1)    
-    test_impulses2 = np.multiply( y_gauss , peak_I_test )
-    crs = np.repeat(crs[:,np.newaxis], len(y_gauss), 1)
-    crs = crs.transpose()    
-    fig_test, ax = plt.subplots(1,1)
-    fig_test.set_size_inches(3, 2.5)
-    CS = ax.contourf(theta_test, crs, test_impulses2, levels = np.arange(0,15,0.25), cmap = plt.cm.magma_r)
-    cbar = fig_test.colorbar(CS)
-    cbar.ax.invert_yaxis()
-    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-    ax.set_ylabel('standoff (clear charge radii)')
+    
+    peak_i_mod = np.multiply(np.power(z, dataset['slope']), dataset['const'])    #peakimpulses
+    theta_dist = dataset['gaussmod'][int(len(dataset['gaussmod'])/2)::]
+    theta_dist = theta_dist.reshape((len(theta_dist), 1))
+    theta_dist = np.repeat(theta_dist, peak_i_mod.shape[1], axis=1) 
+    
+    i_surf = np.multiply(theta_dist, peak_i_mod)
+
+    fig, ax = plt.subplots(1,1)
+    fig.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta, z, i_surf, levels = np.linspace(0,25,50), cmap = plt.cm.magma_r)
+    cbar = fig.colorbar(CS, format='%.1f' ,ticks = np.linspace(0,25,6))
+    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
     ax.set_xlabel('incident wave angle (degrees)')
     plt.tight_layout()
-    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_gaussian1.pdf', format = 'pdf')
-    fig_test, ax = plt.subplots(1,1)
-    fig_test.set_size_inches(3, 2.5)
-    CS = ax.contourf(theta_test, crs, test_impulses2-(smooth/1e3), levels = np.arange(0,1,0.02), cmap = plt.cm.magma_r)
-    cbar = fig_test.colorbar(CS, ax=ax)
-    cbar.ax.invert_yaxis()
-    cbar.ax.set_ylabel('peak specific impulse (MPa.ms)')
-    ax.set_ylabel('standoff (clear charge radii)')
+    
+    fig2, ax = plt.subplots(1,1)
+    fig2.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta, z, i_surf-(dataset['imp_smooth']/1e3/((cm*TNTeq)**(1/3))), levels = np.linspace(0,2.5,50), cmap = plt.cm.magma_r)
+    cbar = fig2.colorbar(CS, format='%.1f' ,ticks = np.linspace(0,2.5,6))
+    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
     ax.set_xlabel('incident wave angle (degrees)')
     plt.tight_layout()
-    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_gaussian2.pdf', format = 'pdf')
-    return test_impulses, test_impulses2
-gauss_small, gauss_large = plot_model_surfaces()
+    return i_surf, fig, fig2
+small['gauss_surf'], fig, fig2 = plot_model_surfaces(small)
+fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_gaussian1.pdf', format = 'pdf')
+fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_gaussian2.pdf', format = 'pdf')
+large['gauss_surf'], fig, fig2 = plot_model_surfaces(large)
+fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_gaussian1.pdf', format = 'pdf')
+fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_gaussian2.pdf', format = 'pdf')
+   
 
+def myround(x, base=5):
+    return int(base * math.ceil(x/base)) 
 
-
-
-
-
-def TotalImpulseSurfaces():
+def TotalImpulseSurfaces(dataset):
     max_target_length = 2.5
     upper_theta = 80
     theta_lim = np.linspace(0,upper_theta,80)   
     R = np.divide(max_target_length, np.tan(np.deg2rad(upper_theta))) 
+    theta_test = np.repeat(theta_lim.reshape(len(theta_lim),1), dataset['imp'].shape[1], 1)    
+    target_rad = np.multiply(np.tan(np.deg2rad(theta_test)), R)   
+    target_rad = np.divide(target_rad, ((cm*TNTeq)**(1/3)))#scaled target radius
     
-    #Small Dataset
-    z = z_dataset[0,:]
-    Imp_CFD = np.zeros((len(z), len(theta_lim)))
+    z = dataset['z']
+    z = z.reshape((dataset['imp'].shape[1], 1))
+    z = z.T
+    z = np.repeat(z, len(target_rad), 0) 
+    
+    
+    Imp_CFD = np.zeros_like(target_rad)
     Imp_gauss = np.zeros_like(Imp_CFD)
-    for i in range(len(z)):
-        for j in range(len(theta_lim)):       
-            Imp_CFD[i,j] = Impulse_CFD(smooth1[:,i], R, theta_lim[j], np.linspace(0,80,200))
-            Imp_gauss[i,j] = Impulse_CFD(gauss_small[:,i], R, theta_lim[j], np.linspace(0,80,200))
-    
-    crs = np.linspace(clear_standoff.min(), clear_standoff.max(), num = len(Apollo_gtable))
-    crs = np.repeat(crs[:,np.newaxis], len(theta_lim), 1)
-    crs = crs.T
-    theta_test = np.repeat(theta_lim[:,np.newaxis], len(Apollo_gtable), 1)    
-    target_rad = np.multiply(np.tan(np.deg2rad(theta_test)), R)  
-   
+    for i in range(Imp_CFD.shape[0]):
+        for j in range(Imp_CFD.shape[1]):       
+            Imp_CFD[i,j] = Impulse_CFD(dataset['imp_smooth'][:,j], R, theta_lim[i], np.linspace(0,80,200))
+            Imp_gauss[i,j] = Impulse_CFD(dataset['gauss_surf'][:,j]*1e3*((cm*TNTeq)**(1/3)), R, theta_lim[i], np.linspace(0,80,200))
     
     fig_test, ax = plt.subplots(1,1)
     fig_test.set_size_inches(3, 2.5)
-    CS = ax.contourf(target_rad, crs, Imp_gauss.T, levels = np.arange(0,15,0.25), cmap = plt.cm.magma_r)
-    cbar = fig_test.colorbar(CS, ax=ax)
-    cbar.ax.invert_yaxis()
-    cbar.ax.set_ylabel('total impulse (MPa.ms)')
-    ax.set_ylabel('standoff (clear charge radii)')
-    ax.set_xlabel('target radius (m)')
+    CS = ax.contourf(target_rad, z, Imp_gauss/1e3, levels = np.linspace(0,myround((Imp_gauss/1e3).max()),50), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, format='%.1f' ,ticks = np.linspace(0,20,6))
+    cbar.ax.set_ylabel('total scaled impulse (MPa.ms/kg)')
+    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('scaled target radius'+r'$(m/kg^{\frac{1}{3}}$)')
     plt.tight_layout()
-    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss.pdf', format = 'pdf')
-
-    fig_test, ax = plt.subplots(1,1)
-    fig_test.set_size_inches(3, 2.5)
-    CS = ax.contourf(target_rad, crs, Imp_gauss.T - Imp_CFD.T/1e3, levels = np.arange(0,5,0.025), cmap = plt.cm.magma_r)
-    cbar = fig_test.colorbar(CS, ax=ax)
-    cbar.ax.invert_yaxis()
-    cbar.ax.set_ylabel('total impulse (MPa.ms)')
-    ax.set_ylabel('standoff (clear charge radii)')
-    ax.set_xlabel('target radius (m)')
+       
+    
+    fig_test2, ax = plt.subplots(1,1)
+    fig_test2.set_size_inches(3, 2.5)
+    diff = (Imp_gauss - Imp_CFD)/1e3
+    CS = ax.contourf(target_rad, z, diff, levels = np.linspace(0,5,50), cmap = plt.cm.magma_r)
+    cbar = fig_test2.colorbar(CS, format='%.1f' , ticks = np.linspace(0,int(math.ceil(diff.max())),6))   
+    cbar.ax.set_ylabel('total scaled impulse (MPa.ms/kg)')
+    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('scaled target radius'+r'$(m/kg^{\frac{1}{3}}$)')
     plt.tight_layout()
-    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss2.pdf', format = 'pdf')
+    
+    return Imp_CFD, Imp_gauss, fig_test, fig_test2
+small['CFD_total_impulse'], small['gauss_total_impulse'], fig1, fig2 = TotalImpulseSurfaces(small)
+fig1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss.pdf', format = 'pdf')
+fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss2.pdf', format = 'pdf')
+large['CFD_total_impulse'], large['gauss_total_impulse'], fig1, fig2 = TotalImpulseSurfaces(large)
+fig1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss.pdf', format = 'pdf')
+fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss2.pdf', format = 'pdf')
  
-    #Large Z Dataset
-    z = np.asarray(testing_zrange_z)
-    Imp_CFD = np.zeros((len(z), len(theta_lim)))
-    Imp_gauss = np.zeros_like(Imp_CFD)
-    for i in range(len(z)):
-        for j in range(len(theta_lim)):       
-            Imp_CFD[i,j] = Impulse_CFD(smooth[:,i], R, theta_lim[j], np.linspace(0,80,200))
-            Imp_gauss[i,j] = Impulse_CFD(gauss_large[:,i], R, theta_lim[j], np.linspace(0,80,200))
-    
-    crs = np.linspace(testing_zrange_so.min(), testing_zrange_so.max(), num = len(testing_zrange_file)) 
-    crs = np.repeat(crs[:,np.newaxis], len(theta_lim), 1)
-    crs = crs.T
-    theta_test = np.repeat(theta_lim[:,np.newaxis], len(z), 1)    
-    target_rad = np.multiply(np.tan(np.deg2rad(theta_test)), R)  
-   
-    
-    fig_test, ax = plt.subplots(1,1)
-    fig_test.set_size_inches(3, 2.5)
-    CS = ax.contourf(target_rad, crs, Imp_gauss.T, levels = np.arange(0,20,0.25), cmap = plt.cm.magma_r)
-    cbar = fig_test.colorbar(CS, ax=ax)
-    cbar.ax.invert_yaxis()
-    cbar.ax.set_ylabel('total impulse (MPa.ms)')
-    ax.set_ylabel('standoff (clear charge radii)')
-    ax.set_xlabel('target radius (m)')
-    plt.tight_layout()
-    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss.pdf', format = 'pdf')
+ 
 
-    fig_test, ax = plt.subplots(1,1)
-    fig_test.set_size_inches(3, 2.5)
-    CS = ax.contourf(target_rad, crs, Imp_gauss.T - Imp_CFD.T/1e3, levels = np.arange(0,10,0.025), cmap = plt.cm.magma_r)
-    cbar = fig_test.colorbar(CS, ax=ax)
-    cbar.ax.invert_yaxis()
-    cbar.ax.set_ylabel('total impulse (MPa.ms)')
-    ax.set_ylabel('standoff (clear charge radii)')
-    ax.set_xlabel('target radius (m)')
-    plt.tight_layout()
-    fig_test.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss2.pdf', format = 'pdf')
-#TotalImpulseSurfaces()
+
+
 

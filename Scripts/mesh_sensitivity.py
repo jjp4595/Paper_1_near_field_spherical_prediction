@@ -416,7 +416,7 @@ ax.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s
 ax.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
 ax.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
-ax.set_ylabel('peak specific impulse (MPa.ms)')
+ax.set_ylabel('peak specific impulse ratio')
 ax.set_xlabel('angle of incidence')
 legend_elements = [Line2D([], [],  lw=0.5, linestyle = '-', color='r', label = 'CFD'), 
                    Line2D([], [],  color=[0.75,0.75,0.75], marker ='x', linestyle='None', markersize=4, label='Exp. repeats'),
