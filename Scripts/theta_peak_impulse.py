@@ -512,6 +512,10 @@ def my_model_graphs_large():
 large['gaussmod'] = my_model_graphs_large()      
 
 
+def roundup(x, base=10):
+    return int(base * math.ceil(x/base)) 
+def rounddwn(x, base=10):
+    return int(base * math.floor(x/base))
 
 #Build surface from Guassian Eq and power law.
 def plot_model_surfaces(dataset):
@@ -522,7 +526,7 @@ def plot_model_surfaces(dataset):
     z = np.repeat(z, dataset['imp'].shape[0], 0)    
     
     
-    peak_i_mod = np.multiply(np.power(z, dataset['slope']), dataset['const'])    #peakimpulses
+    peak_i_mod = np.multiply(np.power(z, dataset['slope']), dataset['const'])    #scaledpeakimpulses
     theta_dist = dataset['gaussmod'][int(len(dataset['gaussmod'])/2)::]
     theta_dist = theta_dist.reshape((len(theta_dist), 1))
     theta_dist = np.repeat(theta_dist, peak_i_mod.shape[1], axis=1) 
@@ -532,7 +536,7 @@ def plot_model_surfaces(dataset):
     fig, ax = plt.subplots(1,1)
     fig.set_size_inches(3, 2.5)
     CS = ax.contourf(theta, z, i_surf, levels = np.linspace(0,25,50), cmap = plt.cm.magma_r)
-    cbar = fig.colorbar(CS, format='%.1f' ,ticks = np.linspace(0,25,6))
+    cbar = fig.colorbar(CS, format='%.0f' ,ticks = np.linspace(0,25,6))
     cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
     ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
     ax.set_xlabel('incident wave angle (degrees)')
@@ -540,8 +544,11 @@ def plot_model_surfaces(dataset):
     
     fig2, ax = plt.subplots(1,1)
     fig2.set_size_inches(3, 2.5)
-    CS = ax.contourf(theta, z, i_surf-(dataset['imp_smooth']/1e3/((cm*TNTeq)**(1/3))), levels = np.linspace(0,2.5,50), cmap = plt.cm.magma_r)
-    cbar = fig2.colorbar(CS, format='%.1f' ,ticks = np.linspace(0,2.5,6))
+    diff = i_surf-(dataset['imp_smooth']/1e3/((cm*TNTeq)**(1/3)))
+    # CS = ax.contourf(theta, z, diff, levels = np.linspace(0,2.5,50), cmap = plt.cm.magma_r)
+    # cbar = fig2.colorbar(CS, format='%.1f' ,ticks = np.linspace(0,2.5,6))
+    CS = ax.contourf(theta, z, diff, levels = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 1),50), cmap = plt.cm.magma_r)
+    cbar = fig2.colorbar(CS, format='%.0f' , ticks = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 1),5))  
     cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
     ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
     ax.set_xlabel('incident wave angle (degrees)')
@@ -555,8 +562,9 @@ fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_sph
 fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_gaussian2.pdf', format = 'pdf')
    
 
-def myround(x, base=5):
-    return int(base * math.ceil(x/base)) 
+
+
+
 
 def TotalImpulseSurfaces(dataset):
     max_target_length = 2.5
@@ -567,11 +575,7 @@ def TotalImpulseSurfaces(dataset):
     target_rad = np.multiply(np.tan(np.deg2rad(theta_test)), R)   
     target_rad = np.divide(target_rad, ((cm*TNTeq)**(1/3)))#scaled target radius
     
-    z = dataset['z']
-    z = z.reshape((dataset['imp'].shape[1], 1))
-    z = z.T
-    z = np.repeat(z, len(target_rad), 0) 
-    
+
     
     Imp_CFD = np.zeros_like(target_rad)
     Imp_gauss = np.zeros_like(Imp_CFD)
@@ -580,11 +584,31 @@ def TotalImpulseSurfaces(dataset):
             Imp_CFD[i,j] = Impulse_CFD(dataset['imp_smooth'][:,j], R, theta_lim[i], np.linspace(0,80,200))
             Imp_gauss[i,j] = Impulse_CFD(dataset['gauss_surf'][:,j]*1e3*((cm*TNTeq)**(1/3)), R, theta_lim[i], np.linspace(0,80,200))
     
+    return Imp_CFD, Imp_gauss
+small['CFD_total_impulse'], small['gauss_total_impulse'] = TotalImpulseSurfaces(small)
+large['CFD_total_impulse'], large['gauss_total_impulse'] = TotalImpulseSurfaces(large)
+
+
+def graphTotalImpulseSurfaces(dataset):
+    max_target_length = 2.5
+    upper_theta = 80
+    theta_lim = np.linspace(0,upper_theta,len(dataset['gauss_total_impulse']))  
+    R = np.divide(max_target_length, np.tan(np.deg2rad(upper_theta))) 
+    theta_test = np.repeat(theta_lim.reshape(len(theta_lim),1), dataset['imp'].shape[1], 1)    
+    target_rad = np.multiply(np.tan(np.deg2rad(theta_test)), R)   
+    target_rad = np.divide(target_rad, ((cm*TNTeq)**(1/3)))#scaled target radius
+
+    z = dataset['z']
+    z = z.reshape((dataset['imp'].shape[1], 1))
+    z = z.T
+    z = np.repeat(z, len(target_rad), 0) 
+
+    
     fig_test, ax = plt.subplots(1,1)
     fig_test.set_size_inches(3, 2.5)
-    CS = ax.contourf(target_rad, z, Imp_gauss/1e3, levels = np.linspace(0,myround((Imp_gauss/1e3).max()),50), cmap = plt.cm.magma_r)
-    cbar = fig_test.colorbar(CS, format='%.1f' ,ticks = np.linspace(0,20,6))
-    cbar.ax.set_ylabel('total scaled impulse (MPa.ms/kg)')
+    CS = ax.contourf(target_rad, z, dataset['gauss_total_impulse']/1e3/0.1, levels = np.linspace(0,roundup((dataset['gauss_total_impulse']/1e3/0.1).max(), base = 200),50), cmap = plt.cm.magma_r)
+    cbar = fig_test.colorbar(CS, format='%.0f' ,ticks = np.linspace(0,roundup((dataset['gauss_total_impulse']/1e3/0.1).max(), base = 200),5))
+    cbar.ax.set_ylabel('total scaled impulse' +  r'$(MPa.ms/kg)$')
     ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
     ax.set_xlabel('scaled target radius'+r'$(m/kg^{\frac{1}{3}}$)')
     plt.tight_layout()
@@ -592,19 +616,18 @@ def TotalImpulseSurfaces(dataset):
     
     fig_test2, ax = plt.subplots(1,1)
     fig_test2.set_size_inches(3, 2.5)
-    diff = (Imp_gauss - Imp_CFD)/1e3
-    CS = ax.contourf(target_rad, z, diff, levels = np.linspace(0,5,50), cmap = plt.cm.magma_r)
-    cbar = fig_test2.colorbar(CS, format='%.1f' , ticks = np.linspace(0,int(math.ceil(diff.max())),6))   
-    cbar.ax.set_ylabel('total scaled impulse (MPa.ms/kg)')
+    diff = (dataset['gauss_total_impulse'] - dataset['CFD_total_impulse'])/1e3/0.1
+    CS = ax.contourf(target_rad, z, diff, levels = np.linspace(rounddwn(diff.min(), base = 20),roundup(diff.max(), base = 20),50), cmap = plt.cm.magma_r)
+    cbar = fig_test2.colorbar(CS, format='%.0f' , ticks = np.linspace(rounddwn(diff.min(), base = 20),roundup(diff.max(), base = 20),5))   
+    cbar.ax.set_ylabel('total scaled impulse' +  r'$(MPa.ms/kg)$')
     ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
     ax.set_xlabel('scaled target radius'+r'$(m/kg^{\frac{1}{3}}$)')
     plt.tight_layout()
-    
-    return Imp_CFD, Imp_gauss, fig_test, fig_test2
-small['CFD_total_impulse'], small['gauss_total_impulse'], fig1, fig2 = TotalImpulseSurfaces(small)
+    return  fig_test, fig_test2
+fig1, fig2 = graphTotalImpulseSurfaces(small)
 fig1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss.pdf', format = 'pdf')
 fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss2.pdf', format = 'pdf')
-large['CFD_total_impulse'], large['gauss_total_impulse'], fig1, fig2 = TotalImpulseSurfaces(large)
+fig1, fig2 = graphTotalImpulseSurfaces(large)
 fig1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss.pdf', format = 'pdf')
 fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss2.pdf', format = 'pdf')
  

@@ -50,15 +50,18 @@ if __name__ == "__main__":
     imp_r_scaled = 10**Y_r
     
     fig, ax = plt.subplots(1,1)
-    fig.set_size_inches(3, 2.5)
+    fig.set_size_inches(2.5, 2.5)
     ax.plot(Z, imp_i_scaled, 'k', label = 'incident impulse / $W^{1/3}$')
     ax.plot(Z, imp_r_scaled, 'k--',label = 'reflected impulse/ $W^{1/3}$')
     ax.set_yscale('log')
     ax.set_xscale('log')
     ax.set_xlabel('$Z = R/W^{1/3} (m/kg^{1/3})$')
     ax.set_ylabel('Specific impulse / $W^{1/3}$')
+    ax.minorticks_on()
+    ax.grid(which='minor', alpha=0.2)
+    ax.grid(which='major', alpha=0.5)
     handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles, labels, loc='center', bbox_to_anchor=(0.65, 0.8), prop={'size':6})
+    ax.legend(handles, labels,  loc='upper right', prop={'size':6})
     plt.tight_layout()
     fig.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_MCEER_curves.pdf"), format = 'pdf')
 

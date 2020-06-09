@@ -35,6 +35,7 @@ Analytical predictions for impulse in near-field explosive events for varying ch
 A blast load model offered by Randers-Pehrson and Bannister (RPB) \cite{randers-pehrsonAirblastLoadingModel1997} introduced a trigonometric model and applied it to the finite element codes DYNA2d and DYNA3d with a cosine function of the angle of incidence. 
 This model also appears in popular commercial FE codes such as LS-DYNA, Abaqus and Autodyn, however the model significantly underestimates the ratios in the vicinity of the transition from regular to mach reflection \cite{schwerAirBlastReflection2017} and can be considered a lower bound representation of reflection ratios when compared to the UFC values \cite{dodUnifiedFacilitiesCriteria2008}.
 Alternate blast load models based on the RPB model are proposed in \cite{jangBlastLoadModel2018,dharmasenaMechanicalResponseMetallic2008}, though the authors do not perform a direct comparison of the loading itself and instead compare them through analysing plate responses to the loading model as a proxy.
+The models proposed in \cite{jangBlastLoadModel2018,dharmasenaMechanicalResponseMetallic2008} have not been provided as a comparison in this report.  
 
 Alternative approaches by Pannell et al \cite{pannellPredictingNearFieldSpecific2019} involve modelling specific impulse distributions using two superposed Gaussian functions and perform non-linear regressions to build a parameter space for a given dataset of CFD results which shows promise. 
 Work by Rigby et al \cite{rigbyPredictingResponsePlates2019} propose the concept of ``upper bound kinetic energy uptake'' and demonstrate that in order to obtain any meaningful prediction of plate response, both the magnitude and distribution of the loading must be known.
@@ -44,18 +45,15 @@ Knowledge of air-blast parameters in the extreme near-field are not clear, ``\te
 Implementations of the MCEER \cite{shinAirBlastEffectsCivil2014} blast curves have addressed an opportunity to identity precise angle of incidence coefficients for the extreme near-field \cite{wilsonImplementationMCEERTR2018}. 
 Whilst acknowledging that overpressure is interesting from an academic perspective, this research instead focuses only on specific impulse distributions for PE4 spheres in the extreme near-field due to its direct representation of the loading.
 
-\subsection{Randers-Pehrson Bannister (RPB) Model}
-The specific impulse acting on a target is dependent on the angle of incidence of the shock front, theta, with respect to the normal of the target surface. 
+\subsection{Randers-Pehrson Bannister (RPB) Model \cite{randers-pehrsonAirblastLoadingModel1997}}
+The specific impulse ($i$) acting on a target is dependent on the angle of incidence of the shock front, theta, with respect to the normal of the target surface. 
 From \textcite{randers-pehrsonAirblastLoadingModel1997},
 \begin{equation}
 i = i_r cos^2\theta + i_{so}(1 + cos^2\theta - 2cos\theta). 
 \label{eq:RPB}
 \end{equation}
-
 Figure \ref{fig:RPB} shows the angle of incidence and slant distance for a point on a target subjected to a spherical air burst, a distance $R$ away from the target centre.
 From trigonometry, we have that $\bar{R}^2 = R^2 + x^2 + y^2$, where $x \text{ and } y$ are horizontal and vertical distance from the centre of the target, and $cos \theta = R / \bar{R}$. 
-
-
 
 The RPB model provides the distribution of impulse as a function of incident angle, theta. 
 By inputting into the model the peak reflected specific impulse and the peak reflected specific impulse of the slant distance, $\bar{R}$, we can calculate the specific impulse at any given point on a target.
@@ -67,10 +65,10 @@ The specific impulse that is fed into the RPB model is obtained from the MCEER-1
 	\label{fig:theta_peak_impulse_MCEER_curves}
 \end{figure}
 
-\subsection{Blast Impact Impulse Model \cite{remennikovExperimentalInvestigationSimplified2017}}
+\subsection{Blast Impact Impulse model}
 Analytical approach based on instantaneous detonation of spherical charge.
 
-\subsection{Henrych Model}
+\subsection{Henrych model}
 From \textcite{henrychDynamicsExplosionIts1979}, we have a theoretical basis to calculate specific impulse distributions. 
 The hypothesis of a constant velocity for out flowing particles is introduced:
 \begin{equation}
@@ -87,23 +85,5 @@ A_0 = \frac{N_{xW} + u_x}{4\pi},
 \end{equation}
 and $N_{xW}$ is the displacement velocity of the outburst surface.
 
-\subsection{Jang and Dharmasena model}
-Two alternative modelling procedures have been compared: \cite{jangBlastLoadModel2018} and \cite{dharmasenaMechanicalResponseMetallic2008}.
-Both models are derivatives of the RPB model. 
-Dharmasena ignored the perpendicular incident impulse and only considered the initial term from Equation \ref{eq:RPB}.
-\begin{equation}
-i_{cr}(\theta) = i_rexp(-tan^2\theta),
-\label{eq:Dharmasena}
-\end{equation}
-Building from this, \cite{jangBlastLoadModel2018} introduced a weighting function $\beta(z)$ that is a function of scaled distance.
-Resulting in the model:
-\begin{equation}
-i_{cr}(\theta, z) = i_rexp(-\beta(z)tan^2\theta),
-\label{eq:Jang}
-\end{equation}
-where
-\begin{equation}
-\beta = a(1 + b(z-c))exp(-b(z-c)) + d.
-\end{equation}
-The coefficients $a$, $b$ and $c$ are determined from finite element simulations of a steel plate blast test whilst $d$ is chosen as 20\% of $\beta$.
+
 

@@ -47,39 +47,9 @@
 \end{figure}
 
 \subsection{Near-field loading model}
-\subsubsection{Fitting to peak specific impulse value}
-\begin{figure}[htpb]
-	\centering
-	\begin{subfigure}[htpb]{\textwidth}
-		\centering
-		\includegraphics{Graphs/power_fit_small.pdf}
-		\vspace{2mm}
-		\caption{$0.05m/kg^{1/3} \leq z \leq 0.16 m/kg^{1/3}$}
-		\label{fig:power_fit_small}
-	\end{subfigure}
-	
-	\begin{subfigure}[htpb]{\textwidth}
-		\centering
-		\includegraphics{Graphs/power_fit_large.pdf}
-		\vspace{2mm}
-		\caption{$0.05m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$ Tempted to just use this one as it will be more accurate. }
-		\label{fig:power_fit_large}
-	\end{subfigure}
-	\caption{Fitting a power law to the peak specific impulse data  and an assessment of the fit. \textbf{Should this be scaled impulse on the y axis? }}
-\end{figure}
-
 \subsubsection{Fitting distribution of theta}
-
-
 \begin{figure}
-	\begin{subfigure}[htpb]{\textwidth}
-		\centering
-		\includegraphics{Graphs/model_gaussian1.pdf}
-		\vspace{3mm}
-		\caption{Gaussian 1 model. \textbf{MUST TALK ABOUT THE NORMALISED ANGLES ON THE BOTTOM AXIS!}}
-		\label{fig:model_gaussian1}
-	\end{subfigure}
-	
+	\centering	
 	\begin{subfigure}[htpb]{\textwidth}
 		\centering
 		\includegraphics{Graphs/model_henrych.pdf}
@@ -94,6 +64,13 @@
 		\vspace{3mm}
 		\caption{RPB-MCEER model.}
 		\label{fig:model_RPB_MCEER}
+	\end{subfigure}
+	\begin{subfigure}[htpb]{\textwidth}
+		\centering
+		\includegraphics{Graphs/model_gaussian1.pdf}
+		\vspace{3mm}
+		\caption{Gaussian 1 model. \textbf{MUST TALK ABOUT THE NORMALISED ANGLES ON THE BOTTOM AXIS!}}
+		\label{fig:model_gaussian1}
 	\end{subfigure}
 	\caption{Normalised specific impulse comparisons for $0.055 < z < 0.16m.kg^{\frac{1}{3}}$.}
 \end{figure}
@@ -144,3 +121,24 @@
 
 If normal probability plot of residuals is approximately linear this supports the condition that error terms are normally distributed. 
 %https://online.stat.psu.edu/stat501/lesson/4/4.6
+
+\subsubsection{Fitting to peak specific impulse value}
+\begin{figure}[htpb]
+	\centering
+	\begin{subfigure}[htpb]{\textwidth}
+		\centering
+		\includegraphics{Graphs/power_fit_small.pdf}
+		\vspace{2mm}
+		\caption{$0.05m/kg^{1/3} \leq z \leq 0.16 m/kg^{1/3}$}
+		\label{fig:power_fit_small}
+	\end{subfigure}
+	
+	\begin{subfigure}[htpb]{\textwidth}
+		\centering
+		\includegraphics{Graphs/power_fit_large.pdf}
+		\vspace{2mm}
+		\caption{$0.05m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$ Tempted to just use this one as it will be more accurate. }
+		\label{fig:power_fit_large}
+	\end{subfigure}
+	\caption{Fitting a power law to the peak specific impulse data  and an assessment of the fit. \textbf{Should this be scaled impulse on the y axis? }}
+\end{figure}
