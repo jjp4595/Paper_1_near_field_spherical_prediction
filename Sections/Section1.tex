@@ -1,10 +1,18 @@
 \section{Introduction}
- 
+Consider the reflection of a blast wave after it strikes a rigid target, Figure \ref{fig:RPB}. The angle of incidence $\theta$, at a point on the surface is defined as the angle between the outward normal of the surface and the direct vector from the explosive charge to that point. \cite{rigbyAngleIncidenceEffects2015}.
 \begin{figure}[htpb]
 	\centering
-	\includegraphics[scale=2, keepaspectratio]{Images/RPB.pdf}
+	\includegraphics[scale=1.5, keepaspectratio]{Images/RPB.pdf}
 	\caption{Angle of incidence and slant distance for a specific point on a square target}
 	\label{fig:RPB}
 \end{figure}
+When a blast wave interacts with a structure located in close proximity to it, the resulting blast load is extremely high-magnitude, short duration and highly spatially non-uniform. 
+The reason for this spatial non-uniformity is due to charge properties (shape, type), mach stem effects and the varying standoff  distance comparative to the perpendicular scenario for the incident shock wave.
 
-Consider the reflection of a blast wave after it strikes a rigid target, Figure \ref{fig:RPB}. The angle of incidence $\theta$, at a point on the surface is defined as the angle between the outward normal of the surface and the direct vector from the explosive charge to that point. \cite{rigbyAngleIncidenceEffects2015}.
+A significant challenge to the blast protection community is the quantification of loading from near-field explosive events, and modelling of the subsequent structural response.
+In the near-field, loading is extremely sensitive to scaled distance and charge shape, fundamental properties of the explosive event. 
+
+Physics based solvers can provide highly accurate solutions to specific scenarios but may take days to complete, conversely we have simplistic methods that allow risk-based design approaches, but these are not accurate and can only offer vague approximations.
+
+This paper details a methodology for producing a FREM (fast running engineering model) for a given range of scaled distances that allows the blast protection community to perform risk-based engineering analysis. 
+The produced models combine the accuracy of physics-based solutions (with experimental validation) and the speed of semi-empirical simplistic methods.

@@ -305,7 +305,7 @@ def my_model_graphs_exact():
     ax0.legend(handles, labels, loc='upper right', prop={'size':6})    
     ax1.set_xlabel('angle of incidence (degrees)')
     ax1.set_ylabel('Residual')
-    text_gaussian1 = r"$f(\theta) = exp \left( \frac{-\left( \frac{\theta}{160} +0.5 \right) ^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
+    text_gaussian1 = r"$f(\theta) = exp \left( \frac{-\left( \frac{\theta}{160} \right) ^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
     ax1.text(0.05, 0.2, text_gaussian1, fontsize = 'small', transform=ax1.transAxes)       
     ax1.plot(np.linspace(0,80,200), small['icr'].mean(1) - gaussmod[int(len(gaussmod)/2)::], ls = 'None', marker = 's', mfc = 'none', mec='k',  ms = 3., markevery = 8)
     ax1.set_ylim(-0.1, 0.1) 
@@ -468,7 +468,7 @@ def my_model_graphs_large():
     ax0.set_ylim(0, 1)
     ax1.set_xlim(0,80)
     ax1.set_ylim(-0.1, 0.1)
-    text_gaussian1 = r"$f(\theta) = exp \left( \frac{-\left( \frac{\theta}{160} +0.5 \right) ^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
+    text_gaussian1 = r"$f(\theta) = exp \left( \frac{-\left( \frac{\theta}{160}\right) ^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
     ax1.text(0.05, 0.2, text_gaussian1, fontsize = 'small', transform=ax1.transAxes)       
     ax1.set_ylim(-0.1, 0.1) 
     ax1.set_xlim(0,80)
@@ -561,10 +561,6 @@ large['gauss_surf'], fig, fig2 = plot_model_surfaces(large)
 fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_gaussian1.pdf', format = 'pdf')
 fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_gaussian2.pdf', format = 'pdf')
    
-
-
-
-
 
 def TotalImpulseSurfaces(dataset):
     max_target_length = 2.5

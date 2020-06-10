@@ -1,5 +1,13 @@
 \section{Results}
-\subsection{CFD Dataset}
+\subsection{Dataset overview}
+Two datasets of 100g PE4 were generated to use within this research.
+Peak scaled specific impulse distributions for the smaller dataset ($0.10m/kg^{1/3} \leq z \leq 0.20 m/kg^{1/3}$) are given in Figure \ref{fig:data_overview_small_a}, with the unsmoothed and smoothed sample comparison given in Figure \ref{fig:data_overview_small_b} and the normalised specific impulse profiles in Figure \ref{fig:data_overview_small_c}.
+Similar plots are shown in Figures \ref{fig:data_overview_large_a}, \ref{fig:data_overview_large_b} and \ref{fig:data_overview_large_c} for the larger dataset ($0.10m/kg^{1/3} \leq z \leq 0.50 m/kg^{1/3}$).
+
+By splitting the dataset in this way, two models will be presented.
+The first, for the smaller dataset will offer more precise predictions as the normalised specific impulse curves are approximately homogenous at the cost of a reduced range of scaled distances.
+Whilst the second, will provide data for a larger range of scaled distance at the cost of a small loss of accuracy.
+
 \begin{figure}[htpb]
 	\centering
 	\begin{subfigure}[htpb]{0.45\textwidth}
@@ -11,16 +19,16 @@
 	\begin{subfigure}[htpb]{0.45\textwidth}
 		\centering
 		\includegraphics{Graphs/data_overview_small_b.pdf}
-		\caption{$0.05m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$}
+		\caption{$0.1m/kg^{1/3} \leq z \leq 0.2 m/kg^{1/3}$}
 		\label{fig:data_overview_small_b}
 	\end{subfigure}	
 	\begin{subfigure}[htpb]{0.45\textwidth}
 		\centering
 		\includegraphics{Graphs/data_overview_small_c.pdf}
-		\caption{$0.05m/kg^{1/3} \leq z \leq 0.16 m/kg^{1/3}$}
+		\caption{$0.1m/kg^{1/3} \leq z \leq 0.2 m/kg^{1/3}$}
 		\label{fig:data_overview_small_c}
 	\end{subfigure}
-	\caption{Peak specific impulse distribution overview of PE4 datasets. $0.05m/kg^{1/3} \leq z \leq 0.16 m/kg^{1/3}$, $0.05m/kg^{1/3} \leq z\text{(clear standoff)} \leq 0.16 m/kg^{1/3}$}
+	\caption{Peak specific impulse distribution overview of PE4 datasets $0.1m/kg^{1/3} \leq z \leq 0.2 m/kg^{1/3}$}
 \end{figure}
 
 \begin{figure}[htpb]
@@ -34,20 +42,70 @@
 	\begin{subfigure}[htpb]{0.45\textwidth}
 		\centering
 		\includegraphics{Graphs/data_overview_large_b.pdf}
-		\caption{$0.05m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$}
+		\caption{$0.1m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$}
 		\label{fig:data_overview_large_b}
 	\end{subfigure}	
 	\begin{subfigure}[htpb]{0.45\textwidth}
 		\centering
 		\includegraphics{Graphs/data_overview_large_c.pdf}
-		\caption{$0.05m/kg^{1/3} \leq z \leq 0.16 m/kg^{1/3}$}
+		\caption{$0.1m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$}
 		\label{fig:data_overview_large_c}
 	\end{subfigure}
-	\caption{Peak specific impulse distribution overview of PE4 datasets. $0.05m/kg^{1/3} \leq z \leq 0.16 m/kg^{1/3}$, $0.05m/kg^{1/3} \leq z\text{(clear standoff)} \leq 0.16 m/kg^{1/3}$}
+	\caption{Peak specific impulse distribution overview of PE4 datasets $0.1m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$. }
 \end{figure}
 
 \subsection{Near-field loading model}
-\subsubsection{Fitting distribution of theta}
+The proposed model is built from two constituent parts: 
+\begin{itemize}
+	\item distribution of peak specific impulse (at theta $= 0$) as a function of scaled distance,
+	\item distribution of peak specific impulse as a function of angle of incidence (in degrees).
+\end{itemize}
+
+\subsubsection{Peak specific impulse distribution for theta $= 0$}
+Analysis of the peak scaled specific impulse at theta $= 0$ as a function of scaled distance lead to the production of a power law relation due to the approximately linear relationship in log-log space. 
+Figures \ref{fig:power_fit_small} and \ref{fig:power_fit_large} show the assessment of these relations.
+Considering the former, built on the small dataset, the residual standard error is small, and the model approximates the peak scaled specific impulse values well.
+The latter model built on the larger dataset provides a good approximation for these peak scaled specific impulse values, for a small cost in accuracy.
+
+\begin{figure}[htpb]
+	\centering
+	\begin{subfigure}[htpb]{\textwidth}
+		\centering
+		\includegraphics{Graphs/power_fit_small.pdf}
+		\vspace{2mm}
+		\caption{$0.10m/kg^{1/3} \leq z \leq 0.20 m/kg^{1/3}$}
+		\label{fig:power_fit_small}
+	\end{subfigure}
+	
+	\begin{subfigure}[htpb]{\textwidth}
+		\centering
+		\includegraphics{Graphs/power_fit_large.pdf}
+		\vspace{2mm}
+		\caption{$0.10m/kg^{1/3} \leq z \leq 0.52 m/kg^{1/3}$}
+		\label{fig:power_fit_large}
+	\end{subfigure}
+	\caption{Fitting a power law to the scaled peak specific impulse data  and an assessment of the fit.}
+\end{figure}
+
+\subsubsection{Normalised specific impulse distribution}
+The mean of the normalised specific impulse distribution was chosen as the target model. 
+Preliminary work led to three promising models to be taken forward for comparison. 
+Figure \ref{fig:model_henrych} shows the Henrych \cite{henrychDynamicsExplosionIts1979} and BIIM model \cite{remennikovExperimentalInvestigationSimplified2017}.
+Initial comparison can be seen from the normalised impulse distribution of the model against the mean of the normalised CFD specific impulse curves and the residuals plotted in the centre plot.
+The final plot is the normal probability plot of the residuals, and is used to support whether the error terms are normally distributed.
+Whilst the overall shape of the distribution is accurate, it underpredicts the normalised specific impulse values from 20 degrees onwards.
+
+A similar analysis can be made of the RPB-MCEER model \cite{randers-pehrsonAirblastLoadingModel1997, shinAirBlastEffectsCivil2014}, shown clearly in the residuals plot that from 20 degrees onwards the model begins to underpredict the mean CFD values.
+
+The final model, proposed in this research developed from Pannell et al. \cite{pannellPredictingNearFieldSpecific2019}, uses the equation for a gaussian probability density function, without the scaling factor. 
+This model was fit to the CFD mean via a non-linear regression procedure.
+The residual plot shows a more accurate fit, with the lowest value for residual standard error. 
+The final plot gives the lowest coefficient of determination, suggesting that the errors from the regression are not normally distributed. 
+This should be considered a statistical criticism of the method of fitting, not of the model itself.
+In the fitting procedure, the l2-norm squared is minimised which is known to prioritise the fit at larger values (the peak of the curve). 
+It is important to keep in mind the context of the models purpose, it is shown to provide the best approximation to the normalised peak specific impulse distributions and therefore will be an incredibly useful tool to an engineer.
+%If normal probability plot of residuals is approximately linear this supports the condition that error terms are normally distributed. 
+%https://online.stat.psu.edu/stat501/lesson/4/4.6
 \begin{figure}
 	\centering	
 	\begin{subfigure}[htpb]{\textwidth}
@@ -69,29 +127,14 @@
 		\centering
 		\includegraphics{Graphs/model_gaussian1.pdf}
 		\vspace{3mm}
-		\caption{Gaussian 1 model. \textbf{MUST TALK ABOUT THE NORMALISED ANGLES ON THE BOTTOM AXIS!}}
+		\caption{Gaussian model.}
 		\label{fig:model_gaussian1}
 	\end{subfigure}
-	\caption{Normalised specific impulse comparisons for $0.055 < z < 0.16m.kg^{\frac{1}{3}}$.}
+	\caption{Normalised specific impulse comparisons for $0.1 \leq z \leq 0.2m/kg^{\frac{1}{3}}$.}
 \end{figure}
 
-\begin{figure}[htpb]
-	\begin{subfigure}{0.45\textwidth}
-		\centering
-		\includegraphics{Graphs/smallz_gaussian1.pdf}
-		\caption{Constructed surface from Gaussian model}
-		\label{fig:smallz_gaussian1}
-	\end{subfigure}
-	\begin{subfigure}{0.45\textwidth}
-		\centering
-		\includegraphics{Graphs/smallz_gaussian2.pdf}
-		\caption{CFD residual}
-		\label{fig:smallz_gaussian2}
-	\end{subfigure}
-\caption{Specific impulse model comparisons for $0.055 < z < 0.16m.kg^{\frac{1}{3}}$.}
-\end{figure}
-
-
+A similar model assessment has been performed in Figure \ref{fig:model_gaussian1_largez}.
+Though the dataset and the range of normalised peak specific impulse values are both larger, the model fits the mean of this data remarkably well, with a small RSE value and a large $R^2$ indicating a good model fit and a statistically robust fit respectively.
 \begin{figure}
 	\begin{subfigure}[htpb]{\textwidth}
 		\centering
@@ -100,45 +143,5 @@
 		\caption{Gaussian 1 model}
 		\label{fig:model_gaussian1_largez}
 	\end{subfigure}
-	\caption{Gaussian model for theta distribution for $0.055 < z < 0.5m.kg^{\frac{1}{3}}$.}
-\end{figure}
-
-\begin{figure}[htpb]
-	\begin{subfigure}{0.45\textwidth}
-		\centering
-		\includegraphics{Graphs/largez_gaussian1.pdf}
-		\caption{Constructed surface from Gaussian model}
-		\label{fig:largez_gaussian1}
-	\end{subfigure}
-	\begin{subfigure}{0.45\textwidth}
-		\centering
-		\includegraphics{Graphs/largez_gaussian2.pdf}
-		\caption{CFD residual}
-		\label{fig:largez_gaussian2}
-	\end{subfigure}
-	\caption{Specific impulse model comparisons for a large dataset of  $0.055 < z < 0.5m.kg^{\frac{1}{3}}$.}
-\end{figure}
-
-If normal probability plot of residuals is approximately linear this supports the condition that error terms are normally distributed. 
-%https://online.stat.psu.edu/stat501/lesson/4/4.6
-
-\subsubsection{Fitting to peak specific impulse value}
-\begin{figure}[htpb]
-	\centering
-	\begin{subfigure}[htpb]{\textwidth}
-		\centering
-		\includegraphics{Graphs/power_fit_small.pdf}
-		\vspace{2mm}
-		\caption{$0.05m/kg^{1/3} \leq z \leq 0.16 m/kg^{1/3}$}
-		\label{fig:power_fit_small}
-	\end{subfigure}
-	
-	\begin{subfigure}[htpb]{\textwidth}
-		\centering
-		\includegraphics{Graphs/power_fit_large.pdf}
-		\vspace{2mm}
-		\caption{$0.05m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$ Tempted to just use this one as it will be more accurate. }
-		\label{fig:power_fit_large}
-	\end{subfigure}
-	\caption{Fitting a power law to the peak specific impulse data  and an assessment of the fit. \textbf{Should this be scaled impulse on the y axis? }}
+	\caption{Gaussian model for theta distribution for $0.1 \leq z \leq 0.52m/kg^{\frac{1}{3}}$.}
 \end{figure}

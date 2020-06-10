@@ -1,6 +1,20 @@
 
 \section{Numerical modelling using \textit{Apollo Blastsimulator}}
-\subsection{Mesh Sensitivity}
+\subsection{Mesh sensitivity}
+A mesh sensitivity study was undertaken to inform the choice of mesh to be used to generate the datasets herein. 
+The lower bound of the dataset was chosen as this represents the highest required resolution.
+Table \ref{tab:mesh_sens} presents the meshes that were studied.
+
+A feature of \textit{Apollo blastsimulator} is its dynamic mesh adaptation (DMA) capabilities (Figure \ref{fig:DMA}).
+This allows the efficient use of computational resources by directing them to areas within the mesh with the largest local gradients (e.g. the shock front).
+DMA was used to generate the data within this research, and its effects are studied compared with the uniform mesh resolution scenario.
+
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[scale=0.75, keepaspectratio]{Images/local_mesh_dma.pdf}
+	\caption{Dynamic mesh adaptation in \textit{Apollo blastsimulator}}
+	\label{fig:DMA}
+\end{figure}
 
 \begin{table}
 	\begin{subtable}{0.45\textwidth}
@@ -14,27 +28,38 @@
 		\caption{Number of cells in distance between charge centre and measuring location (at 0$^{\circ}$ angle of incidence).}	
 		\import{Tables/}{z0_055_mesh_R.tex}
 	\end{subtable}
-	\caption{Mesh sensitivity study information for z = 0.055$m.kg^{\frac{1}{3}}$.}
+	\caption{Mesh sensitivity study information for z = 0.11$m/kg^{\frac{1}{3}}$.}
+	\label{tab:mesh_sens}
 \end{table}
 
 \begin{figure}[htpb]
 	 \centering
 	 \includegraphics{Graphs/mesh_convergence_z0_055_1.pdf}
-	 \caption{Mesh convergence study for z = 0.055$m.kg^{\frac{1}{3}}$}
+	 \caption{Mesh convergence study for z = 0.108$m/kg^{\frac{1}{3}}$}
 	 \label{fig:mesh_convergence_z0_055_1}
 \end{figure}
+Figure \ref{fig:mesh_convergence_z0_055_1} presents the mesh convergence data as a function of number of cells between the centre of the charge and the target face. 
+Convergence was deemed to be adequate within $10\%$ of the ``convereged'' value at $R/\text{cell length} = 15$. 
+Convergence is shown to be quicker when considering the total impulse on a $1m^2$ plate.
 
+Further mesh studies were performed to assess the impact of the DMA module, and different $R/\text{cell length}$ values on the distribution of peak specific impulse. 
+Figure \ref{fig:mesh_convergence_dataset2} presents this information, with the plot labels representing the meshes in Table \ref{tab:mesh_sens2}. 
+It shows that overall, the distribution itself convergences at a fairly coarse level (ultimate cell size of $6.250$mm), whilst it is only the peak values that do not converge for the coarser meshes, shown in Figure \ref{fig:mesh_convergence_dataset3}.
+Meshes E and F study the effect of the DMA module on the overall distribution. 
+It is shown that the DMA does introduce artificial oscillations to the impulse distribution, however, in context with the shape of the overall profile these are deemed to be acceptable. 
+Mesh D was chosen, with an ultimate cell size of $3.15mm$.
 \begin{table}[htpb]
 	\centering
-	\caption{Information for mesh strategy in context of entire range of clear scaled distance ($0.055 < z < 0.16m.kg^{\frac{1}{3}}$).}	
+	\caption{Information for mesh strategy in context of range of scaled distance ($0.1 \leq z \leq 0.2m/kg^{\frac{1}{3}}$).}	
 	\import{Tables/}{dataset_meshes.tex}
+	\label{tab:mesh_sens2}
 \end{table}
 
 \begin{figure}[htpb]
 	\begin{subfigure}{0.4\textwidth}
 		\centering
 		\includegraphics{Graphs/mesh_convergence_dataset2.pdf}
-		\caption{Specific impulse distribution for z $= 0.133m.kg^{\frac{1}{3}}$ for DMA analysis.}
+		\caption{Specific impulse distribution for z $= 0.187m/kg^{\frac{1}{3}}$ for DMA analysis.}
 		\label{fig:mesh_convergence_dataset2}
 	\end{subfigure}
 	\begin{subfigure}{0.4\textwidth}
@@ -46,7 +71,13 @@
 	\caption{Mesh strategy across dataset range.}
 \end{figure}
 
-\subsection{Validation against experimental data}
+\subsection{Experimental validation}
+The CFD data was then compared to experimental data from the University of Sheffield. 
+100g of PE4 was detonated at a perpendicular standoff distance of 80mm (to the centre of the charge), HPBs places at intervals meant there is pressure and impulse-time history data for the follwing angles of incidence: $0, 17, 32, 43 \text{ and } 51$ degrees.
+The comparison for pressure and impulse time-histories are given in Figure \ref{fig:80mm_validation_OP_imp}.
+Pressure-time histories show good agreement for peak values and arrival times, whilst the impulse time-histories show fairly good agreement for all given angles of incidence. 
+
+An experimental comparison for peak impulse distribution is shown in Figure \ref{fig:mesh_convergence_z0_055_3} where \textit{Apollo} appears to agree with the upper bound of the experimental dataset. 
 \begin{figure}[htpb]
 	\begin{subfigure}{\linewidth}
 		\centering
@@ -78,17 +109,20 @@
 		\caption{51 degrees}
 		\label{fig:80mm_validation_d}
 	\end{subfigure}
-	\caption{Experimental validation for overpressure and impulse time histories at z=0.12 $m.kg^{\frac{1}{3}}$ for various angles of incidence.}
+	\caption{Experimental validation for overpressure and impulse time histories at z=0.17 $m/kg^{\frac{1}{3}}$ for various angles of incidence.}
 	\label{fig:80mm_validation_OP_imp}
 \end{figure}
 
 \begin{figure}[htpb]
 	\centering
 	\includegraphics{Graphs/mesh_convergence_z0_055_3.pdf}
-	\caption{Validation of mesh for investigating specific impulse distributions at z = 0.055$m.kg^{\frac{1}{3}}$ and z = 0.12$m.kg^{\frac{1}{3}}$.}
+	\caption{Validation of mesh for investigating specific impulse distributions at z = 0.17$m/kg^{\frac{1}{3}}$.}
 	\label{fig:mesh_convergence_z0_055_3}
 \end{figure}
 
+Considering the dataset as a whole, the peak specific impulse distributions are shown in Figure \ref{fig:mesh_convergence_dataset1}, and smoothed versions in Figure \ref{fig:mesh_convergence_dataset1a}. 
+The smoothing was completed with a Savitzky-Golay filter \cite{savitzkySmoothingDifferentiationData1964} and is shown to maintain the overall distribution whilst removing the artificial oscillations from the DMA module. 
+Normalising each sample to the maximum at theta $= 0$ is shown in Figure \ref{fig:mesh_convergence_dataset1b} where it is shown that the normalised specific impulse profiles across the chosen range of scaled distances can be considered homogeneous.
 \begin{figure}[htpb]
 	\begin{subfigure}{0.4\textwidth}
 		\centering

@@ -1,19 +1,67 @@
 \section{Evaluation}
-\subsection{Area integrated impulse comparison}
+\subsection{Specific impulse evaluation}
+From the presented model, the user now has access to the peak scaled specific impulse and the distribution of the peak scaled specific impulse for a given scaled distance.
+These two equations are all that is required to reconstruct the data shown in Figures \ref{fig:data_overview_small_a} and \ref{fig:data_overview_large_a}.
+For the small dataset, Figure \ref{fig:smallz_gaussian1} demonstrates this reconstructed surface whilst Figure \ref{fig:smallz_gaussian2} presents the difference between the reconstructed and original surface. 
+It is shown to reproduce the surface to a high level of accuracy.
+Similarly, Figures \ref{fig:largez_gaussian1} and \ref{fig:largez_gaussian2} present the model evaluation for the large dataset.
+Considering this has made a minor sacrifice for accuracy to enable a larger range of predictions, the accuracy remains high.
+\begin{figure}[htpb]
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/smallz_gaussian1.pdf}
+		\caption{Constructed surface from Gaussian model}
+		\label{fig:smallz_gaussian1}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/smallz_gaussian2.pdf}
+		\caption{CFD residual}
+		\label{fig:smallz_gaussian2}
+	\end{subfigure}
+	\caption{Specific impulse model comparisons for $0.1 \leq z \leq 0.2m/kg^{\frac{1}{3}}$.}
+	\label{fig:smallz_gaussians}
+\end{figure}
+
+\begin{figure}[htpb]
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/largez_gaussian1.pdf}
+		\caption{Constructed surface from Gaussian model}
+		\label{fig:largez_gaussian1}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/largez_gaussian2.pdf}
+		\caption{CFD residual}
+		\label{fig:largez_gaussian2}
+	\end{subfigure}
+	\caption{Specific impulse model comparisons for a large dataset of  $0.1 \leq z \leq 0.52m/kg^{\frac{1}{3}}$.}
+\end{figure}
+
+\subsection{Area integrated total impulse comparison}
+A final evaluation of the two models was performed via a total impulse comparison on a $5m$ diameter circular target plate.
+Figure \ref{fig:smallz_totalimpulse_gauss} presents a constructed total scaled impulse surface, by varying the scaled radius (therefore changing the size of plate) and scaled distance.
+The same total scaled impulse calculation was performed on the CFD data itself, and subtracted from the predicted model to provide an indication of accuracy. 
+Up to a scaled radius of $3m/kg^{\frac{1}{3}}$ predictions within $10\%$ are shown, with the model performing comparatively weaker at larger values of scaled radius.
+This has been illustrated previously where the model is slightly weaker predicting results from approximately 50 degrees onwards.
+
+For the larger dataset we see a similar pattern, in that smaller scaled distances and a scaled radius of $3m/kg^{\frac{1}{3}}$ onwards provide a weaker prediction.
+The majority of both surfaces however provide good approximations for total scaled impulse, with only the larger angle of incidence values (ie larger scaled radius) and smaller scaled distances providing a weaker prediction.
 \begin{figure}[htpb]
 	\begin{subfigure}{0.45\textwidth}
 		\centering
 		\includegraphics{Graphs/smallz_totalimpulse_gauss.pdf}
-		\caption{Constructed surface from Gaussian model}
+		\caption{Proposed model surface}
 		\label{fig:smallz_totalimpulse_gauss}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
 		\includegraphics{Graphs/smallz_totalimpulse_gauss2.pdf}
-		\caption{CFD residual}
+		\caption{Model residual}
 		\label{fig:smallz_totalimpulse_gauss2}
 	\end{subfigure}
-	\caption{Total impulse on a circular target of various radii for a clear scaled distance of $0.055 < z < 0.16m.kg^{\frac{1}{3}}$}
+	\caption{Total impulse on a circular target of various radii for scaled distance of $0.1 \leq z \leq 0.2m/kg^{\frac{1}{3}}$}
 \end{figure}
 
 \begin{figure}[htpb]
@@ -26,8 +74,8 @@
 	\begin{subfigure}{0.45\textwidth}
 		\centering
 		\includegraphics{Graphs/largez_totalimpulse_gauss2.pdf}
-		\caption{CFD residual}
+		\caption{Model residual}
 		\label{fig:largez_totalimpulse_gauss2}
 	\end{subfigure}
-	\caption{Total impulse on a circular target of various radii for a clear scaled distance of $0.055 < z < 0.5m.kg^{\frac{1}{3}}$}
+	\caption{Total impulse on a circular target of various radii for scaled distance of $0.1 \leq z \leq 0.52m/kg^{\frac{1}{3}}$}
 \end{figure}
