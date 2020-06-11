@@ -14,11 +14,8 @@ Reflection coefficients that transform incident to reflected overpressures are r
 The KB charts have proven to be accurate for medium to large scaled distances specifically \cite{rigbyValidationSemiempiricalBlast2014, karlosAnalysisBlastParameters2016}, and recent work developing blast wave decay coefficients from the KB data are proposed in \cite{karlosAnalysisBlastWave2016}.
 However, uncertainty exists in the exact distributions and magnitudes of near field and extreme near-field loading and is a challenge to the research community.
 
-One method of near-field experimental measurement involves measuring momentum imparted to small, rigid plugs embedded within a larger target surface \cite{huffingtonReflectedImpulseSpherical1985, nansteelImpulsePlugMeasurements2013}. 
-With the limitation here of no gained knowledge of the loading distribution.
-An alternative proposed in 1914 by Bertram Hopkinson \cite{hopkinsonMethodMeasuringPressure1914} is known as the Hopkinson pressure bar (HPB). 
-A length of cylindrical bar that propagates an elastic stress pulse along its axis to be recorded by equipment situated a distance away from the loaded end. 
-It is more commonly used in its `split' form, and remain a very useful tool for measuring high-magnitude, short-duration loading \cite{kolskyInvestigationMechanicalProperties1949, edwardsBlastWaveMeasurements1992,piehlerNearFieldImpulseLoading2009,rigbyTestingApparatusSpatial2014,rigbyObservationsPreliminaryExperiments2015,tyasExperimentalStudiesEffect2016, cloeteBlastCharacterizationUsing2016, rigbyNearfieldBlastLoading2019}.
+Common near-field experimental measurement techniques consist of measuring momentum imparted to small, rigid plugs embedded within a larger target surface \cite{huffingtonReflectedImpulseSpherical1985, nansteelImpulsePlugMeasurements2013} and the use of Hopkinson pressure bars (HPBs) 
+\cite{hopkinsonMethodMeasuringPressure1914,kolskyInvestigationMechanicalProperties1949, edwardsBlastWaveMeasurements1992,piehlerNearFieldImpulseLoading2009,rigbyTestingApparatusSpatial2014,rigbyObservationsPreliminaryExperiments2015,tyasExperimentalStudiesEffect2016, cloeteBlastCharacterizationUsing2016, rigbyNearfieldBlastLoading2019}.
 A detailed overview of the experimental set up that generated the data to inform this study is available in \cite{rigbyExperimentalMeasurementSpecific2019}.
 
 Additional experimental set ups include those by \cite{chevalLaboratoryScaleTests2012} with pressure gauges embedded into a modular table to obtain pressure values at various angles of incidence from the charge. 
@@ -40,8 +37,7 @@ Analytical predictions for impulse in near-field explosive events for varying ch
 A blast load model offered by Randers-Pehrson and Bannister (RPB) \cite{randers-pehrsonAirblastLoadingModel1997} introduced a trigonometric model and applied it to the finite element codes DYNA2d and DYNA3d with a cosine function of the angle of incidence. 
 This model also appears in popular commercial FE codes such as LS-DYNA, Abaqus and Autodyn, however the model significantly underestimates the ratios in the vicinity of the transition from regular to mach reflection \cite{schwerAirBlastReflection2017} and can be considered a lower bound representation of reflection ratios when compared to the UFC values \cite{dodUnifiedFacilitiesCriteria2008}.
 
-Further blast load models based on the RPB model are proposed in \cite{jangBlastLoadModel2018,dharmasenaMechanicalResponseMetallic2008}, though the authors do not perform a direct comparison of the loading itself and instead compare them through analysing plate responses to the loading model as a proxy.
-The models proposed in \cite{jangBlastLoadModel2018,dharmasenaMechanicalResponseMetallic2008} have not been provided as a comparison in this report.  
+Further blast load models based on the RPB model are proposed in \cite{jangBlastLoadModel2018,dharmasenaMechanicalResponseMetallic2008}, though the authors do not perform a direct comparison of the loading itself and instead compare them through analysing plate responses to the loading model as a proxy. 
 Alternative approaches by Pannell et al. \cite{pannellPredictingNearFieldSpecific2019} involve modelling specific impulse distributions using two superposed Gaussian functions and perform non-linear regressions to build a parameter space for a given dataset of CFD results. 
  
 Knowledge of air-blast parameters in the extreme near-field are not clear, ``\textit{under predict incident and normally reflected peak overpressures and incident impulse near the face of the charge}'' \cite{shinAirBlastEffectsCivil2014} and current reflection coefficients (for TNT exclusively) have a lower bound of $Z > 0.16m/kg^{1/3}$.
@@ -49,7 +45,8 @@ Implementations of the MCEER \cite{shinAirBlastEffectsCivil2014} blast curves ha
 
 Rigby et al. \cite{rigbyPredictingResponsePlates2019} propose the concept of ``upper bound kinetic energy uptake'' and demonstrate that in order to obtain any meaningful prediction of plate response, both the magnitude and distribution of the loading must be known.
 Therefore there is a pressing need for accurate, fast-running engineering tools that can model specific impulse (and therefore loading) distributions. 
-\subsection{Randolph-Pehrson Bannister model with MCEER data}
+\subsection{Loading distribution models}
+\subsubsection{Randolph-Pehrson Bannister model with MCEER data}
 The specific impulse ($i$) acting on a target is dependent on the angle of incidence of the shock front, theta, with respect to the normal of the target surface. 
 From \textcite{randers-pehrsonAirblastLoadingModel1997},
 \begin{equation}
@@ -68,7 +65,7 @@ The specific impulse that is fed into the RPB model is obtained from the MCEER-1
 	\caption{MCEER curves for specific impulse}
 	\label{fig:theta_peak_impulse_MCEER_curves}
 \end{figure}
-\subsection{Henrych / Remennikov analytical model}
+\subsubsection{Henrych / Remennikov analytical model}
 From \textcite{henrychDynamicsExplosionIts1979} and Remennikov \cite{remennikovExplosiveBreachingWalls2015}, we have a theoretical basis to calculate specific impulse distributions. 
 The hypothesis of a constant velocity for out flowing particles is introduced:
 \begin{equation}

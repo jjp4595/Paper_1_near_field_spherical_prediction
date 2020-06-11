@@ -72,12 +72,15 @@ Mesh D was chosen, with an ultimate cell size of $3.15mm$.
 \end{figure}
 
 \subsection{Experimental validation}
-The CFD data was then compared to experimental data from the University of Sheffield. 
-100g of PE4 was detonated at a perpendicular standoff distance of 80mm (to the centre of the charge), HPBs places at intervals meant there is pressure and impulse-time history data for the follwing angles of incidence: $0, 17, 32, 43 \text{ and } 51$ degrees.
+\textit{Apollo blastsimulator} was validated against available experimental data published in \cite{rigbyExperimentalMeasurementSpecific2019}. 
+Here 100g spherical PE4 chargers were detonated at a perpendicular standoff distances of 80mm and 380mm (to the centre of the charge).
+Three tests were performed in total, with 17 HPBs in each test: one located in the centre of the target; four at 25 mm from the centre; four at 50 mm from the centre; four at 75 mm from the centre; and four at 100 mm from the centre. 
+These correspond to angles of incidence of: $0, 17, 32, 43 \text{ and } 51$ degrees.
 The comparison for pressure and impulse time-histories are given in Figure \ref{fig:80mm_validation_OP_imp}.
 Pressure-time histories show good agreement for peak values and arrival times, whilst the impulse time-histories show fairly good agreement for all given angles of incidence. 
 
-An experimental comparison for peak impulse distribution is shown in Figure \ref{fig:mesh_convergence_z0_055_3} where \textit{Apollo} appears to agree with the upper bound of the experimental dataset. 
+An experimental comparison for peak impulse distribution is shown in Figure \ref{fig:mesh_80mm_va} where \textit{Apollo} appears to agree with the upper bound of the experimental dataset. 
+
 \begin{figure}[htpb]
 	\begin{subfigure}{\linewidth}
 		\centering
@@ -114,35 +117,20 @@ An experimental comparison for peak impulse distribution is shown in Figure \ref
 \end{figure}
 
 \begin{figure}[htpb]
-	\centering
-	\includegraphics{Graphs/mesh_convergence_z0_055_3.pdf}
-	\caption{Validation of mesh for investigating specific impulse distributions at z = 0.17$m/kg^{\frac{1}{3}}$.}
-	\label{fig:mesh_convergence_z0_055_3}
+	\begin{subfigure}{0.45\linewidth}
+		\centering
+		\includegraphics{Graphs/mesh_80mm_val.pdf}
+		\caption{100g PE4 sphere at 80mm standoff, z = 0.16$m/kg^{\frac{1}{3}}$.}
+		\label{fig:mesh_80mm_val}
+	\end{subfigure}
+	\begin{subfigure}{0.45\linewidth}
+		\centering
+		\includegraphics{Graphs/mesh_380mm_val.pdf}
+		\caption{380mm standoff, z = 0.77$m/kg^{\frac{1}{3}}$.}
+		\label{fig:mesh_380mm_val}
+	\end{subfigure}
 \end{figure}
 
 Considering the dataset as a whole, the peak specific impulse distributions are shown in Figure \ref{fig:mesh_convergence_dataset1}, and smoothed versions in Figure \ref{fig:mesh_convergence_dataset1a}. 
 The smoothing was completed with a Savitzky-Golay filter \cite{savitzkySmoothingDifferentiationData1964} and is shown to maintain the overall distribution whilst removing the artificial oscillations from the DMA module. 
 Normalising each sample to the maximum at theta $= 0$ is shown in Figure \ref{fig:mesh_convergence_dataset1b} where it is shown that the normalised specific impulse profiles across the chosen range of scaled distances can be considered homogeneous.
-\begin{figure}[htpb]
-	\begin{subfigure}{0.4\textwidth}
-		\centering
-		\includegraphics{Graphs/mesh_convergence_dataset1.pdf}
-		\caption{Specific impulse distribution for z }
-		\label{fig:mesh_convergence_dataset1}
-	\end{subfigure}
-	\begin{subfigure}{0.4\textwidth}
-		\centering
-		\includegraphics{Graphs/mesh_convergence_dataset1a.pdf}
-		\caption{Specific impulse distribution for z }
-		\label{fig:mesh_convergence_dataset1a}
-	\end{subfigure}
-	\begin{subfigure}{0.4\textwidth}
-		\centering
-		\includegraphics{Graphs/mesh_convergence_dataset1b.pdf}
-		\caption{Specific impulse distribution for z }
-		\label{fig:mesh_convergence_dataset1b}
-	\end{subfigure}
-	\caption{Mesh strategy across dataset range.}
-\end{figure}
-
-

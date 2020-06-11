@@ -145,3 +145,21 @@ Though the dataset and the range of normalised peak specific impulse values are 
 	\end{subfigure}
 	\caption{Gaussian model for theta distribution for $0.1 \leq z \leq 0.52m/kg^{\frac{1}{3}}$.}
 \end{figure}
+
+\subsection{Proposed model summary}
+Two models have been proposed, the first a more accurate model across a smaller range of scaled distance whilst the latter provides a moderate level of accuracy across a wide range of scaled distances.
+Summarised below:
+
+For $0.10 \leq z \leq 0.20m/kg^{\frac{1}{3}}$ and $0^{\circ} \leq \theta \leq 80^{\circ}$:
+\begin{equation}
+i(z, \theta, W) = W^{\frac{1}{3}} \times 0.322z^{-1.858} \times
+exp \left( \frac{-\left( \frac{\theta}{160} \right) ^2}{2 \times 0.189^2} \right).
+\end{equation}
+
+And for $0.10 \leq z \leq 0.52m/kg^{\frac{1}{3}}$ and $0^{\circ} \leq \theta \leq 80^{\circ}$:
+\begin{equation}
+i(z, \theta, W) =  W^{\frac{1}{3}} \times 0.474z^{-1.663} \times
+exp \left( \frac{-\left( \frac{\theta}{160} \right) ^2}{2 \times 0.198^2} \right).
+\end{equation}
+
+Where $z$ is scaled distance, $W$ is TNT equivalent charge mass and $\theta$ is angle of incidence.

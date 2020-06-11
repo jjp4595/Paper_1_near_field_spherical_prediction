@@ -51,25 +51,25 @@ TNTeq = 1.2
 
 #-----------------------------------------------------------------------------
 
-def dataimport(folderpath):
+def dataimport(folderpath, cm, TNTeq, sav=151):
     file = pre.FileAddressList(folderpath + r"\*.txt")
     data = pre.FileAddressList(folderpath+ r"\*gtable", 1)
     data = np.asarray([data[i][:,7] for i in range(len(file))]).T 
-    smooth = np.asarray([savgol_filter(data[:,i], 151, 3) for i in range(len(file))]).T
+    smooth = np.asarray([savgol_filter(data[:,i], sav, 3) for i in range(len(file))]).T
     smooth_Icr = np.asarray([smooth[:,i]/ (max(smooth[:,i])) for i in range(len(file))]).T     
     z_center = [(pre.standoff_func(file[i]))/((cm*TNTeq)**(1/3)) for i in range(len(file))]
     z_clear = [(pre.standoff_func(file[i]) - charge_rad)/((cm*TNTeq)**(1/3)) for i in range(len(file))]
     z_center = np.asarray(z_center)
     z_clear = np.asarray(z_clear)
-    so = (np.asarray(z_center) * 0.1**(1/3)) / charge_rad    
-    so_clear = (np.asarray(z_clear) * 0.1**(1/3)) / charge_rad  
+    so = (np.asarray(z_center) * ((cm*TNTeq)**(1/3)))    
+    so_clear = (np.asarray(z_clear) *((cm*TNTeq)**(1/3)))  
     keys = ['imp', 'imp_smooth', 'icr', 'z', 'z_clear', 'so', 'so_clear']
     vals = [data, smooth, smooth_Icr, z_center, z_clear, so, so_clear]
     d = dict(zip(keys, vals))
     return d
-small = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res5")
-test = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\testing_z_range")
-large = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z16_5")
+small = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\1500mm_ZL100mm_res5", cm, TNTeq)
+test = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\testing_z_range", cm, TNTeq)
+large = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z16_5", cm, TNTeq)
 
 #-----------------------------------------------------------------------------
 def import_exp():
@@ -581,8 +581,8 @@ def TotalImpulseSurfaces(dataset):
             Imp_gauss[i,j] = Impulse_CFD(dataset['gauss_surf'][:,j]*1e3*((cm*TNTeq)**(1/3)), R, theta_lim[i], np.linspace(0,80,200))
     
     return Imp_CFD, Imp_gauss
-small['CFD_total_impulse'], small['gauss_total_impulse'] = TotalImpulseSurfaces(small)
-large['CFD_total_impulse'], large['gauss_total_impulse'] = TotalImpulseSurfaces(large)
+# small['CFD_total_impulse'], small['gauss_total_impulse'] = TotalImpulseSurfaces(small)
+# large['CFD_total_impulse'], large['gauss_total_impulse'] = TotalImpulseSurfaces(large)
 
 
 def graphTotalImpulseSurfaces(dataset):
@@ -620,15 +620,63 @@ def graphTotalImpulseSurfaces(dataset):
     ax.set_xlabel('scaled target radius'+r'$(m/kg^{\frac{1}{3}}$)')
     plt.tight_layout()
     return  fig_test, fig_test2
-fig1, fig2 = graphTotalImpulseSurfaces(small)
-fig1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss.pdf', format = 'pdf')
-fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss2.pdf', format = 'pdf')
-fig1, fig2 = graphTotalImpulseSurfaces(large)
-fig1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss.pdf', format = 'pdf')
-fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss2.pdf', format = 'pdf')
+# fig1, fig2 = graphTotalImpulseSurfaces(small)
+# fig1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss.pdf', format = 'pdf')
+# fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\smallz_totalimpulse_gauss2.pdf', format = 'pdf')
+# fig1, fig2 = graphTotalImpulseSurfaces(large)
+# fig1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss.pdf', format = 'pdf')
+# fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_totalimpulse_gauss2.pdf', format = 'pdf')
  
  
-
-
-
+def new():
+    z1, z2 = 0.17, 0.45
+    r1, r2 = 1.2-1.0402, 1.2-1.0402 #uses file 109 from main dataset
+    m1, m2 = (r1/z1)**3 / 1.2, (r2/z2)**3 / 1.2
+    print(m1, m2)
+    val_highZ = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\res3\highZ", 0.0373,TNTeq, sav=101)
+    val_lowZ = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\res3\lowZ", 0.6922,TNTeq, sav=101)
+    
+    theta = np.linspace(0,80,200)
+    lowz = ( (m1*1.2)**(1/3) * 
+            (val_lowZ['z'][0]**-1.858) * 0.322 *
+            np.exp(-(theta/160)**2 / (2*0.189**2)) )
+    
+    highz = ( (m2*1.2)**(1/3) * 
+            (val_highZ['z'][0]**-1.663) * 0.474 *
+            np.exp(-(theta/160)**2 / (2*0.198**2)) )
+    
+    
+    fig, ax1 = plt.subplots(1,1)
+    fig.set_size_inches(2.5, 2.5) 
+    ax1.plot(theta, val_lowZ['imp_smooth']/1e3, 'r', ls = '-', lw = 0.5, label = 'CFD')
+    ax1.plot(theta, lowz, 'k', ls = '-', lw = 0.5,label = 'new model')
+    handles, labels = ax1.get_legend_handles_labels()
+    ax1.legend(handles, labels, loc='upper right', prop={'size':6})
+    
+    ax1.set_xlabel('incident wave angle (degrees)')
+    ax1.set_ylabel('peak specific impulse'+r'$(MPa.ms$)', fontsize = 'small')
+    ax1.set_xlim(0,80)
+    ax1.set_ylim(0,9)
+    ax1.minorticks_on()
+    ax1.grid(which='minor', alpha=0.2)
+    ax1.grid(which='major', alpha=0.5)
+    plt.tight_layout()
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\lowz_val.pdf', format = 'pdf')
+ 
+    fig, ax2 = plt.subplots(1,1)
+    fig.set_size_inches(2.5, 2.5)    
+    ax2.plot(theta, val_highZ['imp_smooth']/1e3, 'r', ls = '-', lw = 0.5, label = 'CFD')
+    ax2.plot(theta, highz, 'k', ls = '-', lw = 0.5,)
+    
+    ax2.set_xlabel('incident wave angle (degrees)')
+    ax2.set_ylabel('peak specific impulse'+r'$(MPa.ms$)', fontsize = 'small')
+    ax2.set_xlim(0,80)
+    ax2.set_ylim(0,0.7)
+    ax2.minorticks_on()
+    ax2.grid(which='minor', alpha=0.2)
+    ax2.grid(which='major', alpha=0.5)
+    plt.tight_layout()
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\highz_val.pdf', format = 'pdf')
+new()
+    
 
