@@ -42,17 +42,19 @@ Whilst the second, will provide data for a larger range of scaled distance at th
 	\begin{subfigure}[htpb]{0.45\textwidth}
 		\centering
 		\includegraphics{Graphs/data_overview_large_b.pdf}
-		\caption{$0.1m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$}
+		\caption{$0.2 {\footnotemark} m/kg^{1/3} \leq z \leq 0.55 m/kg^{1/3}$}
 		\label{fig:data_overview_large_b}
 	\end{subfigure}	
 	\begin{subfigure}[htpb]{0.45\textwidth}
 		\centering
 		\includegraphics{Graphs/data_overview_large_c.pdf}
-		\caption{$0.1m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$}
+		\caption{$0.1m/kg^{1/3} \leq z \leq 0.55 m/kg^{1/3}$}
 		\label{fig:data_overview_large_c}
 	\end{subfigure}
-	\caption{Peak specific impulse distribution overview of PE4 datasets $0.1m/kg^{1/3} \leq z \leq 0.5 m/kg^{1/3}$. }
+	\caption{Peak specific impulse distribution overview of PE4 datasets $0.1m/kg^{1/3} \leq z \leq 0.55 m/kg^{1/3}$. }
+\footnotetext{Note: in this figure data for close-in scaled distances have been removed for clarity.}
 \end{figure}
+
 
 \subsection{Near-field loading model}
 The proposed model is built from two constituent parts: 
@@ -81,7 +83,7 @@ The latter model built on the larger dataset provides a good approximation for t
 		\centering
 		\includegraphics{Graphs/power_fit_large.pdf}
 		\vspace{2mm}
-		\caption{$0.10m/kg^{1/3} \leq z \leq 0.52 m/kg^{1/3}$}
+		\caption{$0.10m/kg^{1/3} \leq z \leq 0.55 m/kg^{1/3}$}
 		\label{fig:power_fit_large}
 	\end{subfigure}
 	\caption{Fitting a power law to the scaled peak specific impulse data  and an assessment of the fit.}
@@ -143,7 +145,7 @@ Though the dataset and the range of normalised peak specific impulse values are 
 		\caption{Gaussian 1 model}
 		\label{fig:model_gaussian1_largez}
 	\end{subfigure}
-	\caption{Gaussian model for theta distribution for $0.1 \leq z \leq 0.52m/kg^{\frac{1}{3}}$.}
+	\caption{Gaussian model for theta distribution for $0.1 \leq z \leq 0.55m/kg^{\frac{1}{3}}$.}
 \end{figure}
 
 \subsection{Proposed model summary}
@@ -152,13 +154,13 @@ Summarised below:
 
 For $0.10 \leq z \leq 0.20m/kg^{\frac{1}{3}}$ and $0^{\circ} \leq \theta \leq 80^{\circ}$:
 \begin{equation}
-i(z, \theta, W) = W^{\frac{1}{3}} \times 0.322z^{-1.858} \times
+i(z, \theta, W) = W^{\frac{1}{3}} \times 0.383z^{-1.858} \times
 exp \left( \frac{-\left( \frac{\theta}{160} \right) ^2}{2 \times 0.189^2} \right).
 \end{equation}
 
-And for $0.10 \leq z \leq 0.52m/kg^{\frac{1}{3}}$ and $0^{\circ} \leq \theta \leq 80^{\circ}$:
+And for $0.10 \leq z \leq 0.55m/kg^{\frac{1}{3}}$ and $0^{\circ} \leq \theta \leq 80^{\circ}$:
 \begin{equation}
-i(z, \theta, W) =  W^{\frac{1}{3}} \times 0.474z^{-1.663} \times
+i(z, \theta, W) =  W^{\frac{1}{3}} \times 0.557z^{-1.663} \times
 exp \left( \frac{-\left( \frac{\theta}{160} \right) ^2}{2 \times 0.198^2} \right).
 \end{equation}
 
