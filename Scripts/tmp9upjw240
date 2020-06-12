@@ -671,8 +671,8 @@ def new1():
     
     fig, ax1 = plt.subplots(1,1)
     fig.set_size_inches(2.5, 2.5) 
-    ax1.plot(theta, val_lowZ['imp_smooth']/1e3, 'k', ls = '-', lw = 0.5, label = 'CFD')
-    ax1.plot(theta, lowz, 'r', ls = '-', lw = 1.5,label = 'new model')
+    ax1.plot(theta, val_lowZ['imp_smooth']/1e3, 'r', ls = '-', lw = 1.5, label = 'CFD')
+    ax1.plot(theta, lowz, 'k', ls = '-', lw = 0.5,label = 'new model')
     handles, labels = ax1.get_legend_handles_labels()
     ax1.legend(handles, labels, loc='upper right', prop={'size':6})
     
@@ -688,8 +688,8 @@ def new1():
  
     fig, ax2 = plt.subplots(1,1)
     fig.set_size_inches(2.5, 2.5)    
-    ax2.plot(theta, val_highZ['imp_smooth']/1e3, 'k', ls = '-', lw = 0.5, label = 'CFD')
-    ax2.plot(theta, highz, 'r', ls = '-', lw = 1.5)
+    ax2.plot(theta, val_highZ['imp_smooth']/1e3, 'r', ls = '-', lw = 1.5, label = 'CFD')
+    ax2.plot(theta, highz, 'k', ls = '-', lw = 0.5,)
     
     ax2.set_xlabel('incident wave angle (degrees)')
     ax2.set_ylabel('peak specific impulse'+r'$(MPa.ms$)', fontsize = 'small')
@@ -702,8 +702,8 @@ def new1():
     fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\highz_val.pdf', format = 'pdf')
 
 
-    data5kg = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\5kg\res2"+ r"\*gauges", 1)
-    data250kg = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\250kg\res2"+ r"\*gauges", 1)
+    data5kg = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\5kg\res"+ r"\*gauges", 1)
+    data250kg = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\250kg\res"+ r"\*gauges", 1)
     
     fig00, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2,2)
     #theta = 0
@@ -727,4 +727,15 @@ def new1():
     ax3.plot(data250kg[0][:,0],data250kg[0][:,200])#OP
     ax3.set_xlim(0,0.03)
     ax4.plot(data250kg[0][:,0],data250kg[0][:,400])#imp
-    ax4.set_xlim(0,0.03)  
+    ax4.set_xlim(0,0.03)
+
+def new2():
+    z1, z2 = 0.17, 0.40
+    m1, m2 = 5, 250
+    r1, r2 = z1 * (m1**(1/3)), z2 * (m2**(1/3))
+    print(r1,r2)
+    rad1, rad2 = (m1 / ((4/3) * 1660 * np.pi))**(1/3), (m2 / ((4/3) * 1660 * np.pi))**(1/3)
+    print(rad1, rad2)
+    theta = np.linspace(0,80,200)
+    
+

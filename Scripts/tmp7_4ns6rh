@@ -15,17 +15,16 @@ no_exps = len(z)
 
 #Charge info
 mass = [5, 250]
-charge_rad = 0.0246
 tnt_eq = 1
 shape_ratio = 0 #0 for sphere
 
 #Stages Variables
-term_time = [0.005 for i in range(no_exps)]
+term_time = [2, 2]
 
 #Model
-res_level = [5 for i in range(no_exps)]
+res_level = [1 for i in range(no_exps)]
 
-zone_length = []
+zone_length = [0.1, 10]
 
 
 #Output and theta range
@@ -52,7 +51,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
     """
     The function below creates the input files and batch file from a given template file. More paramaters can be added that need to be changed. 
     """    
-    startfile = 105
+    startfile = 100
     file_list = [str(num)+".txt" for num in list(range(startfile, startfile + no_exps))]
     
     batch_lines = []
@@ -73,7 +72,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
         batch_lines.append("blastsimulator_win.exe " + file_list[i])
         
         #Create gauge information and charge position based on z.
-        so = np.multiply(z[i], (mass**(1/3))*tnt_eq)
+        so = np.multiply(z[i], (mass[i]**(1/3))*tnt_eq)
         stage_limit = np.round(so - zone_length[i], 4)
         #so += charge_rad
         gauges_xloc = np.round(np.multiply(so, np.tan(np.deg2rad(theta))), 4)

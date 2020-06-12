@@ -655,31 +655,35 @@ def graphTotalImpulseSurfaces(dataset):
  
  
 def new1():
-    val_highZ = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\250kg\res2", 250,TNTeq, sav=101)
-    val_lowZ = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\5kg\res2", 5,TNTeq, sav=101)
+    z1, z2 = 0.17, 0.45
+    
+    r1, r2 = 1.2-1.0402, 1.2-1.0402 #uses file 109 from main dataset
+    m1, m2 = (r1/z1)**3 / 1, (r2/z2)**3 / 1
+    print(m1, m2)
+    val_highZ = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\before_newsize\res5\highZ", 0.0373,TNTeq, sav=101)
+    val_lowZ = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\before_newsize\res3\lowZ", 0.6922,TNTeq, sav=101)
     
     theta = np.linspace(0,80,200)
-    
-    lowz = ( (5)**(1/3) * 
-            (val_lowZ['z'][0]**-1.858) * 0.383 *
+    lowz = ( (m1*1.2)**(1/3) * 
+            (val_lowZ['z'][0]**-1.858) * 0.322 *
             np.exp(-(theta/160)**2 / (2*0.189**2)) )
     
-    highz = ( (250)**(1/3) * 
-            (val_highZ['z'][0]**-1.663) * 0.557 *
+    highz = ( (m2*1.2)**(1/3) * 
+            (val_highZ['z'][0]**-1.663) * 0.474 *
             np.exp(-(theta/160)**2 / (2*0.198**2)) )
     
     
     fig, ax1 = plt.subplots(1,1)
     fig.set_size_inches(2.5, 2.5) 
-    ax1.plot(theta, val_lowZ['imp_smooth']/1e3, 'k', ls = '-', lw = 0.5, label = 'CFD')
-    ax1.plot(theta, lowz, 'r', ls = '-', lw = 1.5,label = 'new model')
+    ax1.plot(theta, val_lowZ['imp_smooth']/1e3, 'r', ls = '-', lw = 1.5, label = 'CFD')
+    ax1.plot(theta, lowz, 'k', ls = '-', lw = 0.5,label = 'new model')
     handles, labels = ax1.get_legend_handles_labels()
     ax1.legend(handles, labels, loc='upper right', prop={'size':6})
     
     ax1.set_xlabel('incident wave angle (degrees)')
     ax1.set_ylabel('peak specific impulse'+r'$(MPa.ms$)', fontsize = 'small')
     ax1.set_xlim(0,80)
-    #ax1.set_ylim(0,9)
+    ax1.set_ylim(0,9)
     ax1.minorticks_on()
     ax1.grid(which='minor', alpha=0.2)
     ax1.grid(which='major', alpha=0.5)
@@ -688,43 +692,26 @@ def new1():
  
     fig, ax2 = plt.subplots(1,1)
     fig.set_size_inches(2.5, 2.5)    
-    ax2.plot(theta, val_highZ['imp_smooth']/1e3, 'k', ls = '-', lw = 0.5, label = 'CFD')
-    ax2.plot(theta, highz, 'r', ls = '-', lw = 1.5)
+    ax2.plot(theta, val_highZ['imp_smooth']/1e3, 'r', ls = '-', lw = 1.5, label = 'CFD')
+    ax2.plot(theta, highz, 'k', ls = '-', lw = 0.5,)
     
     ax2.set_xlabel('incident wave angle (degrees)')
     ax2.set_ylabel('peak specific impulse'+r'$(MPa.ms$)', fontsize = 'small')
     ax2.set_xlim(0,80)
-    #ax2.set_ylim(0,0.7)
+    ax2.set_ylim(0,0.7)
     ax2.minorticks_on()
     ax2.grid(which='minor', alpha=0.2)
     ax2.grid(which='major', alpha=0.5)
     plt.tight_layout()
     fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\highz_val.pdf', format = 'pdf')
 
+def new2():
+    z1, z2 = 0.17, 0.40
+    m1, m2 = 5/1.2, 250/1.2
+    r1, r2 = z1 * (m1**(1/3)), z2 * (m2)**(1/3))
+    print(r1,r2)
+    
+    theta = np.linspace(0,80,200)
+    
 
-    data5kg = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\5kg\res2"+ r"\*gauges", 1)
-    data250kg = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\250kg\res2"+ r"\*gauges", 1)
-    
-    fig00, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2,2)
-    #theta = 0
-    ax1.plot(data5kg[0][:,0],data5kg[0][:,1]) #OP
-    ax1.set_xlim(0,0.003)
-    ax2.plot(data5kg[0][:,0],data5kg[0][:,201])#imp
-    ax2.set_xlim(0,0.003)
-    #theta = 80
-    ax3.plot(data5kg[0][:,0],data5kg[0][:,200])#OP
-    ax3.set_xlim(0,0.003)
-    ax4.plot(data5kg[0][:,0],data5kg[0][:,400])#imp
-    ax4.set_xlim(0,0.003)
-    
-    fig00, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2,2)
-    #theta = 0
-    ax1.plot(data250kg[0][:,0],data250kg[0][:,1]) #OP
-    ax1.set_xlim(0,0.03)
-    ax2.plot(data250kg[0][:,0],data250kg[0][:,201])#imp
-    ax2.set_xlim(0,0.03)
-    #theta = 80
-    ax3.plot(data250kg[0][:,0],data250kg[0][:,200])#OP
-    ax3.set_xlim(0,0.03)
-    ax4.plot(data250kg[0][:,0],data250kg[0][:,400])#imp
-    ax4.set_xlim(0,0.03)  
+

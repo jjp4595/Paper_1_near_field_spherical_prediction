@@ -15,17 +15,16 @@ no_exps = len(z)
 
 #Charge info
 mass = [5, 250]
-charge_rad = 0.0246
 tnt_eq = 1
 shape_ratio = 0 #0 for sphere
 
 #Stages Variables
-term_time = [0.005 for i in range(no_exps)]
+term_time = [2, 2]
 
 #Model
-res_level = [5 for i in range(no_exps)]
+res_level = [1 for i in range(no_exps)]
 
-zone_length = []
+zone_length = [0.1, 10]
 
 
 #Output and theta range
@@ -52,7 +51,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
     """
     The function below creates the input files and batch file from a given template file. More paramaters can be added that need to be changed. 
     """    
-    startfile = 105
+    startfile = 100
     file_list = [str(num)+".txt" for num in list(range(startfile, startfile + no_exps))]
     
     batch_lines = []
@@ -73,7 +72,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
         batch_lines.append("blastsimulator_win.exe " + file_list[i])
         
         #Create gauge information and charge position based on z.
-        so = np.multiply(z[i], (mass**(1/3))*tnt_eq)
+        so = np.multiply(z[i], (mass[i]*tnt_eq)**(1/3))
         stage_limit = np.round(so - zone_length[i], 4)
         #so += charge_rad
         gauges_xloc = np.round(np.multiply(so, np.tan(np.deg2rad(theta))), 4)
@@ -128,9 +127,9 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
             gauges_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
             content[int(gauges_index)] = str(no_gauges) + str_to_search 
                         
-            for i in range(no_gauges): 
-                reflected_gauge_string = "' " + str(i) + " ' " + str(gauges_xloc[i]) + " " + str(round(y_max - gauge_tol, 5)) + " " + str(round(gauge_tol, 5))
-                reflected_index = int(gauges_index + i + 1)
+            for j in range(no_gauges): 
+                reflected_gauge_string = "' " + str(j) + " ' " + str(gauges_xloc[j]) + " " + str(round(y_max - gauge_tol, 5)) + " " + str(round(gauge_tol, 5))
+                reflected_index = int(gauges_index + j + 1)
                 content.insert(reflected_index, reflected_gauge_string)
             
             str_to_search = "\t\t\t\t...plot time:  on/off sequence next end"
@@ -143,7 +142,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
             #Charge --------------
             str_to_search = "\t\t\t...use charge, main: M, L/D, booster: M, L/D,  pos"
             term_time_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
-            content[int(term_time_index)] = "T " + str(mass) + " " + str(shape_ratio) + " 0 1 none "  + str_to_search   
+            content[int(term_time_index)] = "T " + str(mass[i]) + " " + str(shape_ratio) + " 0 1 none "  + str_to_search   
             
             str_to_search = "\t\t\t...charge center, axis vect, init pos, init time"
             term_time_index = np.argwhere(np.core.defchararray.find(content, str_to_search) > 0)
