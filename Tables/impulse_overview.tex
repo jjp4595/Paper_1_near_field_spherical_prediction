@@ -1,12 +1,25 @@
-\begin{tabularx}{\textwidth}{X X X X X}
+\begin{tabularx}{\textwidth}{R R R R R R R R}
 \toprule
-& \multicolumn{3}{l}{\textbf{Zone length (mm)}} \\ 
-\multicolumn{1}{r}{\textbf{Scaled distance}}  & \multicolumn{1}{r}{\textbf{Scaled target radius}}& \multicolumn{1}{r}{\textbf{CFD impulse}}   & \multicolumn{1}{r}{\textbf{Predicted impulse}}& \multicolumn{1}{r}{\textbf{Absolute error (\%)}}\\ 
+\textbf{Charge mass (kg)} & \textbf{Standoff (m)} & \textbf{Radial Ordinate (mm)} & \textbf{Angle of incidence ($^{\circ}$)} & \multicolumn{2}{r}{\textbf{Peak specific impulse (MPa.ms)}}&\textbf{Absolute difference ($\%$)} & \textbf{Equation}\\ 
+\cmidrule{5-6}
+& & & &\textbf{CFD}&\textbf{Prediction}\\ 
+\midrule 
+\multirow{5}{*}{5}   & \multirow{5}{*}{0.2907} & 0   & 0		   &  & 17.62 &  & (\ref{eq:lowZ}) \\
+					 &						   & 125 & $\approx$23 &  & 13.11 &  & (\ref{eq:lowZ}) \\
+					 &						   & 250 & $\approx$41 &  & 7.12 &  & (\ref{eq:lowZ}) \\
+					 &						   & 375 & $\approx$52 &  & 3.97 &  & (\ref{eq:lowZ}) \\
+					 &						   & 500 & $\approx$60 &  & 2.49 &  & (\ref{eq:lowZ}) \\
+\midrule 
+\multirow{5}{*}{5}   & \multirow{5}{*}{0.2907} & 0   & 0		   &  & 18.14 &  & (\ref{eq:highZ}) \\
+					 & 						   & 125 & $\approx$23 &  & 13.85 &  & (\ref{eq:highZ})  \\
+					 & 						   & 250 & $\approx$41 &  & 7.95  &  & (\ref{eq:highZ})  \\
+					 & 						   & 375 & $\approx$52 &  & 4.66  &  & (\ref{eq:highZ})  \\
+					 & 						   & 500 & $\approx$60 &  & 3.05  &  & (\ref{eq:highZ}) \\
 \midrule
-\multicolumn{1}{r}{\textbf{0}}                 & \multicolumn{1}{r}{0}          & \multicolumn{1}{r}{0}  & \multicolumn{1}{r}{0} \\
-\multicolumn{1}{r}{\textbf{1}}                 & \multicolumn{1}{r}{0}          & \multicolumn{1}{r}{0}  & \multicolumn{1}{r}{0} \\
-\multicolumn{1}{r}{\textbf{2}}                 & \multicolumn{1}{r}{0}          & \multicolumn{1}{r}{0}  & \multicolumn{1}{r}{0} \\
-\multicolumn{1}{r}{\textbf{3}}                 & \multicolumn{1}{r}{0}          & \multicolumn{1}{r}{0}  & \multicolumn{1}{r}{0} \\
-\multicolumn{1}{r}{\textbf{4}}                 & \multicolumn{1}{r}{0}          & \multicolumn{1}{r}{0}  & \multicolumn{1}{r}{0}  \\  
+\multirow{5}{*}{250} & \multirow{5}{*}{2.5198} & 0   & 0		   &  & 16.10 &  & (\ref{eq:highZ}) \\
+					 & 						   & 1125& $\approx$24 &  & 12.07 &  & (\ref{eq:highZ})  \\
+					 & 						   & 2250& $\approx$42 &  & 6.75 &  & (\ref{eq:highZ})  \\
+					 & 						   & 3375& $\approx$53 &  & 3.92 &  & (\ref{eq:highZ})  \\
+					 & 						   & 4500& $\approx$61 &  & 2.56 &  & (\ref{eq:highZ}) \\
 \bottomrule																					  
 \end{tabularx}

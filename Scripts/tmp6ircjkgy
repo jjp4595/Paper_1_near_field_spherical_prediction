@@ -658,23 +658,16 @@ def new1():
     val_highZ = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\250kg\res3", 250,TNTeq, sav=101)
     val_lowZ = dataimport(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\validation_samples\5kg\res3", 5,TNTeq, sav=101)
     
-    #Radial ordinate calcs ----------------------------------------------------
+    #Radial ordinate calcs
     radial_ord_lowZ = [0,0.125, 0.250, 0.375, 0.500]
     theta_ord_lowZ = np.rad2deg(np.arctan(np.divide(radial_ord_lowZ, val_lowZ['so'])))
     lowZi_eq5 = ( (5)**(1/3) * 
                  (val_lowZ['z'][0]**-1.858) * 0.383 *
                  np.exp(-(theta_ord_lowZ/160)**2 / (2*0.189**2)) )
-    lowZi_eq6 = ( (5)**(1/3) * 
-                 (val_lowZ['z'][0]**-1.663) * 0.557 *
-                 np.exp(-(theta_ord_lowZ/160)**2 / (2*0.198**2)) )
-    
+    lowZi_eq6 = 
     radial_ord_highZ = [0,1.125, 2.250, 3.375, 4.500]
     theta_ord_highZ = np.rad2deg(np.arctan(np.divide(radial_ord_highZ, val_highZ['so'])))  
-
-    highZi_eq6 = ( (250)**(1/3) * 
-                  (val_highZ['z'][0]**-1.663) * 0.557 *
-                  np.exp(-(theta_ord_highZ/160)**2 / (2*0.198**2)) )
-    #--------------------------------------------------------------------------
+    
     
     theta = np.linspace(0,80,200)
     
