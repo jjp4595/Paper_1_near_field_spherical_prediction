@@ -39,6 +39,38 @@ Considering this has made a minor sacrifice for accuracy to enable a larger rang
 	\caption{Specific impulse model comparisons for a large dataset of  $0.1 \leq z \leq 0.55m/kg^{\frac{1}{3}}$.}
 \end{figure}
 
+\begin{figure}[htpb]
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/largez_RPB_MCEER.pdf}
+		\caption{Constructed surface from RPB-MCEER model}
+		\label{fig:largez_RPB_MCEER}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/largez_RPB_MCEER2.pdf}
+		\caption{CFD residual}
+		\label{fig:largez_RPB_MCEER2}
+	\end{subfigure}
+	\caption{Specific impulse model comparisons for a large dataset of  $0.1 \leq z \leq 0.55m/kg^{\frac{1}{3}}$.}
+\end{figure}
+
+\begin{figure}[htpb]
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/largez_henrych.pdf}
+		\caption{Constructed surface from Henrych/Remennikov model}
+		\label{fig:largez_henrych}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics{Graphs/largez_henrych2.pdf}
+		\caption{CFD residual}
+		\label{fig:largez_henrych2}
+	\end{subfigure}
+	\caption{Specific impulse model comparisons for a large dataset of  $0.1 \leq z \leq 0.55m/kg^{\frac{1}{3}}$.}
+\end{figure}
+
 \subsection{Area integrated total impulse comparison}
 A final evaluation of the two models was performed via a total impulse comparison on a $5m$ diameter circular target plate.
 Figure \ref{fig:smallz_totalimpulse_gauss} presents a constructed total scaled impulse surface, by varying the scaled radius (therefore changing the size of plate) and scaled distance.
@@ -79,6 +111,12 @@ The majority of both surfaces however provide good approximations for total scal
 	\end{subfigure}
 	\caption{Total impulse on a circular target of various radii for scaled distance of $0.1 \leq z \leq 0.52m/kg^{\frac{1}{3}}$}
 \end{figure}
+
+\begin{table}[htpb]
+	\centering
+	\import{Tables/}{total_impulse.tex}
+	\label{tab:total_impulse}
+\end{table}
 
 \subsection{Model validation}
 Two samples of varying scaled distance have been considered, with a large variation in charge mass to validate the model across a range of scaled distances with differing masses.

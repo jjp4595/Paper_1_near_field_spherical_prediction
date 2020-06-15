@@ -66,22 +66,11 @@ The specific impulse that is fed into the RPB model is obtained from the MCEER-1
 	\label{fig:theta_peak_impulse_MCEER_curves}
 \end{figure}
 \subsubsection{Henrych / Remennikov analytical model}
-From \textcite{henrychDynamicsExplosionIts1979} and Remennikov \cite{remennikovExplosiveBreachingWalls2015}, we have a theoretical basis to calculate specific impulse distributions. 
+From \textcite{henrychDynamicsExplosionIts1979} and Remennikov \cite{remennikovExplosiveBreachingWalls2015, remennikovBIIMModelParameters2020}, we have a theoretical basis to calculate specific impulse distributions. 
 The hypothesis of a constant velocity for out flowing particles is introduced:
 \begin{equation}
 u = u_x = \text{ constant}.
 \end{equation}
-For a spherical charge, it is provided that
-\begin{equation}
-i = \left(\frac{A_0W}{R^2}\right)cos^2\alpha,
-\label{eq:Henrych_sphere}
-\end{equation}
-where $R$ is the distance from charge centre to centre of target (shown also in Figure \ref{fig:RPB}), $W$ is charge mass. Given
-\begin{equation}
-A_0 = \frac{N_{xW} + u_x}{4\pi}, 
-\end{equation}
-and $N_{xW}$ is the displacement velocity of the outburst surface.
-
 Given the explosive parameters: standoff, $a$(m); charge radius, $r_0$(m); detonation velocity, $D_0$(m/s); explosive energy, $Q_0$(MJ/kg) and density, $\rho_0$(kg/$m^3$).
 
 Detonation pressure (Pa) is given by:
@@ -100,3 +89,9 @@ Leading to the explosive constant (m/s):
 \begin{equation}
 	A_0 = \frac{u_0 + w_0}{4\pi}
 \end{equation}
+Finally, specific impulse ($kPa.ms$):
+\begin{equation}
+i = \left(\frac{A_0W}{a^2}\right)cos^4\theta,
+\label{eq:Henrych_sphere}
+\end{equation}
+where $\theta$ is the angle of incidence as given in Figure \ref{fig:RPB}.

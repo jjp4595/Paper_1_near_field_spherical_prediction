@@ -11,6 +11,7 @@ import scipy.io as sio
 import os 
 from impulse_models import *
 from scipy.signal import savgol_filter
+from matplotlib.ticker import LinearLocator, FixedLocator, FormatStrFormatter
 
 cr = 0.0246
 charge_mass = 0.1
@@ -577,14 +578,20 @@ ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,4,0]/1e6, 'gre
 ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,1]/1e6, 'r', lw = 0.75)
 
 ax1.set_xlim(0,0.15)
-ax1.set_ylim(-25,250)
+ax1.set_ylim(-50,250)
 ax1.set_xlabel('time (ms)')
 ax1.set_ylabel('Overpressure (MPa)')
 plt.tight_layout()
-ax.locator_params(axis = 'both',tight=True, nbins=4)
-ax1.locator_params(axis = 'both',tight=True, nbins=4)
+ax.xaxis.set_major_locator(LinearLocator(4)) 
+ax.yaxis.set_major_locator(LinearLocator(6))
+ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+ax1.xaxis.set_major_locator(LinearLocator(4)) 
+ax1.yaxis.set_major_locator(LinearLocator(4))
+ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax1.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
 handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles, labels, loc='center', bbox_to_anchor=(0.75, 0.25), prop={'size':6})
+ax.legend(handles, labels, loc='lower right', prop={'size':6})
 fig7.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation.pdf', format = 'pdf')
 
 #theta = 17
@@ -598,7 +605,7 @@ ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,13,0]/1e3, 'grey
 ax.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,243]/1e3, 'r', lw = 0.75)
 
 ax.set_xlim(0,0.15)
-ax.set_ylim(0,4)
+ax.set_ylim(0,5)
 ax.set_xlabel('time (ms)')
 ax.set_ylabel('Impulse (MPa.ms)')
 
@@ -610,12 +617,18 @@ ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,13,0]/1e6, 'gr
 ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,43]/1e6, 'r', lw = 0.75)
 
 ax1.set_xlim(0,0.15)
-ax1.set_ylim(-25,250)
+ax1.set_ylim(-50,250)
 ax1.set_xlabel('time (ms)')
 ax1.set_ylabel('Overpressure (MPa)')
 plt.tight_layout()
-ax.locator_params(axis = 'both',tight=True, nbins=4)
-ax1.locator_params(axis = 'both',tight=True, nbins=4)
+ax.xaxis.set_major_locator(LinearLocator(4)) 
+ax.yaxis.set_major_locator(LinearLocator(6))
+ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+ax1.xaxis.set_major_locator(LinearLocator(4)) 
+ax1.yaxis.set_major_locator(LinearLocator(4))
+ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax1.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
 fig7a.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation_a.pdf', format = 'pdf')
 
 #theta = 32
@@ -641,12 +654,18 @@ ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,14,0]/1e6, 'gr
 ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,80]/1e6, 'r', lw = 0.75)
 
 ax1.set_xlim(0,0.15)
-ax1.set_ylim(-25,250)
+ax1.set_ylim(-50,150)
 ax1.set_xlabel('time (ms)')
 ax1.set_ylabel('Overpressure (MPa)')
 plt.tight_layout()
-ax.locator_params(axis = 'both',tight=True, nbins=4)
-ax1.locator_params(axis = 'both',tight=True, nbins=4)
+ax.xaxis.set_major_locator(LinearLocator(4)) 
+ax.yaxis.set_major_locator(LinearLocator(4))
+ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+ax1.xaxis.set_major_locator(LinearLocator(4)) 
+ax1.yaxis.set_major_locator(LinearLocator(5))
+ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax1.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
 fig7b.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation_b.pdf', format = 'pdf')
 
 #theta = 43
@@ -672,12 +691,18 @@ ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,15,0]/1e6, 'gr
 ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,107]/1e6, 'r', lw = 0.75)
 
 ax1.set_xlim(0,0.15)
-ax1.set_ylim(-25,250)
+ax1.set_ylim(-25,100)
 ax1.set_xlabel('time (ms)')
 ax1.set_ylabel('Overpressure (MPa)')
 plt.tight_layout()
-ax.locator_params(axis = 'both',tight=True, nbins=4)
-ax1.locator_params(axis = 'both',tight=True, nbins=4)
+ax.xaxis.set_major_locator(LinearLocator(4)) 
+ax.yaxis.set_major_locator(LinearLocator(3))
+ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+ax1.xaxis.set_major_locator(LinearLocator(4)) 
+ax1.yaxis.set_major_locator(LinearLocator(6))
+ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax1.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
 fig7c.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation_c.pdf', format = 'pdf')
 
 #theta = 51
@@ -704,12 +729,18 @@ ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,16,0]/1e6, 'gr
 ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,127]/1e6, 'r', lw = 0.75)
 
 ax1.set_xlim(0,0.15)
-ax1.set_ylim(-25,250)
+ax1.set_ylim(-25,100)
 ax1.set_xlabel('time (ms)')
 ax1.set_ylabel('Overpressure (MPa)')
 plt.tight_layout()
-ax.locator_params(axis = 'both',tight=True, nbins=4)
-ax1.locator_params(axis = 'both',tight=True, nbins=4)
+ax.xaxis.set_major_locator(LinearLocator(4)) 
+ax.yaxis.set_major_locator(LinearLocator(3))
+ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+ax1.xaxis.set_major_locator(LinearLocator(4)) 
+ax1.yaxis.set_major_locator(LinearLocator(6))
+ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax1.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
 fig7d.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation_d.pdf', format = 'pdf')
 
 #------------------------------------------------------------------------------

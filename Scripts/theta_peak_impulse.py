@@ -17,6 +17,7 @@ import os
 from scipy import stats
 from impulse_models import *
 from scipy.optimize import minimize
+from scipy.interpolate import interp2d
 
 #plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
 params = {'font.family':'serif',
@@ -587,6 +588,85 @@ large['gauss_surf'], fig, fig2 = plot_model_surfaces(large)
 fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_gaussian1.pdf', format = 'pdf')
 fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_gaussian2.pdf', format = 'pdf')
    
+def plot_model_surfaces_RPB(dataset):    
+     
+    z = dataset['z']
+    z = z.reshape((dataset['imp'].shape[1], 1))
+    z = z.T
+    z = np.repeat(z, dataset['imp'].shape[0], 0)    
+    
+    imp, theta_exp = [], []
+    for i in dataset['so']:
+        run = RPB_MCEER_i(cm, i, 80)
+        imp.append(run[3][199,200::])#specific impulse from centre of plate outwards
+        theta_exp.append(run[2][199,200::])
+        
+    i_surf = np.asarray(imp).T
+    i_surf = np.divide(i_surf, ((cm*TNTeq)**(1/3)))
+    theta = np.asarray(theta_exp).T
+    
+
+    fig, ax = plt.subplots(1,1)
+    fig.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta, z, i_surf, levels = np.linspace(0,25,50), cmap = plt.cm.magma_r)
+    cbar = fig.colorbar(CS, format='%.0f' ,ticks = np.linspace(0,25,6))
+    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    
+    fig2, ax = plt.subplots(1,1)
+    fig2.set_size_inches(3, 2.5)
+    diff = i_surf-(dataset['imp_smooth']/1e3/((cm*TNTeq)**(1/3)))
+    CS = ax.contourf(theta, z, diff, levels = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 2),50), cmap = plt.cm.magma_r)
+    cbar = fig2.colorbar(CS, format='%.0f' , ticks = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 2),5))  
+    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    return i_surf, fig, fig2
+large['RPB_MCEER_surf'], fig, fig2 = plot_model_surfaces_RPB(large)
+fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_RPB_MCEER.pdf', format = 'pdf')
+fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_RPB_MCEER2.pdf', format = 'pdf')
+
+def plot_model_surfaces_Henrych(dataset):    
+    theta = np.repeat(np.linspace(0,80, dataset['imp'].shape[0])[:,np.newaxis], dataset['imp'].shape[1], 1) 
+    z = dataset['z']
+    z = z.reshape((dataset['imp'].shape[1], 1))
+    z = z.T
+    z = np.repeat(z, dataset['imp'].shape[0], 0)    
+    
+    imp, theta_exp = [], []
+    for i in dataset['so']:
+        imp.append(Henrych_i(i, 0.0246, 7900, 5.53, 1660, np.linspace(0,80,200)))#specific impulse from centre of plate outwards     
+        
+    i_surf = np.asarray(imp).T
+    i_surf = np.divide(i_surf/1e3, ((cm*TNTeq)**(1/3)))
+    
+
+    fig, ax = plt.subplots(1,1)
+    fig.set_size_inches(3, 2.5)
+    CS = ax.contourf(theta, z, i_surf, levels = np.linspace(0,40,50), cmap = plt.cm.magma_r)
+    cbar = fig.colorbar(CS, format='%.0f' ,ticks = np.linspace(0,40,5))
+    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    
+    fig2, ax = plt.subplots(1,1)
+    fig2.set_size_inches(3, 2.5)
+    diff = i_surf-(dataset['imp_smooth']/1e3/((cm*TNTeq)**(1/3)))
+    CS = ax.contourf(theta, z, diff, levels = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 2),50), cmap = plt.cm.magma_r)
+    cbar = fig2.colorbar(CS, format='%.0f' , ticks = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 2),5))  
+    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('incident wave angle (degrees)')
+    plt.tight_layout()
+    return i_surf, fig, fig2
+large['henrych_surf'], fig, fig2 = plot_model_surfaces_Henrych(large)
+fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_henrych.pdf', format = 'pdf')
+fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\largez_henrych2.pdf', format = 'pdf')
+      
 
 def TotalImpulseSurfaces(dataset):
     max_target_length = 2.5
@@ -607,8 +687,60 @@ def TotalImpulseSurfaces(dataset):
             Imp_gauss[i,j] = Impulse_CFD(dataset['gauss_surf'][:,j]*1e3*((cm*TNTeq)**(1/3)), R, theta_lim[i], np.linspace(0,80,200))
     
     return Imp_CFD, Imp_gauss
-# small['CFD_total_impulse'], small['gauss_total_impulse'] = TotalImpulseSurfaces(small)
-# large['CFD_total_impulse'], large['gauss_total_impulse'] = TotalImpulseSurfaces(large)
+#small['CFD_total_impulse'], small['gauss_total_impulse'] = TotalImpulseSurfaces(small)
+#large['CFD_total_impulse'], large['gauss_total_impulse'] = TotalImpulseSurfaces(large)
+
+def interpolate_totalI(dataset):
+    max_target_length = 2.5
+    upper_theta = 80
+    theta_lim = np.linspace(0,upper_theta,80)   
+    R = np.divide(max_target_length, np.tan(np.deg2rad(upper_theta))) 
+    theta_test = np.repeat(theta_lim.reshape(len(theta_lim),1), dataset['imp'].shape[1], 1)    
+    target_rad = np.multiply(np.tan(np.deg2rad(theta_test)), R)   
+    target_rad = np.divide(target_rad, ((cm*TNTeq)**(1/3)))#scaled target radius    
+
+    
+    z = dataset['z']
+    z = z.reshape((dataset['imp'].shape[1], 1))
+    z = z.T
+    z = np.repeat(z, len(target_rad), 0) 
+    
+    tr = target_rad.flatten('F')
+    zf = z.flatten('F')
+        
+    
+    
+    xi = yi = np.linspace(0,5,500) 
+    xi,yi =np.meshgrid(xi,yi)
+    
+    
+    vals = dataset['CFD_total_impulse']/1e3/0.1
+    vals=vals.flatten('F')
+    zi = griddata((tr, zf), vals, (xi,yi), method = 'cubic')
+    
+    z01 = zi[11,100], zi[11,250], zi[11,400]
+    z02 = zi[20,100], zi[20,250], zi[20,400]
+    z03 = zi[30,100], zi[30,250], zi[30,400]
+    z04 = zi[40,100], zi[40,250], zi[40,400]
+    z05 = zi[50,100], zi[50,250], zi[50,400]
+    I_CFD = [z01, z02, z03, z04, z05]
+    
+    vals = dataset['gauss_total_impulse']/1e3/0.1
+    vals=vals.flatten('F')
+    zi = griddata((tr, zf), vals, (xi,yi), method = 'cubic')
+    
+    z01 = zi[11,100], zi[11,250], zi[11,400]
+    z02 = zi[20,100], zi[20,250], zi[20,400]
+    z03 = zi[30,100], zi[30,250], zi[30,400]
+    z04 = zi[40,100], zi[40,250], zi[40,400]
+    z05 = zi[50,100], zi[50,250], zi[50,400]
+    I_gauss = [z01, z02, z03, z04, z05]    
+    
+    return I_CFD, I_gauss
+large_CFD, large_gauss = interpolate_totalI(large)
+small_CFD, small_gauss = interpolate_totalI(small)
+change_small = np.divide((np.asarray(small_gauss) - np.asarray(small_CFD)) , np.asarray(small_CFD)) * 100
+change_large = np.divide((np.asarray(large_gauss) - np.asarray(large_CFD)) , np.asarray(large_CFD)) * 100
 
 
 def graphTotalImpulseSurfaces(dataset):
