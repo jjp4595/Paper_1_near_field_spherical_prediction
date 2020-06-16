@@ -145,8 +145,8 @@ def graph_powerlaw(dataset):
     ax1.text(0.1, 0.25, text_ax1, fontsize = 'x-small', transform=ax1.transAxes)
     ax1.text(0.1, 0.15, text_ax3_p, fontsize = 'x-small', transform=ax1.transAxes)
     ax1.text(0.1, 0.05, text_ax3_se, fontsize = 'x-small', transform=ax1.transAxes)
-    ax1.set_ylabel('log(peak scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', wrap = True, fontsize = 'x-small')
-    ax1.set_xlabel('log(z ' + r'$(m.kg^{\frac{1}{3}})$' +')')
+    ax1.set_ylabel('log(Peak scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', wrap = True, fontsize = 'x-small')
+    ax1.set_xlabel('log(Z ' + r'$(m.kg^{\frac{1}{3}})$' +')')
     ax1.minorticks_on()
     ax1.grid(which='minor', alpha=0.2)
     ax1.grid(which='major', alpha=0.5)
@@ -155,8 +155,8 @@ def graph_powerlaw(dataset):
     ax2.scatter(dataset['z'], dataset['imp_smooth'].max(0)/1e3/((cm*TNTeq)**(1/3)), marker = 's',facecolors = 'none', edgecolors='k', s = 10., label = 'CFD data')
     ax2.plot(dataset['z'], const * dataset['z']**slope, 'k', label='fitted model')
     ax2.text(0.25, 0.9, text_ax2, fontsize = 'small', transform=ax2.transAxes)
-    ax2.set_ylabel('peak scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', wrap = True, fontsize = 'x-small')
-    ax2.set_xlabel('z ' + r'$(m/kg^{\frac{1}{3}})$')
+    ax2.set_ylabel('Peak scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', wrap = True, fontsize = 'x-small')
+    ax2.set_xlabel('Z ' + r'$(m/kg^{\frac{1}{3}})$')
     ax2.minorticks_on()
     ax2.set_ylim(0,25)
     ax2.grid(which='minor', alpha=0.2)
@@ -165,7 +165,7 @@ def graph_powerlaw(dataset):
     ax3.scatter(np.log10(dataset['z']), residuals_power,marker = 's',facecolors = 'none', edgecolors='k',  s = 10., label = 'Residuals')
     ax3.set_ylim(-0.1,0.1)
     ax3.set_ylabel('Residual')
-    ax3.set_xlabel('log(z ' + r'$(m/kg^{\frac{1}{3}})$' +')')
+    ax3.set_xlabel('log(Z ' + r'$(m/kg^{\frac{1}{3}})$' +')')
     ax3.minorticks_on()
     ax3.grid(which='minor', alpha=0.2)
     ax3.grid(which='major', alpha=0.5)
@@ -202,17 +202,17 @@ def graph_dataset_overview(dataset, reduced=None):
     # ax.yaxis.set_major_locator(LinearLocator(5))
     # ax.xaxis.set_major_formatter(FormatStrFormatter('%.0f'))
     # ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
-    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
-    ax.set_xlabel('incident wave angle (degrees)')
+    cbar.ax.set_ylabel('Scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('Scaled distance, Z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('Incident wave angle (degrees)')
     
     plt.tight_layout()
 
     fig3, ax = plt.subplots(1,1)
     fig3.set_size_inches(2.5, 2.5)
     ax.plot(theta, dataset['icr'], lw = 0.5, ls = '-', c='k')
-    ax.set_xlabel('incident wave angle (degrees)')
-    ax.set_ylabel('peak specific impulse ratio')
+    ax.set_xlabel('Incident wave angle (degrees)')
+    ax.set_ylabel('Peak specific impulse ratio')
     ax.minorticks_on()
     ax.set_xlim(0,80)
     ax.set_ylim(0,1)
@@ -223,17 +223,17 @@ def graph_dataset_overview(dataset, reduced=None):
     if reduced == None:
         fig2, ax = plt.subplots(1,1)
         fig2.set_size_inches(2.5, 2.5)
-        ax.plot(theta, dataset['imp']/1e3/((cm*TNTeq)**(1/3)), lw = 0.5, ls = '--', c='r')
+        #ax.plot(theta, dataset['imp']/1e3/((cm*TNTeq)**(1/3)), lw = 0.5, ls = '--', c='r')
         ax.plot(theta, dataset['imp_smooth']/1e3/((cm*TNTeq)**(1/3)), lw = 0.75, ls = '-', c='k')
-        ax.set_xlabel('incident wave angle (degrees)')
-        ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
-        labels = ['Smooth', 'Original']
-        colors = ['k', 'r']
-        lws = [0.75, 0.75]
-        alphas = [1, 0.4]
-        lss = ['-', '--']
-        lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], alpha = alphas[i], color=colors[i]) for i in range(len(labels))]
-        ax.legend(lines,labels, loc='upper right', prop={'size':6})
+        ax.set_xlabel('Incident wave angle (degrees)')
+        ax.set_ylabel('Scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+        # labels = ['Smooth', 'Original']
+        # colors = ['k', 'r']
+        # lws = [0.75, 0.75]
+        # alphas = [1, 0.4]
+        # lss = ['-', '--']
+        # lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], alpha = alphas[i], color=colors[i]) for i in range(len(labels))]
+        # ax.legend(lines,labels, loc='upper right', prop={'size':6})
         ax.minorticks_on()
         ax.set_xlim(0,80)
         ax.set_ylim(0,roundup(dataset['imp'].max()/1e3/((cm*TNTeq)**(1/3)), base = 5))
@@ -243,20 +243,20 @@ def graph_dataset_overview(dataset, reduced=None):
     else:
         fig2, ax = plt.subplots(1,1)
         fig2.set_size_inches(2.5, 2.5)
-        ax.plot(theta[:,4::], dataset['imp'][:,4::]/1e3/((cm*TNTeq)**(1/3)), lw = 0.5, ls = '--', c='r')
+        #ax.plot(theta[:,4::], dataset['imp'][:,4::]/1e3/((cm*TNTeq)**(1/3)), lw = 0.5, ls = '--', c='r')
         ax.plot(theta[:,4::], dataset['imp_smooth'][:,4::]/1e3/((cm*TNTeq)**(1/3)), lw = 0.75, ls = '-', c='k')
-        ax.set_xlabel('incident wave angle (degrees)')
-        ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
-        labels = ['Smooth', 'Original']
-        colors = ['k', 'r']
-        lws = [0.75, 0.75]
-        alphas = [1, 0.4]
-        lss = ['-', '--']
-        lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], alpha = alphas[i], color=colors[i]) for i in range(len(labels))]
-        ax.legend(lines,labels, loc='upper right', prop={'size':6})
+        ax.set_xlabel('Incident wave angle (degrees)')
+        ax.set_ylabel('Scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+        #labels = ['Smooth', 'Original']
+        #colors = ['k', 'r']
+        #lws = [0.75, 0.75]
+        #alphas = [1, 0.4]
+        #lss = ['-', '--']
+        #lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], alpha = alphas[i], color=colors[i]) for i in range(len(labels))]
+        #ax.legend(lines,labels, loc='upper right', prop={'size':6})
         ax.minorticks_on()
         ax.set_xlim(0,80)
-        ax.set_ylim(0,roundup(dataset['imp'][:,4::].max()/1e3/((cm*TNTeq)**(1/3)), base = 5))
+        ax.set_ylim(0,roundup(dataset['imp'][:,4::].max()/1e3/((cm*TNTeq)**(1/3)), base = 2))
         ax.grid(which='minor', alpha=0.2)
         ax.grid(which='major', alpha=0.5)
         plt.tight_layout()
@@ -265,12 +265,12 @@ def graph_dataset_overview(dataset, reduced=None):
     return fig0, fig2, fig3 
 fig0, fig2, fig3 = graph_dataset_overview(small)
 fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_small_a.pdf"), format = 'pdf')
-fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_small_b.pdf"), format = 'pdf')
+fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_small_b_test.pdf"), format = 'pdf')
 fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_small_c.pdf"), format = 'pdf')
 
 fig0, fig2, fig3 = graph_dataset_overview(large, 1)
 fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_large_a.pdf"), format = 'pdf')
-fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_large_b.pdf"), format = 'pdf')
+fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_large_b_test.pdf"), format = 'pdf')
 fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\data_overview_large_c.pdf"), format = 'pdf')
 
 
@@ -328,13 +328,13 @@ def my_model_graphs_exact():
     ax0.plot(np.linspace(0,80,200), small['icr'].mean(1), 'k', markevery=10, label = 'CFD - mean')
     ax0.fill_between(np.linspace(0,80,200), small['icr'].min(1), small['icr'].max(1), color = 'silver', alpha = 0.4, label = 'CFD - range')       
     ax0.plot(np.linspace(0,80,200), gaussmod[int(len(gaussmod)/2)::], 'r--', lw = 1.5, label = 'model')
-    ax0.set_xlabel('angle of incidence (degrees)')
-    ax0.set_ylabel('peak specific impulse ratio')
+    ax0.set_xlabel('Angle of incidence (degrees)')
+    ax0.set_ylabel('Peak specific impulse ratio')
     ax0.set_xlim(0,80)
     ax0.set_ylim(0,1)
     handles, labels = ax0.get_legend_handles_labels()
     ax0.legend(handles, labels, loc='upper right', prop={'size':6})    
-    ax1.set_xlabel('angle of incidence (degrees)')
+    ax1.set_xlabel('Angle of incidence (degrees)')
     ax1.set_ylabel('Residual')
     #text_gaussian1 = r"$f(\theta) = exp \left( \frac{-\left( \frac{\theta}{160} \right) ^2}{2 \times {%.3f}^2} \right)$" % (result.params['wid1'].value)    
     #ax1.text(0.05, 0.2, text_gaussian1, fontsize = 'small', transform=ax1.transAxes)       
@@ -399,15 +399,15 @@ def my_model_graphs_exact():
     ax2.get_lines()[0].set_markersize(3.)
     ax2.get_lines()[0].set_markevery(6)     
     ax2.set_title("")
-    ax0.set_xlabel('angle of incidence (degrees)')
-    ax0.set_ylabel('peak specific impulse ratio')
+    ax0.set_xlabel('Angle of incidence (degrees)')
+    ax0.set_ylabel('Peak specific impulse ratio')
     ax0.set_xlim(0,80)
     ax0.set_ylim(0,1)
     ax2.set_xlim(-2.5,2.5)
     ax2.set_ylim(-0.05, 0.1)
     handles, labels = ax0.get_legend_handles_labels()
     ax0.legend(handles, labels, loc='upper right', prop={'size':6})
-    ax1.set_xlabel('angle of incidence (degrees)')
+    ax1.set_xlabel('Angle of incidence (degrees)')
     ax1.set_ylabel('Residual')
     ax0.minorticks_on()
     ax0.grid(which='minor', alpha=0.2)
@@ -425,7 +425,7 @@ def my_model_graphs_exact():
     
 
     #RPB-MCEER ------------------------------------------------------------
-    RPB_MCEER_exp = RPB_MCEER_i(0.1*1.2, 0.08-charge_rad, 80)
+    RPB_MCEER_exp = RPB_MCEER_i(0.1*1.2, 0.08, 80)
     RPB_MCEER_exp_model_inter = np.interp(np.linspace(0,80,200), RPB_MCEER_exp[2][200,200::], RPB_MCEER_exp[3][200,200::] / max(RPB_MCEER_exp[3][200,200::]))
     fig, [ax0, ax1, ax2] = plt.subplots(1,3)
     fig.set_size_inches(7,2.5)   
@@ -451,15 +451,15 @@ def my_model_graphs_exact():
     ax2.get_lines()[0].set_markersize(3.)
     ax2.get_lines()[0].set_markevery(6)     
     ax2.set_title("")
-    ax0.set_xlabel('angle of incidence (degrees)')
-    ax0.set_ylabel('peak specific impulse ratio')
+    ax0.set_xlabel('Angle of incidence (degrees)')
+    ax0.set_ylabel('Peak specific impulse ratio')
     ax0.set_xlim(0,80)
     ax0.set_ylim(0,1)
     ax2.set_xlim(-2.5,2.5)
     ax2.set_ylim(-0.05, 0.1)
     handles, labels = ax0.get_legend_handles_labels()
     ax0.legend(handles, labels, loc='upper right', prop={'size':6})
-    ax1.set_xlabel('angle of incidence (degrees)')
+    ax1.set_xlabel('Angle of incidence (degrees)')
     ax1.set_ylabel('Residual')
     ax0.minorticks_on()
     ax0.grid(which='minor', alpha=0.2)
@@ -520,11 +520,11 @@ def my_model_graphs_large():
     ax2.set_title("")
     ax2.set_xlim(-2.5,2.5)
     ax2.set_ylim(-0.05, 0.1)
-    ax0.set_xlabel('angle of incidence (degrees)')
-    ax0.set_ylabel('peak specific impulse ratio')
+    ax0.set_xlabel('Angle of incidence (degrees)')
+    ax0.set_ylabel('Peak specific impulse ratio')
     handles, labels = ax0.get_legend_handles_labels()
     ax0.legend(handles, labels, loc='upper right', prop={'size':6})
-    ax1.set_xlabel('angle of incidence (degrees)')
+    ax1.set_xlabel('Angle of incidence (degrees)')
     ax1.set_ylabel('Residual')
     ax0.minorticks_on()
     ax0.grid(which='minor', alpha=0.2)
@@ -564,9 +564,9 @@ def plot_model_surfaces(dataset):
     fig.set_size_inches(3, 2.5)
     CS = ax.contourf(theta, z, i_surf, levels = np.linspace(0,25,50), cmap = plt.cm.magma_r)
     cbar = fig.colorbar(CS, format='%.0f' ,ticks = np.linspace(0,25,6))
-    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
-    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
-    ax.set_xlabel('incident wave angle (degrees)')
+    cbar.ax.set_ylabel('Scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('Scaled distance, Z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('Incident wave angle (degrees)')
     plt.tight_layout()
     
     fig2, ax = plt.subplots(1,1)
@@ -576,9 +576,9 @@ def plot_model_surfaces(dataset):
     # cbar = fig2.colorbar(CS, format='%.1f' ,ticks = np.linspace(0,2.5,6))
     CS = ax.contourf(theta, z, diff, levels = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 2),50), cmap = plt.cm.magma_r)
     cbar = fig2.colorbar(CS, format='%.0f' , ticks = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 2),5))  
-    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
-    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
-    ax.set_xlabel('incident wave angle (degrees)')
+    cbar.ax.set_ylabel('Scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('Scaled distance, Z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('Incident wave angle (degrees)')
     plt.tight_layout()
     return i_surf, fig, fig2
 small['gauss_surf'], fig, fig2 = plot_model_surfaces(small)
@@ -597,12 +597,12 @@ def plot_model_surfaces_RPB(dataset):
     
     imp, theta_exp = [], []
     for i in dataset['so']:
-        run = RPB_MCEER_i(cm, i, 80)
+        run = RPB_MCEER_i(cm*1.2, i, 80)
         imp.append(run[3][199,200::])#specific impulse from centre of plate outwards
         theta_exp.append(run[2][199,200::])
         
     i_surf = np.asarray(imp).T
-    i_surf = np.divide(i_surf, ((cm*TNTeq)**(1/3)))
+    i_surf = np.divide(i_surf, ((cm*1.2)**(1/3)))
     theta = np.asarray(theta_exp).T
     
 
@@ -610,9 +610,9 @@ def plot_model_surfaces_RPB(dataset):
     fig.set_size_inches(3, 2.5)
     CS = ax.contourf(theta, z, i_surf, levels = np.linspace(0,25,50), cmap = plt.cm.magma_r)
     cbar = fig.colorbar(CS, format='%.0f' ,ticks = np.linspace(0,25,6))
-    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
-    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
-    ax.set_xlabel('incident wave angle (degrees)')
+    cbar.ax.set_ylabel('Scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('Scaled distance, Z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('Incident wave angle (degrees)')
     plt.tight_layout()
     
     fig2, ax = plt.subplots(1,1)
@@ -620,9 +620,9 @@ def plot_model_surfaces_RPB(dataset):
     diff = i_surf-(dataset['imp_smooth']/1e3/((cm*TNTeq)**(1/3)))
     CS = ax.contourf(theta, z, diff, levels = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 2),50), cmap = plt.cm.magma_r)
     cbar = fig2.colorbar(CS, format='%.0f' , ticks = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 2),5))  
-    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
-    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
-    ax.set_xlabel('incident wave angle (degrees)')
+    cbar.ax.set_ylabel('Scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('Scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('Incident wave angle (degrees)')
     plt.tight_layout()
     return i_surf, fig, fig2
 large['RPB_MCEER_surf'], fig, fig2 = plot_model_surfaces_RPB(large)
@@ -648,9 +648,9 @@ def plot_model_surfaces_Henrych(dataset):
     fig.set_size_inches(3, 2.5)
     CS = ax.contourf(theta, z, i_surf, levels = np.linspace(0,40,50), cmap = plt.cm.magma_r)
     cbar = fig.colorbar(CS, format='%.0f' ,ticks = np.linspace(0,40,5))
-    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
-    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
-    ax.set_xlabel('incident wave angle (degrees)')
+    cbar.ax.set_ylabel('Scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('Scaled distance, Z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('Incident wave angle (degrees)')
     plt.tight_layout()
     
     fig2, ax = plt.subplots(1,1)
@@ -658,9 +658,9 @@ def plot_model_surfaces_Henrych(dataset):
     diff = i_surf-(dataset['imp_smooth']/1e3/((cm*TNTeq)**(1/3)))
     CS = ax.contourf(theta, z, diff, levels = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 2),50), cmap = plt.cm.magma_r)
     cbar = fig2.colorbar(CS, format='%.0f' , ticks = np.linspace(rounddwn(diff.min(), base = 1),roundup(diff.max(), base = 2),5))  
-    cbar.ax.set_ylabel('scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
-    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
-    ax.set_xlabel('incident wave angle (degrees)')
+    cbar.ax.set_ylabel('Scaled specific impulse'+r'$(MPa.ms/kg^{\frac{1}{3}}$)', fontsize = 'x-small')
+    ax.set_ylabel('Scaled distance, Z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('Incident wave angle (degrees)')
     plt.tight_layout()
     return i_surf, fig, fig2
 large['henrych_surf'], fig, fig2 = plot_model_surfaces_Henrych(large)
@@ -762,9 +762,9 @@ def graphTotalImpulseSurfaces(dataset):
     fig_test.set_size_inches(3, 2.5)
     CS = ax.contourf(target_rad, z, dataset['gauss_total_impulse']/1e3/0.1, levels = np.linspace(0,roundup((dataset['gauss_total_impulse']/1e3/0.1).max(), base = 200),50), cmap = plt.cm.magma_r)
     cbar = fig_test.colorbar(CS, format='%.0f' ,ticks = np.linspace(0,roundup((dataset['gauss_total_impulse']/1e3/0.1).max(), base = 200),5))
-    cbar.ax.set_ylabel('total scaled impulse' +  r'$(MN.ms/kg)$')
-    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
-    ax.set_xlabel('scaled target radius'+r'$(m/kg^{\frac{1}{3}}$)')
+    cbar.ax.set_ylabel('Total scaled impulse' +  r'$(MN.ms/kg)$')
+    ax.set_ylabel('Scaled distance, Z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('Scaled target radius'+r'$(m/kg^{\frac{1}{3}}$)')
     plt.tight_layout()
        
     
@@ -774,8 +774,8 @@ def graphTotalImpulseSurfaces(dataset):
     CS = ax.contourf(target_rad, z, diff, levels = np.linspace(rounddwn(diff.min(), base = 20),roundup(diff.max(), base = 20),50), cmap = plt.cm.magma_r)
     cbar = fig_test2.colorbar(CS, format='%.0f' , ticks = np.linspace(rounddwn(diff.min(), base = 20),roundup(diff.max(), base = 20),5))   
     cbar.ax.set_ylabel('total scaled impulse' +  r'$(MN.ms/kg)$')
-    ax.set_ylabel('scaled distance, z ' + r'$(m/kg^{\frac{1}{3}}$)')
-    ax.set_xlabel('scaled target radius'+r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_ylabel('Scaled distance, Z ' + r'$(m/kg^{\frac{1}{3}}$)')
+    ax.set_xlabel('Scaled target radius'+r'$(m/kg^{\frac{1}{3}}$)')
     plt.tight_layout()
     return  fig_test, fig_test2
 # fig1, fig2 = graphTotalImpulseSurfaces(small)
@@ -826,8 +826,8 @@ def new1():
     handles, labels = ax1.get_legend_handles_labels()
     ax1.legend(handles, labels, loc='upper right', prop={'size':6})
     
-    ax1.set_xlabel('incident wave angle (degrees)')
-    ax1.set_ylabel('peak specific impulse'+r'$(MPa.ms$)', fontsize = 'small')
+    ax1.set_xlabel('Incident wave angle (degrees)')
+    ax1.set_ylabel('Peak specific impulse'+r'$(MPa.ms$)', fontsize = 'small')
     ax1.set_xlim(0,80)
     #ax1.set_ylim(0,9)
     ax1.minorticks_on()
@@ -841,8 +841,8 @@ def new1():
     ax2.plot(theta, val_highZ['imp_smooth']/1e3, 'k', ls = '-', lw = 0.5, label = 'CFD')
     ax2.plot(theta, highz, 'r', ls = '-', lw = 1.5)
     
-    ax2.set_xlabel('incident wave angle (degrees)')
-    ax2.set_ylabel('peak specific impulse'+r'$(MPa.ms$)', fontsize = 'small')
+    ax2.set_xlabel('Incident wave angle (degrees)')
+    ax2.set_ylabel('Peak specific impulse'+r'$(MPa.ms$)', fontsize = 'small')
     ax2.set_xlim(0,80)
     #ax2.set_ylim(0,0.7)
     ax2.minorticks_on()
