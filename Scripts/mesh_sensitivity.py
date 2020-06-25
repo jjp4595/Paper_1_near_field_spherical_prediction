@@ -15,23 +15,34 @@ from matplotlib.ticker import LinearLocator, FixedLocator, FormatStrFormatter
 
 cr = 0.0246
 charge_mass = 0.1
-#plt.rcParams["font.family"] = "cmr10" #Set Graph fonts to cmr10
 params = {'font.family':'serif',
         'axes.labelsize':'small',
         'xtick.labelsize':'x-small',
         'ytick.labelsize':'x-small', 
+        'axes.linewidth':0.5,
+        
+        'xtick.major.width':0.5,
+        'xtick.minor.width':0.4,
+        'ytick.major.width':0.5,
+        'ytick.minor.width':0.4,
+        'xtick.major.size':3.0,
+        'xtick.minor.size':1.5,
+        'ytick.major.size':3.0,
+        'ytick.minor.size':1.5,
         
         'legend.fontsize':'small',
         'legend.title_fontsize':'small',
-        'legend.fancybox': True,
-        'legend.framealpha': 0.5,
+        'legend.fancybox': False,
+        'legend.framealpha': 1,
         'legend.shadow': False,
         'legend.frameon': True,
+        'legend.edgecolor':'black',
+        'patch.linewidth':0.5,
         
         'scatter.marker': 's',
         
-        'grid.linestyle':'--',
         'grid.linewidth':'0.5',
+        
         'lines.linewidth':'0.5'}
 plt.rcParams.update(params)
 
@@ -95,15 +106,75 @@ final_100s = 4 + 1
 final_200s = 8 + 1
 
 
-#Graph 1 ---------------------------------------------------------------------
-#No of cells vs impulse & comp time
+# #Graph 1 ---------------------------------------------------------------------
+# fig, [ax0, ax0a, ax1] = plt.subplots(1,3)
+# fig.set_size_inches(7, 2.5)
+
+
+# ax0.scatter(R_z0_055[start_100s:final_100s], peak_impulse_z0_055[start_100s:final_100s]/1e3, c = 'b', marker="s", s=10, label = 'Zone length 0.05m')
+# ax0.scatter(R_z0_055[final_100s:final_200s], peak_impulse_z0_055[final_100s:final_200s]/1e3, c = 'gray',  marker="D", s=10, label = 'Zone length 0.02m')
+# ax0.scatter(R_z0_055[final_200s::], peak_impulse_z0_055[final_200s::]/1e3, c = 'r', marker="o",  s=10, label = 'Zone length 0.01m')
+
+# temp = max(peak_impulse_z0_055[final_200s::]/1e3)
+# ax0.plot([0,50], [temp, temp], linewidth = 0.5, c = 'k')
+# ax0.plot([0,50], [temp*0.9, temp*0.9], linewidth = 0.5, linestyle = '--', c = 'k',label = '$10\%$ convergence')
+
+# ax0.set_xlabel('S / cell length')
+# ax0.set_ylabel('Peak specific impulse (MPa.ms)', fontsize = 'x-small')
+# ax0.set_ylim(4,12)
+# ax0.set_xlim(0,41)
+# ax0.minorticks_on()
+# ax0.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+# ax0.grid(which='minor', ls=':', dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+# handles, labels = ax0.get_legend_handles_labels()
+# ax0.legend(handles, labels, bbox_to_anchor=(0., 1.08, 3.85, .102), loc='lower left', ncol = 4, mode = "expand", borderaxespad=0., prop={'size':6})
+
+
+
+# ax0a.scatter(R_z0_055[start_100s:final_100s], mesh_sensitivity_I[start_100s:final_100s]/1e3, c = 'b',  marker="s", s=10, label = 'Zone length 0.05m')
+# ax0a.scatter(R_z0_055[final_100s:final_200s], mesh_sensitivity_I[final_100s:final_200s]/1e3, c = 'gray',  marker="D", s=10, label = 'Zone length 0.02m')
+# ax0a.scatter(R_z0_055[final_200s::], mesh_sensitivity_I[final_200s::]/1e3, c = 'r', marker="o",  s=10, label = 'Zone length 0.01m')
+# temp = max(mesh_sensitivity_I[final_200s::]/1e3)
+# ax0a.plot([0,50], [temp, temp], linewidth = 0.5, c = 'k')
+# ax0a.plot([0,50], [temp*0.9, temp*0.9], linewidth = 0.5, linestyle = '--', c = 'k',label = '$10\%$ convergence')
+# ax0a.set_xlabel('S / cell length')
+# ax0a.set_ylabel('Area integrated impulse (MN.ms)', fontsize = 'x-small')
+# ax0a.set_ylim(250/1e3,450/1e3)
+# ax0a.set_xlim(0,41)
+# ax0a.minorticks_on()
+# ax0a.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+# ax0a.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+
+
+# ax1.scatter(R_z0_055[start_100s:final_100s], CPU_times_z0_055[start_100s:final_100s], c = 'b',  marker="s", s=10, label = 'Zone length 0.05m')
+# ax1.scatter(R_z0_055[final_100s:final_200s], CPU_times_z0_055[final_100s:final_200s], c = 'gray',  marker="D", s=10, label = 'Zone length 0.02m')
+# ax1.scatter(R_z0_055[final_200s::], CPU_times_z0_055[final_200s::], c = 'r', marker="o",  s=10, label = 'Zone Length 0.01m')
+# ax1.set_xlabel('S / cell length')
+# ax1.set_ylabel('Wall time (s)')
+# ax1.minorticks_on()
+# ax1.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+# ax1.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+# ax1.set_yscale('log')
+# ax1.set_xlim(0,41)
+# ax1.set_ylim(1,1e5)
+
+# plt.tight_layout()
+# ax0.locator_params(axis = 'x',tight=True, nbins=6)
+# ax0a.locator_params(axis = 'x',tight=True, nbins=6)
+# ax1.locator_params(axis = 'x',tight=True, nbins=6)
+# ax0.locator_params(axis = 'y',tight=True, nbins=6)
+# ax0a.locator_params(axis = 'y',tight=True, nbins=6)
+# #ax1.locator_params(axis = 'y', tight=True, nbins=6)
+# fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_convergence_z0_055_1.pdf', format = 'pdf')
+
+#Graph 1a ---------------------------------------------------------------------
 fig, [ax0, ax0a, ax1] = plt.subplots(1,3)
 fig.set_size_inches(7, 2.5)
 
 
-ax0.scatter(R_z0_055[start_100s:final_100s], peak_impulse_z0_055[start_100s:final_100s]/1e3, c = 'b', alpha = 0.5, marker="s", s=10, label = 'Zone length 0.05m')
-ax0.scatter(R_z0_055[final_100s:final_200s], peak_impulse_z0_055[final_100s:final_200s]/1e3, c = 'k', alpha = 0.5, marker="s", s=10, label = 'Zone length 0.02m')
-ax0.scatter(R_z0_055[final_200s::], peak_impulse_z0_055[final_200s::]/1e3, c = 'g', marker="s", alpha = 0.5, s=10, label = 'Zone length 0.01m')
+ax0.scatter(R_z0_055[start_100s:final_100s], peak_impulse_z0_055[start_100s:final_100s]/1e3, c = 'b', marker="s", edgecolor = 'k', s=10, label = 'Zone length 0.05m')
+ax0.scatter(R_z0_055[final_100s:final_200s], peak_impulse_z0_055[final_100s:final_200s]/1e3, c = 'gray',  marker="D", edgecolor = 'k', s=10, label = 'Zone length 0.02m')
+ax0.scatter(R_z0_055[final_200s::], peak_impulse_z0_055[final_200s::]/1e3, c = 'r', marker="o", edgecolor = 'k', s=10, label = 'Zone length 0.01m')
 
 temp = max(peak_impulse_z0_055[final_200s::]/1e3)
 ax0.plot([0,50], [temp, temp], linewidth = 0.5, c = 'k')
@@ -111,20 +182,19 @@ ax0.plot([0,50], [temp*0.9, temp*0.9], linewidth = 0.5, linestyle = '--', c = 'k
 
 ax0.set_xlabel('S / cell length')
 ax0.set_ylabel('Peak specific impulse (MPa.ms)', fontsize = 'x-small')
-ax0.set_ylim(5,12)
+ax0.set_ylim(4,12)
 ax0.set_xlim(0,41)
 ax0.minorticks_on()
-ax0.grid(which='minor', alpha=0.2)
-ax0.grid(which='major', alpha=0.5)
+ax0.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax0.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
 handles, labels = ax0.get_legend_handles_labels()
-#ax0.legend(handles, labels, loc='center', bbox_to_anchor=(0.60, 0.30), prop={'size':6})
 ax0.legend(handles, labels, bbox_to_anchor=(0., 1.08, 3.85, .102), loc='lower left', ncol = 4, mode = "expand", borderaxespad=0., prop={'size':6})
 
 
 
-ax0a.scatter(R_z0_055[start_100s:final_100s], mesh_sensitivity_I[start_100s:final_100s]/1e3, c = 'b', alpha = 0.5, marker="s", s=10, label = 'Zone length 0.05m')
-ax0a.scatter(R_z0_055[final_100s:final_200s], mesh_sensitivity_I[final_100s:final_200s]/1e3, c = 'k', alpha = 0.5, marker="s", s=10, label = 'Zone length 0.02m')
-ax0a.scatter(R_z0_055[final_200s::], mesh_sensitivity_I[final_200s::]/1e3, c = 'g', marker="s", alpha = 0.5, s=10, label = 'Zone length 0.01m')
+ax0a.scatter(R_z0_055[start_100s:final_100s], mesh_sensitivity_I[start_100s:final_100s]/1e3, c = 'b',  marker="s", edgecolor = 'k', s=10, label = 'Zone length 0.05m')
+ax0a.scatter(R_z0_055[final_100s:final_200s], mesh_sensitivity_I[final_100s:final_200s]/1e3, c = 'gray',  marker="D", edgecolor = 'k', s=10, label = 'Zone length 0.02m')
+ax0a.scatter(R_z0_055[final_200s::], mesh_sensitivity_I[final_200s::]/1e3, c = 'r', marker="o", edgecolor = 'k', s=10, label = 'Zone length 0.01m')
 temp = max(mesh_sensitivity_I[final_200s::]/1e3)
 ax0a.plot([0,50], [temp, temp], linewidth = 0.5, c = 'k')
 ax0a.plot([0,50], [temp*0.9, temp*0.9], linewidth = 0.5, linestyle = '--', c = 'k',label = '$10\%$ convergence')
@@ -133,30 +203,104 @@ ax0a.set_ylabel('Area integrated impulse (MN.ms)', fontsize = 'x-small')
 ax0a.set_ylim(250/1e3,450/1e3)
 ax0a.set_xlim(0,41)
 ax0a.minorticks_on()
-ax0a.grid(which='minor', alpha=0.2)
-ax0a.grid(which='major', alpha=0.5)
+ax0a.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax0a.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
 
 
-ax1.scatter(R_z0_055[start_100s:final_100s], CPU_times_z0_055[start_100s:final_100s], c = 'b', alpha = 0.5, marker="s", s=10, label = 'Zone length 0.05m')
-ax1.scatter(R_z0_055[final_100s:final_200s], CPU_times_z0_055[final_100s:final_200s], c = 'k', alpha = 0.5, marker="s", s=10, label = 'Zone length 0.02m')
-ax1.scatter(R_z0_055[final_200s::], CPU_times_z0_055[final_200s::], c = 'g', marker="s", alpha = 0.5, s=10, label = 'Zone Length 0.01m')
+ax1.scatter(R_z0_055[start_100s:final_100s], CPU_times_z0_055[start_100s:final_100s], c = 'b',  marker="s",edgecolor = 'k', s=10, label = 'Zone length 0.05m')
+ax1.scatter(R_z0_055[final_100s:final_200s], CPU_times_z0_055[final_100s:final_200s], c = 'gray',  marker="D",edgecolor = 'k', s=10, label = 'Zone length 0.02m')
+ax1.scatter(R_z0_055[final_200s::], CPU_times_z0_055[final_200s::], c = 'r', marker="o", edgecolor = 'k', s=10, label = 'Zone Length 0.01m')
 ax1.set_xlabel('S / cell length')
 ax1.set_ylabel('Wall time (s)')
 ax1.minorticks_on()
-ax1.grid(which='minor', alpha=0.2)
-ax1.grid(which='major', alpha=0.5)
+ax1.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax1.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
 ax1.set_yscale('log')
 ax1.set_xlim(0,41)
-ax1.set_ylim(0,1e5)
+ax1.set_ylim(1,1e5)
 
 plt.tight_layout()
 ax0.locator_params(axis = 'x',tight=True, nbins=6)
 ax0a.locator_params(axis = 'x',tight=True, nbins=6)
 ax1.locator_params(axis = 'x',tight=True, nbins=6)
-ax0.locator_params(axis = 'y',tight=True, numticks=6)
-ax0a.locator_params(axis = 'y',tight=True, numticks=6)
-ax1.locator_params(axis = 'y',tight=True, numticks=6)
-fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_z0_055_1.pdf', format = 'pdf')
+ax0.locator_params(axis = 'y',tight=True, nbins=6)
+ax0a.locator_params(axis = 'y',tight=True, nbins=6)
+#ax1.locator_params(axis = 'y', tight=True, nbins=6)
+fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_convergence_z0_055_1a.pdf', format = 'pdf')
+
+
+# #Graph 1a ---------------------------------------------------------------------
+# fig, [ax0, ax0a, ax1] = plt.subplots(1,3)
+# fig.set_size_inches(7, 2.5)
+
+
+# ax0.scatter(R_z0_055[start_100s:final_100s], peak_impulse_z0_055[start_100s:final_100s]/1e3, marker="s", facecolors = 'None', edgecolor = 'b', s=10, label = 'Zone length 0.05m')
+# ax0.scatter(R_z0_055[final_100s:final_200s], peak_impulse_z0_055[final_100s:final_200s]/1e3, marker="D", edgecolor = 'gray', facecolor = 'None', s=10, label = 'Zone length 0.02m')
+# ax0.scatter(R_z0_055[final_200s::], peak_impulse_z0_055[final_200s::]/1e3, marker="o", edgecolor = 'r', facecolors = 'None',s=10, label = 'Zone length 0.01m')
+
+# temp = max(peak_impulse_z0_055[final_200s::]/1e3)
+# ax0.plot([0,50], [temp, temp], linewidth = 0.5, c = 'k')
+# ax0.plot([0,50], [temp*0.9, temp*0.9], linewidth = 0.5, linestyle = '--', c = 'k',label = '$10\%$ convergence')
+
+# ax0.set_xlabel('S / cell length')
+# ax0.set_ylabel('Peak specific impulse (MPa.ms)', fontsize = 'x-small')
+# ax0.set_ylim(4,12)
+# ax0.set_xlim(0,41)
+# ax0.minorticks_on()
+# ax0.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+# ax0.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+# handles, labels = ax0.get_legend_handles_labels()
+# ax0.legend(handles, labels, bbox_to_anchor=(0., 1.08, 3.85, .102), loc='lower left', ncol = 4, mode = "expand", borderaxespad=0., prop={'size':6})
+
+
+
+# ax0a.scatter(R_z0_055[start_100s:final_100s], mesh_sensitivity_I[start_100s:final_100s]/1e3, marker="s", facecolor = 'None', edgecolor = 'b', s=10, label = 'Zone length 0.05m')
+# ax0a.scatter(R_z0_055[final_100s:final_200s], mesh_sensitivity_I[final_100s:final_200s]/1e3, marker="D", edgecolor = 'gray', facecolor = 'None', s=10, label = 'Zone length 0.02m')
+# ax0a.scatter(R_z0_055[final_200s::], mesh_sensitivity_I[final_200s::]/1e3, marker="o", edgecolor = 'r', facecolor = 'None', s=10, label = 'Zone length 0.01m')
+# temp = max(mesh_sensitivity_I[final_200s::]/1e3)
+# ax0a.plot([0,50], [temp, temp], linewidth = 0.5, c = 'k')
+# ax0a.plot([0,50], [temp*0.9, temp*0.9], linewidth = 0.5, linestyle = '--', c = 'k',label = '$10\%$ convergence')
+# ax0a.set_xlabel('S / cell length')
+# ax0a.set_ylabel('Area integrated impulse (MN.ms)', fontsize = 'x-small')
+# ax0a.set_ylim(250/1e3,450/1e3)
+# ax0a.set_xlim(0,41)
+# ax0a.minorticks_on()
+# ax0a.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+# ax0a.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+
+
+# ax1.scatter(R_z0_055[start_100s:final_100s], CPU_times_z0_055[start_100s:final_100s], marker="s", facecolor = 'None', edgecolor = 'b', s=10, label = 'Zone length 0.05m')
+# ax1.scatter(R_z0_055[final_100s:final_200s], CPU_times_z0_055[final_100s:final_200s], marker="D", edgecolor = 'gray', facecolor = 'None', s=10, label = 'Zone length 0.02m')
+# ax1.scatter(R_z0_055[final_200s::], CPU_times_z0_055[final_200s::], marker="o", edgecolor = 'r', facecolor = 'None', s=10, label = 'Zone Length 0.01m')
+# ax1.set_xlabel('S / cell length')
+# ax1.set_ylabel('Wall time (s)')
+# ax1.minorticks_on()
+# ax1.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+# ax1.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+# ax1.set_yscale('log')
+# ax1.set_xlim(0,41)
+# ax1.set_ylim(1,1e5)
+
+# plt.tight_layout()
+# ax0.locator_params(axis = 'x',tight=True, nbins=6)
+# ax0a.locator_params(axis = 'x',tight=True, nbins=6)
+# ax1.locator_params(axis = 'x',tight=True, nbins=6)
+# ax0.locator_params(axis = 'y',tight=True, nbins=6)
+# ax0a.locator_params(axis = 'y',tight=True, nbins=6)
+# #ax1.locator_params(axis = 'y', tight=True, nbins=6)
+# fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_convergence_z0_055_1b.pdf', format = 'pdf')
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -234,10 +378,10 @@ ax0.set_xlabel('Angle of incidence')
 ax0.set_xlim(0,80)
 ax0.set_ylim(0,5)
 ax0.minorticks_on()
-ax0.grid(which='minor', alpha=0.2)
-ax0.grid(which='major', alpha=0.5)
+ax0.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax0.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
 plt.tight_layout()
-fig_dataset2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset2.pdf', format = 'pdf')
+fig_dataset2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_convergence_dataset2.pdf', format = 'pdf')
 
 fig_dataset3, ax1 = plt.subplots(1,1)
 fig_dataset3.set_size_inches(2.5,2.5)
@@ -249,15 +393,15 @@ ax1.scatter(testing_DMA_z[0], np.asarray(testing_DMA_I[0])/1e3, marker = '>', fa
 ax1.scatter(testing_DMA_z[1], np.asarray(testing_DMA_I[1])/1e3, marker = '<',facecolors = 'none', edgecolors='b', s=10., label = 'F')
 handles, labels = ax1.get_legend_handles_labels()
 ax1.legend(handles, labels, loc='upper right', prop={'size':6})
-ax1.set_xlabel('Scaled distance, Z ' + r'$(m/kg^{\frac{1}{3}}$)')
+ax1.set_xlabel('Scaled distance, Z ' + r'$(m/kg^{1/3}$)')
 ax1.set_ylabel('Area integrated impulse (MPa.ms)', fontsize = 'x-small')
 ax1.set_ylim(0.2,0.5)
 #ax1.set_title(r'$1m^2$ area integrated impulse')
 ax1.minorticks_on()
-ax1.grid(which='minor', alpha=0.2)
-ax1.grid(which='major', alpha=0.5)
+ax1.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax1.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
 plt.tight_layout()
-fig_dataset3.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset3.pdf', format = 'pdf')
+fig_dataset3.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_convergence_dataset3.pdf', format = 'pdf')
 
 fig_dataset3a, ax1 = plt.subplots(1,1)
 fig_dataset3a.set_size_inches(2.5,2.5)
@@ -267,75 +411,75 @@ ax1.scatter(latest_1500_r4_z, latest_1500_r4_t, marker = "^",facecolors = 'none'
 ax1.scatter(latest_1500_r5_z, latest_1500_r5_t, marker = "s", facecolors = 'none', edgecolors='r', s=10., label = 'D')
 ax1.scatter(testing_DMA_z[0], testing_DMA_t[0], marker = '>', facecolors = 'none', edgecolors='k', s=10., label = 'E')
 ax1.scatter(testing_DMA_z[1], testing_DMA_t[1], marker = '<',facecolors = 'none', edgecolors='b', s=10., label = 'F')
-ax1.set_xlabel('Scaled distance, Z ' + r'$(m/kg^{\frac{1}{3}}$)')
+ax1.set_xlabel('Scaled distance, Z ' + r'$(m/kg^{1/3}$)')
 ax1.set_ylabel('Wall time (s)')
 ax1.minorticks_on()
-ax1.grid(which='minor', alpha=0.2)
-ax1.grid(which='major', alpha=0.5)
+ax1.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax1.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
 ax1.set_yscale('log')
 plt.tight_layout()
-fig_dataset3a.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset3a.pdf', format = 'pdf')
+fig_dataset3a.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_convergence_dataset3a.pdf', format = 'pdf')
 
 
-fig_dataset1, ax = plt.subplots(1,1)
-fig_dataset1.set_size_inches(2.5,2.5)
-ax.plot(np.linspace(0,80,200),latest_1500_r5/1e3, 'r', ls = '-', lw = 0.5)
-ax.set_ylabel('Peak specific impulse (MPa.ms)')
-ax.set_xlabel('Angle of incidence')
-labels = [str(round(latest_1500_r5_z_centre[i], 3)) for i in range(len(latest_1500_r5_file))]
-colors = ['r' for i in range(len(latest_1500_r5_file)) ]
-lws = [0.5 for i in range(len(latest_1500_r5_file))]
-lss = ['-' for i in range(len(latest_1500_r5_file))]
-lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
-ax.legend(lines,labels, loc='upper right', title=r'$z(m/kg^{1/3})$', title_fontsize = 'x-small', prop={'size':6})
-ax.minorticks_on()
-ax.grid(which='minor', alpha=0.2)
-ax.grid(which='major', alpha=0.5) 
-ax.set_xlim(0,80)
-ax.set_ylim(0,12)
-plt.tight_layout()
-fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1.pdf', format = 'pdf')
+# fig_dataset1, ax = plt.subplots(1,1)
+# fig_dataset1.set_size_inches(2.5,2.5)
+# ax.plot(np.linspace(0,80,200),latest_1500_r5/1e3, 'r', ls = '-', lw = 0.5)
+# ax.set_ylabel('Peak specific impulse (MPa.ms)')
+# ax.set_xlabel('Angle of incidence')
+# labels = [str(round(latest_1500_r5_z_centre[i], 3)) for i in range(len(latest_1500_r5_file))]
+# colors = ['r' for i in range(len(latest_1500_r5_file)) ]
+# lws = [0.5 for i in range(len(latest_1500_r5_file))]
+# lss = ['-' for i in range(len(latest_1500_r5_file))]
+# lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
+# ax.legend(lines,labels, loc='upper right', title=r'$z(m/kg^{1/3})$', title_fontsize = 'x-small', prop={'size':6})
+# ax.minorticks_on()
+# ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+# ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+# ax.set_xlim(0,80)
+# ax.set_ylim(0,12)
+# plt.tight_layout()
+# fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_convergence_dataset1.pdf', format = 'pdf')
 
-fig_dataset1, ax = plt.subplots(1,1)
-fig_dataset1.set_size_inches(2.5,2.5)
-smooth = np.asarray([savgol_filter(latest_1500_r5[:,i], 101, 3) for i in range(len(latest_1500_r5_file))]).T
-ax.plot(np.linspace(0,80,200), smooth/1e3, 'r', ls = '-', lw = 0.5)
-ax.set_ylabel('Peak specific impulse (MPa.ms)')
-ax.set_xlabel('Angle of incidence')
-labels = [str(round(latest_1500_r5_z_centre[i], 3)) for i in range(len(latest_1500_r5_file))]
-colors = ['r' for i in range(len(latest_1500_r5_file)) ]
-lws = [0.5 for i in range(len(latest_1500_r5_file))]
-lss = ['-' for i in range(len(latest_1500_r5_file))]
-lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
-ax.legend(lines,labels, loc='upper right', title=r'$z(m/kg^{1/3})$', title_fontsize = 'x-small', prop={'size':6})
-ax.minorticks_on()
-ax.grid(which='minor', alpha=0.2)
-ax.grid(which='major', alpha=0.5) 
-ax.set_xlim(0,80)
-ax.set_ylim(0,12)
-plt.tight_layout()
-fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1a.pdf', format = 'pdf')
+# fig_dataset1, ax = plt.subplots(1,1)
+# fig_dataset1.set_size_inches(2.5,2.5)
+# smooth = np.asarray([savgol_filter(latest_1500_r5[:,i], 101, 3) for i in range(len(latest_1500_r5_file))]).T
+# ax.plot(np.linspace(0,80,200), smooth/1e3, 'r', ls = '-', lw = 0.5)
+# ax.set_ylabel('Peak specific impulse (MPa.ms)')
+# ax.set_xlabel('Angle of incidence')
+# labels = [str(round(latest_1500_r5_z_centre[i], 3)) for i in range(len(latest_1500_r5_file))]
+# colors = ['r' for i in range(len(latest_1500_r5_file)) ]
+# lws = [0.5 for i in range(len(latest_1500_r5_file))]
+# lss = ['-' for i in range(len(latest_1500_r5_file))]
+# lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
+# ax.legend(lines,labels, loc='upper right', title=r'$z(m/kg^{1/3})$', title_fontsize = 'x-small', prop={'size':6})
+# ax.minorticks_on()
+# ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+# ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+# ax.set_xlim(0,80)
+# ax.set_ylim(0,12)
+# plt.tight_layout()
+# fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_convergence_dataset1a.pdf', format = 'pdf')
 
-fig_dataset1, ax = plt.subplots(1,1)
-fig_dataset1.set_size_inches(2.5,2.5)
-ax.plot(np.linspace(0,80,200), smooth/smooth.max(0), 'r', ls = '-', lw = 0.5)
-ax.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm Exp')
-ax.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
-ax.set_ylabel('Peak specific impulse ratio')
-ax.set_xlabel('Angle of incidence')
-legend_elements = [Line2D([], [],  lw=0.5, linestyle = '-', color='r', label = 'CFD'), 
-                   Line2D([], [],  color=[0.75,0.75,0.75], marker ='x', linestyle='None', markersize=4, label='Exp. repeats'),
-                   Line2D([], [],   marker ='o', linestyle='None', markersize=4, label='Exp. mean')]
-ax.legend(handles=legend_elements, loc='upper right', prop={'size':6})
-ax.minorticks_on()
-ax.grid(which='minor', alpha=0.2)
-ax.grid(which='major', alpha=0.5) 
-ax.set_xlim(0,80)
-ax.set_ylim(0,1)
-plt.tight_layout()
-fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_dataset1b.pdf', format = 'pdf')
+# fig_dataset1, ax = plt.subplots(1,1)
+# fig_dataset1.set_size_inches(2.5,2.5)
+# ax.plot(np.linspace(0,80,200), smooth/smooth.max(0), 'r', ls = '-', lw = 0.5)
+# ax.scatter(theta_exp_80mm, np.divide(MxI_1_80mm, max(MxI_1_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = '80mm exp.')
+# ax.scatter(theta_exp_80mm, np.divide(MxI_2_80mm, max(MxI_2_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+# ax.scatter(theta_exp_80mm, np.divide(MxI_3_80mm, max(MxI_3_80mm)), marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+# ax.scatter(theta_exp_80mm_mean, np.divide(Mx_mean_80mm, max(Mx_mean_80mm)), marker="o", s=15., label = '80mm Exp Mean')
+# ax.set_ylabel('Peak specific impulse ratio')
+# ax.set_xlabel('Angle of incidence')
+# legend_elements = [Line2D([], [],  lw=0.5, linestyle = '-', color='r', label = 'CFD'), 
+#                    Line2D([], [],  color=[0.75,0.75,0.75], marker ='x', linestyle='None', markersize=4, label='Exp. repeats'),
+#                    Line2D([], [],   marker ='o', linestyle='None', markersize=4, label='Exp. mean')]
+# ax.legend(handles=legend_elements, loc='upper right', prop={'size':6})
+# ax.minorticks_on()
+# ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+# ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+# ax.set_xlim(0,80)
+# ax.set_ylim(0,1)
+# plt.tight_layout()
+#fig_dataset1.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_convergence_dataset1b.pdf', format = 'pdf')
 
 
 
@@ -356,63 +500,63 @@ z80mm_chosenmesh_adjustedi = np.max(Apollo_gauges_z80mm_chosenmesh[0][0:z80mm_ch
 
 
 
-fig2, ax = plt.subplots(1,1)
-fig2.set_size_inches(2.5,2.5)
-ax.scatter(theta_exp_80mm, MxI_1_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = 'Exp')
-ax.scatter(theta_exp_80mm, MxI_2_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(theta_exp_80mm, MxI_3_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(theta_exp_80mm_mean, Mx_mean_80mm/1e3, marker="o", s=15., label = 'Exp Mean')
-ax.plot(theta, savgol_filter(z80mm_chosenmesh_adjustedi/1e3,101,3), 'r', ls = '-', lw = 0.5, label = 'CFD')
-handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles, labels, loc='upper right', prop={'size':6})
-ax.set_ylim(0,5)
-ax.set_xlim(0,80)
-ax.set_xlabel('theta (degrees)')
-ax.set_ylabel('Peak specific impulse (MPa.ms)')
-ax.minorticks_on()
-ax.grid(which='minor', alpha=0.2)
-ax.grid(which='major', alpha=0.5) 
-plt.tight_layout()
-fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_convergence_z0_055_3.pdf', format = 'pdf')
+# fig2, ax = plt.subplots(1,1)
+# fig2.set_size_inches(2.5,2.5)
+# ax.scatter(theta_exp_80mm, MxI_1_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = 'Exp.')
+# ax.scatter(theta_exp_80mm, MxI_2_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+# ax.scatter(theta_exp_80mm, MxI_3_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
+# ax.scatter(theta_exp_80mm_mean, Mx_mean_80mm/1e3, marker="o", s=15., label = 'Exp. mean')
+# ax.plot(theta, savgol_filter(z80mm_chosenmesh_adjustedi/1e3,101,3), 'r', ls = '-', lw = 0.5, label = 'CFD')
+# handles, labels = ax.get_legend_handles_labels()
+# ax.legend(handles, labels, loc='upper right', prop={'size':6})
+# ax.set_ylim(0,5)
+# ax.set_xlim(0,80)
+# ax.set_xlabel('theta (degrees)')
+# ax.set_ylabel('Peak specific impulse (MPa.ms)')
+# ax.minorticks_on()
+# ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+# ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
+# plt.tight_layout()
+#fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_convergence_z0_055_3.pdf', format = 'pdf')
 
 
 
 fig2, ax = plt.subplots(1,1)
 fig2.set_size_inches(2.5,2.5)
-ax.scatter(abs(coords)*1e3, MxI_1_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = 'Exp')
-ax.scatter(abs(coords)*1e3, MxI_2_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(abs(coords)*1e3, MxI_3_80mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(np.arange(0,101,25), Mx_mean_80mm/1e3, marker="o", s=15., label = 'Exp Mean')
-ax.plot(0.08*np.tan(np.deg2rad(theta))*1e3, savgol_filter(z80mm_chosenmesh_adjustedi/1e3,101,3), 'r', ls = '-', lw = 1.5, label = 'CFD')
+ax.scatter(abs(coords)*1e3, MxI_1_80mm/1e3, marker="x", s=10., color='grey', edgecolors='none', label = 'Exp.')
+ax.scatter(abs(coords)*1e3, MxI_2_80mm/1e3, marker="x", s=10., color='grey', edgecolors='none')
+ax.scatter(abs(coords)*1e3, MxI_3_80mm/1e3, marker="x", s=10., color='grey', edgecolors='none')
+ax.scatter(np.arange(0,101,25), Mx_mean_80mm/1e3, marker="o", s=10., edgecolor = 'k', label = 'Exp. mean')
+ax.plot(0.08*np.tan(np.deg2rad(theta))*1e3, savgol_filter(z80mm_chosenmesh_adjustedi/1e3,101,3), 'r', ls = '-', lw = 1, label = 'CFD')
 handles, labels = ax.get_legend_handles_labels()
 ax.legend(handles, labels, loc='upper right', prop={'size':6})
 ax.set_ylim(0,5)
 ax.set_xlim(0,100)
-ax.set_xlabel('Radial ordinate from centre (mm)')
+ax.set_xlabel('Distance from centre (mm)')
 ax.set_ylabel('Peak specific impulse (MPa.ms)')
 ax.minorticks_on()
-ax.grid(which='minor', alpha=0.2)
-ax.grid(which='major', alpha=0.5) 
+ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
 plt.tight_layout()
-fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_80mm_val.pdf', format = 'pdf')
+fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_80mm_val.pdf', format = 'pdf')
 fig2, ax = plt.subplots(1,1)
 fig2.set_size_inches(2.5,2.5)
-ax.scatter(abs(coords)*1e3, MxI_1_380mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none', label = 'Exp')
-ax.scatter(abs(coords)*1e3, MxI_2_380mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(abs(coords)*1e3, MxI_3_380mm/1e3, marker="x", s=15., color=[0.75,0.75,0.75], edgecolors='none')
-ax.scatter(np.arange(0,101,25), Mx_mean_380mm/1e3, marker="o", s=15., label = 'Exp Mean')
-ax.plot(gtable380mm[0][:,2]*1e3,gtable380mm[0][:,7]/1e3, 'r', ls = '-', lw = 1.5, label = 'CFD')
+ax.scatter(abs(coords)*1e3, MxI_1_380mm/1e3, marker="x", s=10., color='grey', edgecolors='none', label = 'Exp.')
+ax.scatter(abs(coords)*1e3, MxI_2_380mm/1e3, marker="x", s=10., color='grey', edgecolors='none')
+ax.scatter(abs(coords)*1e3, MxI_3_380mm/1e3, marker="x", s=10., color='grey', edgecolors='none')
+ax.scatter(np.arange(0,101,25), Mx_mean_380mm/1e3, marker="o", s=10., edgecolor = 'k', label = 'Exp. mean')
+ax.plot(gtable380mm[0][:,2]*1e3,gtable380mm[0][:,7]/1e3, 'r', ls = '-', lw = 1, label = 'CFD')
 handles, labels = ax.get_legend_handles_labels()
 ax.legend(handles, labels, loc='upper right', prop={'size':6})
 ax.set_ylim(0,0.5)
 ax.set_xlim(0,100)
-ax.set_xlabel('Radial ordinate from centre (mm)')
+ax.set_xlabel('Distance from centre (mm)')
 ax.set_ylabel('Peak specific impulse (MPa.ms)')
 ax.minorticks_on()
-ax.grid(which='minor', alpha=0.2)
-ax.grid(which='major', alpha=0.5) 
+ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
 plt.tight_layout()
-fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\mesh_380mm_val.pdf', format = 'pdf')
+fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\mesh_380mm_val.pdf', format = 'pdf')
 
 
 # #-----------------------------------------------------------------------------
@@ -423,18 +567,19 @@ fig2.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_sp
 #theta = 0 
 fig7, [ax1, ax] = plt.subplots(1,2)
 fig7.set_size_inches(5, 1.8)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,4,0]/1e3, 'grey', linewidth=0.25, label = 'Experiments')
-#ax.plot(Apollo_gauges_z80mm_first[0][:,0]*1000, Apollo_gauges_z80mm_first[0][:,101]/1e3, 'k', lw = 0.75, label = '1.25mm')
-ax.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,201]/1e3, 'r', lw = 0.75, label = 'CFD')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,4,0]/1e3, 'grey',  label = 'Exp.')
+ax.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,201]/1e3, 'r', lw = 1, label = 'CFD')
 
 ax.set_xlim(0,0.15)
 ax.set_ylim(0,5)
 ax.set_xlabel('Time (ms)')
 ax.set_ylabel('Impulse (MPa.ms)')
+ax.minorticks_on()
+ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
 
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,4,0]/1e6, 'grey', linewidth=0.25,label = 'Exp: theta 0')
-#ax1.plot(Apollo_gauges_z80mm_first[0][:,0]*1000, Apollo_gauges_z80mm_first[0][:,1]/1e6, 'k', lw = 0.75)
-ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,1]/1e6, 'r', lw = 0.75)
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,4,0]/1e6, 'grey', label = 'Exp: theta 0')
+ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,1]/1e6, 'r', lw = 1)
 
 ax1.set_xlim(0,0.15)
 ax1.set_ylim(-50,250)
@@ -450,30 +595,36 @@ ax1.yaxis.set_major_locator(LinearLocator(4))
 ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 ax1.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
 handles, labels = ax.get_legend_handles_labels()
+ax1.minorticks_on()
+ax1.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax1.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
 ax.legend(handles, labels, loc='lower right', prop={'size':6})
-fig7.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation.pdf', format = 'pdf')
+fig7.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\80mm_validation.pdf', format = 'pdf')
 
 #theta = 17
 fig7a, [ax1, ax] = plt.subplots(1,2)
 fig7a.set_size_inches(5, 1.8)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,3,0]/1e3, 'grey',linewidth=0.25)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,5,0]/1e3, 'grey',linewidth=0.25)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,12,0]/1e3, 'grey',linewidth=0.25)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,13,0]/1e3, 'grey',linewidth=0.25)
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,3,0]/1e3, 'grey')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,5,0]/1e3, 'grey')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,12,0]/1e3, 'grey')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,13,0]/1e3, 'grey')
 #ax.plot(Apollo_gauges_z80mm_first[0][:,0]*1000, Apollo_gauges_z80mm_first[0][:,125]/1e3, 'k', lw = 0.75)
-ax.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,243]/1e3, 'r', lw = 0.75)
+ax.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,243]/1e3, 'r', lw = 1)
 
 ax.set_xlim(0,0.15)
 ax.set_ylim(0,5)
 ax.set_xlabel('Time (ms)')
 ax.set_ylabel('Impulse (MPa.ms)')
+ax.minorticks_on()
+ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
 
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,3,0]/1e6, 'grey',linewidth=0.25)
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,5,0]/1e6, 'grey',linewidth=0.25)
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,12,0]/1e6, 'grey',linewidth=0.25)
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,13,0]/1e6, 'grey',linewidth=0.25)
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,3,0]/1e6, 'grey')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,5,0]/1e6, 'grey')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,12,0]/1e6, 'grey')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,13,0]/1e6, 'grey')
 #ax1.plot(Apollo_gauges_z80mm_first[0][:,0]*1000, Apollo_gauges_z80mm_first[0][:,25]/1e6, 'k', lw = 0.75)
-ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,43]/1e6, 'r', lw = 0.75)
+ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,43]/1e6, 'r', lw = 1)
 
 ax1.set_xlim(0,0.15)
 ax1.set_ylim(-50,250)
@@ -488,29 +639,35 @@ ax1.xaxis.set_major_locator(LinearLocator(4))
 ax1.yaxis.set_major_locator(LinearLocator(4))
 ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 ax1.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-fig7a.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation_a.pdf', format = 'pdf')
+ax1.minorticks_on()
+ax1.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax1.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
+fig7a.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\80mm_validation_a.pdf', format = 'pdf')
 
 #theta = 32
 fig7b, [ax1, ax] = plt.subplots(1,2)
 fig7b.set_size_inches(5, 1.8)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,2,0]/1e3, 'grey',linewidth=0.25, label = 'Exp: theta 0')
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,6,0]/1e3, 'grey',linewidth=0.25)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,11,0]/1e3, 'grey',linewidth=0.25)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,14,0]/1e3, 'grey',linewidth=0.25)
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,2,0]/1e3, 'grey', label = 'Exp: theta 0')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,6,0]/1e3, 'grey')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,11,0]/1e3, 'grey')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,14,0]/1e3, 'grey')
 #ax.plot(Apollo_gauges_z80mm_first[0][:,0]*1000, Apollo_gauges_z80mm_first[0][:,150]/1e3, 'k', lw = 0.75)
-ax.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,280]/1e3, 'r', lw = 0.75)
+ax.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,280]/1e3, 'r', lw = 1)
 
 ax.set_xlim(0,0.15)
 ax.set_ylim(0,3)
 ax.set_xlabel('Time (ms)')
 ax.set_ylabel('Impulse (MPa.ms)')
+ax.minorticks_on()
+ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
 
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,2,0]/1e6, 'grey',linewidth=0.25, label = 'Exp: theta 0')
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,6,0]/1e6, 'grey',linewidth=0.25)
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,11,0]/1e6, 'grey',linewidth=0.25)
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,14,0]/1e6, 'grey',linewidth=0.25)
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,2,0]/1e6, 'grey', label = 'Exp: theta 0')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,6,0]/1e6, 'grey')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,11,0]/1e6, 'grey')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,14,0]/1e6, 'grey')
 #ax1.plot(Apollo_gauges_z80mm_first[0][:,0]*1000, Apollo_gauges_z80mm_first[0][:,50]/1e6, 'k', lw = 0.75)
-ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,80]/1e6, 'r', lw = 0.75)
+ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,80]/1e6, 'r', lw = 1)
 
 ax1.set_xlim(0,0.15)
 ax1.set_ylim(-50,150)
@@ -525,34 +682,43 @@ ax1.xaxis.set_major_locator(LinearLocator(4))
 ax1.yaxis.set_major_locator(LinearLocator(5))
 ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 ax1.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-fig7b.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation_b.pdf', format = 'pdf')
+ax1.minorticks_on()
+ax1.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax1.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
+fig7b.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\80mm_validation_b.pdf', format = 'pdf')
 
 #theta = 43
 fig7c, [ax1, ax] = plt.subplots(1,2)
 fig7c.set_size_inches(5, 1.8)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,1,0]/1e3, 'grey',linewidth=0.25, label = 'Exp: theta 0')
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,7,0]/1e3, 'grey',linewidth=0.25)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,10,0]/1e3, 'grey',linewidth=0.25)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,15,0]/1e3, 'grey',linewidth=0.25)
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,1,0]/1e3, 'grey', label = 'Exp: theta 0')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,7,0]/1e3, 'grey')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,10,0]/1e3, 'grey')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,15,0]/1e3, 'grey')
 #ax.plot(Apollo_gauges_z80mm_first[0][:,0]*1000, Apollo_gauges_z80mm_first[0][:,174]/1e3, 'k', lw = 0.75)
-ax.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,307]/1e3, 'r', lw = 0.75)
+ax.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,307]/1e3, 'r', lw = 1)
 
 ax.set_xlim(0,0.15)
 ax.set_ylim(0,2)
 ax.set_xlabel('Time (ms)')
 ax.set_ylabel('Impulse (MPa.ms)')
+ax.minorticks_on()
+ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
 
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,1,0]/1e6, 'grey',linewidth=0.25, label = 'Exp: theta 0')
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,7,0]/1e6, 'grey',linewidth=0.25)
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,10,0]/1e6, 'grey',linewidth=0.25)
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,15,0]/1e6, 'grey',linewidth=0.25)
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,1,0]/1e6, 'grey', label = 'Exp: theta 0')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,7,0]/1e6, 'grey')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,10,0]/1e6, 'grey')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,15,0]/1e6, 'grey')
 #ax1.plot(Apollo_gauges_z80mm_first[0][:,0]*1000, Apollo_gauges_z80mm_first[0][:,74]/1e6, 'k', lw = 0.75)
-ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,107]/1e6, 'r', lw = 0.75)
+ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,107]/1e6, 'r', lw = 1)
 
 ax1.set_xlim(0,0.15)
 ax1.set_ylim(-25,100)
 ax1.set_xlabel('Time (ms)')
 ax1.set_ylabel('Overpressure (MPa)')
+ax.minorticks_on()
+ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
 plt.tight_layout()
 ax.xaxis.set_major_locator(LinearLocator(4)) 
 ax.yaxis.set_major_locator(LinearLocator(3))
@@ -562,30 +728,36 @@ ax1.xaxis.set_major_locator(LinearLocator(4))
 ax1.yaxis.set_major_locator(LinearLocator(6))
 ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 ax1.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-fig7c.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation_c.pdf', format = 'pdf')
+ax1.minorticks_on()
+ax1.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax1.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
+fig7c.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\80mm_validation_c.pdf', format = 'pdf')
 
 #theta = 51
 fig7d, [ax1, ax] = plt.subplots(1,2)
 fig7d.set_size_inches(5, 1.8)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,0,0]/1e3, 'grey',linewidth=0.25, label = 'Exp: theta 0')
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,8,0]/1e3, 'grey',linewidth=0.25)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,9,0]/1e3, 'grey',linewidth=0.25)
-ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,16,0]/1e3, 'grey',linewidth=0.25)
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,0,0]/1e3, 'grey', label = 'Exp: theta 0')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,8,0]/1e3, 'grey')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,9,0]/1e3, 'grey')
+ax.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['impulse'][:,16,0]/1e3, 'grey')
 #ax.plot(Apollo_gauges_z80mm_first[0][:,0]*1000, Apollo_gauges_z80mm_first[0][:,198]/1e3, 'k', lw = 0.75)
-ax.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,327]/1e3, 'r', lw = 0.75)
+ax.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,327]/1e3, 'r', lw = 1)
 
 ax.set_xlim(0,0.15)
 ax.set_ylim(0,1)
 ax.set_xlabel('Time (ms)')
 ax.set_ylabel('Impulse (MPa.ms)')
+ax.minorticks_on()
+ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
 
 
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,0,0]/1e6, 'grey',linewidth=0.25, label = 'Exp: theta 0')
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,8,0]/1e6, 'grey',linewidth=0.25)
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,9,0]/1e6, 'grey',linewidth=0.25)
-ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,16,0]/1e6, 'grey',linewidth=0.25)
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,0,0]/1e6, 'grey', label = 'Exp: theta 0')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,8,0]/1e6, 'grey')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,9,0]/1e6, 'grey')
+ax1.plot(NF_80mm_exp['time'][:,0]*1000, NF_80mm_exp['pressure'][:,16,0]/1e6, 'grey')
 #ax1.plot(Apollo_gauges_z80mm_first[0][:,0]*1000, Apollo_gauges_z80mm_first[0][:,98]/1e6, 'k', lw = 0.75)
-ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,127]/1e6, 'r', lw = 0.75)
+ax1.plot(Apollo_gauges_z80mm_chosenmesh[0][:,0]*1000, Apollo_gauges_z80mm_chosenmesh[0][:,127]/1e6, 'r', lw = 1)
 
 ax1.set_xlim(0,0.15)
 ax1.set_ylim(-25,100)
@@ -600,6 +772,9 @@ ax1.xaxis.set_major_locator(LinearLocator(4))
 ax1.yaxis.set_major_locator(LinearLocator(6))
 ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 ax1.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-fig7d.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\80mm_validation_d.pdf', format = 'pdf')
+ax1.minorticks_on()
+ax1.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+ax1.grid(which='minor', ls=':',  dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25) 
+fig7d.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\80mm_validation_d.pdf', format = 'pdf')
 
 #------------------------------------------------------------------------------

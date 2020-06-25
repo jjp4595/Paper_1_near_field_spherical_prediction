@@ -817,7 +817,7 @@ def validationgraphs():
                  (val_lowZ['z'][0]**-1.663) * 0.557 *
                  np.exp(-(theta_ord_lowZ/160)**2 / (2*0.198**2)) ).reshape((7,1))
     
-    radial_ord_highZ = [0,0.625, 1.25, 1.875, 2.50]
+    radial_ord_highZ = [0,0.625, 1.25, 1.875, 2.250]
     theta_ord_highZ = np.rad2deg(np.arctan(np.divide(radial_ord_highZ, val_highZ['so'])))  
 
     highZi_eq6 = ( (250)**(1/3) * 

@@ -10,19 +10,34 @@ import os
 if __name__ == "__main__":
     
     params = {'font.family':'serif',
-        'axes.labelsize':'small',
-        'xtick.labelsize':'x-small',
-        'ytick.labelsize':'x-small', 
-        'lines.markersize': 2.5,
-        'legend.fontsize':'small',
-        'legend.title_fontsize':'small',
-        'legend.fancybox': True,
-        'legend.framealpha': 0.5,
-        'legend.shadow': False,
-        'legend.frameon': True,
-        'grid.linestyle':'--',
-        'grid.linewidth':'0.5',
-        'lines.linewidth':'0.5'}
+            'axes.labelsize':'small',
+            'xtick.labelsize':'x-small',
+            'ytick.labelsize':'x-small', 
+            'axes.linewidth':0.5,
+            
+            'xtick.major.width':0.5,
+            'xtick.minor.width':0.4,
+            'ytick.major.width':0.5,
+            'ytick.minor.width':0.4,
+            'xtick.major.size':3.0,
+            'xtick.minor.size':1.5,
+            'ytick.major.size':3.0,
+            'ytick.minor.size':1.5,
+            
+            'legend.fontsize':'small',
+            'legend.title_fontsize':'small',
+            'legend.fancybox': False,
+            'legend.framealpha': 1,
+            'legend.shadow': False,
+            'legend.frameon': True,
+            'legend.edgecolor':'black',
+            'patch.linewidth':0.5,
+            
+            'scatter.marker': 's',
+            
+            'grid.linewidth':'0.5',
+            
+            'lines.linewidth':'0.5'}
     plt.rcParams.update(params)
     
     #Graph ------------------------------------------------------------------------
@@ -58,12 +73,12 @@ if __name__ == "__main__":
     ax.set_xlabel('Scaled distance $(m/kg^{1/3})$', fontsize='x-small')
     ax.set_ylabel('Scaled specific impulse ($MPa.ms/kg^{1/3}$)', fontsize='x-small')
     ax.minorticks_on()
-    ax.grid(which='minor', alpha=0.2)
-    ax.grid(which='major', alpha=0.5)
+    ax.grid(which='minor', ls=':', dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+    ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, labels,  loc='upper right', prop={'size':6})
     plt.tight_layout()
-    fig.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper_1_near_field_spherical_prediction\Graphs\theta_peak_impulse_MCEER_curves.pdf"), format = 'pdf')
+    fig.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper1\Graphs\theta_peak_impulse_MCEER_curves.pdf"), format = 'pdf')
 
 def MCEER(R, W):
     """

@@ -7,25 +7,25 @@ import os
 #Standoffs/Scaled Distances
 #z = np.arange(0.16+0.02625, 0.51, 0.02625)
 
-z = [0.17, 0.40]
+z = [0.1000]
 
 #meta variables 
 no_exps = len(z)
 
 
 #Charge info
-mass = [5, 250]
+mass = 0.1
 charge_rad = 0.0246
 tnt_eq = 1
 shape_ratio = 0 #0 for sphere
 
 #Stages Variables
-term_time = [0.005 for i in range(no_exps)]
+term_time = [0.003 for i in range(no_exps)]
 
 #Model
 res_level = [5 for i in range(no_exps)]
 
-zone_length = []
+zone_length = [0.1]
 
 
 #Output and theta range
@@ -82,7 +82,7 @@ def reflected_file_creator(mass, tnt_eq, shape_ratio, term_time, res_level, zone
         x_max = myround(max(gauges_xloc) * 1.3, zone_length[i])
         x_max = round(x_max, 4)
         
-        #x_max = 1.5 #fixing domain size @ 1.5m3
+        x_max = 1.5 #fixing domain size @ 1.5m3
         y_max = x_max
         z_max = y_max
                       
