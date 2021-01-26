@@ -73,7 +73,51 @@ latest_var_r4_gauges = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google
 testing_DMA_gauges = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z055_16_latest\testing_DMA\*gauges", 1)
 
 
+large_dataset_gauges = pre.FileAddressList(os.environ['USERPROFILE'] + r"\Google Drive\Apollo Sims\Impulse Distribution Curve Modelling\Paper_1\Sphere\main_z16_5\*gauges",1)
+plt.plot(latest_1500_r5_gauges[-1][:,0], latest_1500_r5_gauges[-1][:,400])#check last gauge
 
+for j in range(len(large['z'])):
+    plt.figure()
+    for i in [250, 275, 300, 325, 375, 400]:
+        plt.plot(large_dataset_gauges[j][:,0], large_dataset_gauges[j][:,i])
+
+
+for i in [201, 250, 275, 300, 325, 375, 400]:
+        plt.plot(large_dataset_gauges[-1][:,0], large_dataset_gauges[-1][:,i], 'k')
+        plt.plot(large_dataset_gauges[-2][:,0], large_dataset_gauges[-2][:,i], 'r')
+labels = ['Z = 0.55', 'Z = 0.53']
+colors = ['k', 'r']
+lws = [1, 1]
+lss = ['-', '-']
+lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
+plt.legend(lines,labels, loc='upper right', prop={'size':10})
+plt.xlabel('Time (s)')
+plt.ylabel('Impulse (Pa.s)')
+
+
+plt.plot(np.linspace(0,80,200),large['imp'][:,-1], 'k')
+plt.plot(np.linspace(0,80,200),large['imp_smooth'][:,-1], 'k--')
+plt.plot(np.linspace(0,80,200),large['imp_smooth'][:,-2], 'r')
+labels = ['Z = 0.55 Unsmoothed', 'Z = 0.55 Smoothed', 'Z=0.53 Smoothed']
+colors = ['k', 'k', 'r']
+lws = [1, 1, 1]
+lss = ['-', '--', '-']
+lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
+plt.legend(lines,labels, loc='upper right', prop={'size':10})
+plt.xlabel('Angle')
+plt.ylabel('Peak specific impulse (Pa.s)')
+
+
+plt.plot(np.linspace(0,80,200),large['icr'][:,-1], 'k')
+plt.plot(np.linspace(0,80,200),large['icr'][:,-2], 'r')
+labels = ['Z = 0.55', 'Z=0.53']
+colors = ['k', 'r']
+lws = [1, 1]
+lss = ['-', '-']
+lines = [Line2D([0], [0],  lw=lws[i], ls = lss[i], color=colors[i]) for i in range(len(labels))]
+plt.legend(lines,labels, loc='upper right', prop={'size':10})
+plt.xlabel('Angle')
+plt.ylabel('Normalised specific impulse')
 
 
 

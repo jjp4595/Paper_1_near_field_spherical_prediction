@@ -193,6 +193,7 @@ def Impulse_CFD(specific_impulse, R, theta_lim, theta):
     I = np.sum(Imp)
     return I
 
+
 def TotalImpulseCalc(specific_impulse, R, theta_lim, theta):
     """
     i is impulse distribution to be interpolated

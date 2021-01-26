@@ -7,14 +7,13 @@ import os
 #Standoffs/Scaled Distances
 #z = np.arange(0.16+0.02625, 0.51, 0.02625)
 
-z = [0.1000]
 
 #meta variables 
 no_exps = len(z)
 
 
 #Charge info
-mass = 0.1
+mass = 1
 charge_rad = 0.0246
 tnt_eq = 1
 shape_ratio = 0 #0 for sphere

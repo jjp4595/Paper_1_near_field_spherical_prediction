@@ -5,7 +5,8 @@ Peak impulse predictor for theta.
 import preamble_functions as pre
 import matplotlib.pyplot as plt #3.0.2
 from matplotlib.lines import Line2D
-from matplotlib.ticker import LinearLocator, FixedLocator, FormatStrFormatter
+from matplotlib.ticker import LinearLocator, FixedLocator, FormatStrFormatter, MultipleLocator
+from mpl_toolkits.mplot3d import Axes3D
 from scipy.signal import savgol_filter
 import math
 import numpy as np #1.15.4
@@ -248,17 +249,17 @@ def graph_dataset_overview(dataset, reduced=None):
     
     plt.tight_layout()
 
-    # fig3, ax = plt.subplots(1,1)
-    # fig3.set_size_inches(2.5, 2.5)
-    # ax.plot(theta, dataset['icr'], lw = 0.5, ls = '-', c='k')
-    # ax.set_xlabel('Angle of incidence (degrees)')
-    # ax.set_ylabel('Normalised peak specific impulse')
-    # ax.minorticks_on()
-    # ax.set_xlim(0,80)
-    # ax.set_ylim(0,1)
-    # ax.grid(which='minor', ls=':', dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
-    # ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
-    # plt.tight_layout()
+    fig3, ax = plt.subplots(1,1)
+    fig3.set_size_inches(2.5, 2.5)
+    ax.plot(theta, dataset['icr'], lw = 0.5, ls = '-', c='k')
+    ax.set_xlabel('Angle of incidence (degrees)')
+    ax.set_ylabel('Normalised peak specific impulse')
+    ax.minorticks_on()
+    ax.set_xlim(0,80)
+    ax.set_ylim(0,1)
+    ax.grid(which='minor', ls=':', dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+    ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+    plt.tight_layout()
     
     if reduced == None:
         fig2, ax = plt.subplots(1,1)
@@ -290,15 +291,16 @@ def graph_dataset_overview(dataset, reduced=None):
         plt.tight_layout()
     
 
-    return fig0, fig2
-fig0, fig2 = graph_dataset_overview(small)
+    return fig0, fig2, fig3
+fig0, fig2, fig3 = graph_dataset_overview(small)
 fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper1\Graphs\data_overview_small_a.pdf"), format = 'pdf')
 fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper1\Graphs\data_overview_small_b_test.pdf"), format = 'pdf')
 # fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper1\Graphs\data_overview_small_c.pdf"), format = 'pdf')
 
-fig0, fig2 = graph_dataset_overview(large, 1)
+fig0, fig2, fig3 = graph_dataset_overview(large, 1)
 fig0.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper1\Graphs\data_overview_large_a.pdf"), format = 'pdf')
 fig2.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper1\Graphs\data_overview_large_b_test.pdf"), format = 'pdf')
+fig3.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper1\Graphs\normalised_amended.pdf"), format = 'pdf')
 #.savefig(os.path.join(os.environ['USERPROFILE'] + r"\Dropbox\Papers\Paper1\Graphs\data_overview_large_c.pdf"), format = 'pdf')
 
 def plot_model_surfaces_RPB(dataset, eq_TNT):    
@@ -905,6 +907,118 @@ def validationgraphs():
     # ax3.set_xlim(0,0.03)
     # ax4.plot(data250kg[0][:,0],data250kg[0][:,400])#imp
     # ax4.set_xlim(0,0.03)  
+    
+    #---Additional graph for the off-centre charge
+    A = 0.2  
+    B = A
+    #Charge offset location
+    Cx, Cy = A/4, A/4
+    R = 0.291 #0.291m away from target centre
+    #Plate dimensions
+
+    res = 200
+    x = np.linspace(-A/2, A/2, res)
+    y = np.linspace(-B/2, B/2, res)
+    [X,Y] = np.meshgrid(x,y)
+    r = ((X-Cx)**2 + (Y - Cy)**2)**0.5 #distance from projection of charge centre to target centre
+    theta_array = np.rad2deg(np.arctan(r/R))
+    ir_CFD = np.interp(theta_array, np.linspace(0,80,200), val_lowZ['imp_smooth'].reshape(200)) / (1000) #scaled MPa.ms
+    ir_model = ( (5**(1/3)*(val_lowZ['z'][0]**-1.858) * 0.383 * np.exp(-(theta_array/160)**2 / (2*0.189**2)) )) #scaled MPa.ms
+    #Graph coords
+    gX, gY = x, y
+    [gX, gY] = np.meshgrid(gX,gY)
+
+    # fig, ax = plt.subplots(1,1)
+    # fig.set_size_inches(3, 2.5)
+    # CS = ax.contourf(gX,gY, ir_CFD, levels = np.linspace(8,18,50), cmap = plt.cm.magma_r)
+    # ax = plt.axes(projection ='3d') 
+    # CS = ax.plot_surface(gX, gY, ir_CFD, cmap = plt.cm.magma_r)
+    # cbar = fig.colorbar(CS, format='%.0f' ,ticks = np.linspace(8,18,6))
+    # cbar.ax.set_ylabel('Peak specific impulse '+r'$(MPa.ms$)', fontsize = 'x-small')
+    # ax.set_ylabel('Y co-ordinate (m)')
+    # ax.set_xlabel('X co-ordinate (m)')    
+    # ax.yaxis.set_major_locator(LinearLocator(5)) 
+    # plt.tight_layout()
+    # fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\offset_validation_CFD.pdf', format = 'pdf')
+    
+    # fig, ax = plt.subplots(1,1)
+    # fig.set_size_inches(3, 2.5)
+    # #CS = ax.contourf(gX,gY, ir_model, levels = np.linspace(8,18,50), cmap = plt.cm.magma_r)
+    # cbar = fig.colorbar(CS, format='%.0f' ,ticks = np.linspace(8,18,6))
+    # cbar.ax.set_ylabel('Peak specific impulse '+r'$(MPa.ms$)', fontsize = 'x-small')
+    # ax.set_ylabel('Y co-ordinate (m)')
+    # ax.set_xlabel('X co-ordinate (m)')    
+    # ax.yaxis.set_major_locator(LinearLocator(5)) 
+    # plt.tight_layout()
+    # fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\offset_validation_model.pdf', format = 'pdf')
+    
+
+    fig, ax = plt.subplots(1,1)
+    fig.set_size_inches(3.5, 2.5)    
+    ax = plt.axes(projection ='3d')
+    ax.view_init(30, -113)
+    CS = ax.plot_surface(gX, gY, ir_CFD, vmin = 8, vmax = 18, cmap = plt.cm.magma_r)
+    cbar = fig.colorbar(CS, format='%.0f', ax = ax,  
+                        ticks = np.linspace(8,18,6),
+                        shrink = 0.8, 
+                        pad = -0.05)
+    
+    titletext = ['Peak specific impulse '+r'$(MPa.ms$)']
+    titlelabels = ['\n'.join(wrap(l, 20)) for l in titletext]
+    cbar.ax.yaxis.set_major_locator(LinearLocator(6))
+    ax.tick_params(pad = 0.35, labelsize = 'x-small')
+    cbar.ax.set_title(titlelabels[0], fontsize = 'x-small')
+    ax.set_ylabel('Y', fontsize = 'x-small', labelpad = -3)
+    ax.set_xlabel('X', fontsize = 'x-small', labelpad = -3)   
+    ax.set_zlabel('Peak specific impulse '+r'$(MPa.ms$)', fontsize = 'x-small', labelpad = -3) 
+    ax.set_xlim(-A/2, A/2)
+    ax.set_ylim(-A/2, A/2)
+    ax.set_zlim(8, 18)
+    #ax.xaxis.set_minor_locator(MultipleLocator(0.04))
+    #ax.yaxis.set_minor_locator(MultipleLocator(0.04))
+    ax.xaxis.set_major_locator(LinearLocator(3)) 
+    ax.yaxis.set_major_locator(LinearLocator(3)) 
+    ax.zaxis.set_major_locator(LinearLocator(6))
+    ax.grid(which='minor', ls=':', dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+    ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+    ax.set_proj_type('ortho')
+    plt.tight_layout()
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\offset_validation_CFD.pdf', format = 'pdf')
+    
+    fig, ax = plt.subplots(1,1)
+    fig.set_size_inches(3.5, 2.5)    
+    ax = plt.axes(projection ='3d')
+    ax.view_init(30, -113)
+    CS = ax.plot_surface(gX, gY, ir_model, vmin = 8, vmax = 18, cmap = plt.cm.magma_r)
+    cbar = fig.colorbar(CS, format='%.0f', ax = ax,  
+                        ticks = np.linspace(8,18,6),
+                        shrink = 0.8, 
+                        pad = -0.05)
+    
+    titletext = ['Peak specific impulse '+r'$(MPa.ms$)']
+    titlelabels = ['\n'.join(wrap(l, 20)) for l in titletext]
+    cbar.ax.yaxis.set_major_locator(LinearLocator(6))
+    ax.tick_params(pad = 0.35, labelsize = 'x-small')
+    cbar.ax.set_title(titlelabels[0], fontsize = 'x-small')
+    ax.set_ylabel('Y', fontsize = 'x-small', labelpad = -3)
+    ax.set_xlabel('X', fontsize = 'x-small', labelpad = -3)   
+    ax.set_zlabel('Peak specific impulse '+r'$(MPa.ms$)', fontsize = 'x-small', labelpad = -3) 
+    ax.set_xlim(-A/2, A/2)
+    ax.set_ylim(-A/2, A/2)
+    ax.set_zlim(8, 18)
+    #ax.xaxis.set_minor_locator(MultipleLocator(0.04))
+    #ax.yaxis.set_minor_locator(MultipleLocator(0.04))
+    ax.xaxis.set_major_locator(LinearLocator(3)) 
+    ax.yaxis.set_major_locator(LinearLocator(3)) 
+    ax.zaxis.set_major_locator(LinearLocator(6))
+    ax.grid(which='minor', ls=':', dashes=(1,5,1,5), color = [0.1, 0.1, 0.1], alpha=0.25)
+    ax.grid(which='major', ls = '-', color = [0.15, 0.15, 0.15], alpha=0.15)
+    ax.set_proj_type('ortho')
+    plt.tight_layout()
+    fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\offset_validation_model.pdf', format = 'pdf')   
+
+    
+    
 validationgraphs()
 
 def impulse_validation():
@@ -929,3 +1043,4 @@ def impulse_validation():
     plt.tight_layout()
     fig.savefig(os.environ['USERPROFILE'] + r'\Dropbox\Papers\Paper1\Graphs\geretto_val.pdf', format = 'pdf')
 impulse_validation()
+    
